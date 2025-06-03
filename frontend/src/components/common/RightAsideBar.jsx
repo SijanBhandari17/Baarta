@@ -26,7 +26,7 @@ function UpcommingEvents() {
 
 function SingleEvents({ event }) {
   return (
-    <div className="individual-upcomming-event mb-4 flex gap-2">
+    <div className="individual-upcomming-event mb-4 flex gap-4">
       <img src={CalenderIcon} alt="Calender Icon" width="20px" height="20px" />
       <div className="upcomming-event-info">
         <h2 className="text-body text-font">{event.title}</h2>

@@ -8,12 +8,8 @@ function LandingPage() {
     <div className="flex h-screen flex-col">
       <Header />
       <div className="flex flex-1">
-        <div className="flex flex-1">
-          <MainContent />
-        </div>
-        <div className="flex max-w-80">
-          <RightAsideBar />
-        </div>
+        <MainContent />
+        <RightAsideBar />
       </div>
     </div>
   );
@@ -21,7 +17,7 @@ function LandingPage() {
 
 function MainContent() {
   return (
-    <div className="bg-main-elements flex-1 px-8 py-6">
+    <div className="bg-main-elements flex flex-1 flex-col px-8 py-6">
       <h1 className="text-font text-hero mx-2 my-2 font-semibold">
         Where Academia Meets Innovation
       </h1>
@@ -45,7 +41,7 @@ function LiveDiscussions() {
               key={index}
               className="bg-layout-elements-focus rounded-button-round m-2 flex w-[45%] flex-col gap-3 px-4 py-6"
             >
-              <h1 className="text-font text-title font-semibold">{item.title}</h1>
+              <h1 className="text-font text-title cursor-pointer font-semibold">{item.title}</h1>
               <p className="text-font-light/60">{item.genre}</p>
               <div className="flex gap-4">
                 <p className="text-font before:content-[' '] before:mr-1 before:inline-block before:size-[10px] before:rounded-full before:bg-green-500">
@@ -65,7 +61,7 @@ function LiveDiscussions() {
 
 function StatusContent() {
   return (
-    <div className="mx-2 my-8 flex w-full gap-4">
+    <div className="mx-2 my-8 flex w-full cursor-pointer gap-4">
       {totalCommunityStatus.map((item, index) => {
         return (
           <div

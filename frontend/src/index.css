@@ -1,0 +1,17 @@
+@import 'tailwindcss';
+@theme {
+  --color-royalpurple-dark: #8b008b;
+  --color-layout-elements: #242424;
+  --color-main-elements: #1a1a1a;
+  --color-layout-elements-focus: #3a3a3a;
+  --color-font: #fff;
+  --color-font-light: #efeeea;
+
+  --text-hero: 32px;
+  --text-title: 24px;
+  --text-body: 18px;
+  --text-small: 14px;
+
+  --spacing-button-padding: 8px;
+  --radius-button-round: 8px;
+}

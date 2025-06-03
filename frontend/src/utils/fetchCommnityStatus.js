@@ -1,6 +1,6 @@
 import DepartmentSrc from '../assets/icons/department.svg';
-import ThreadSrc from '../assets/icons/message-square-svgrepo-com.svg';
-import ActiveStatusSrc from '../assets/icons/users-svgrepo-com.svg';
+import ThreadSrc from '../assets/icons/thread.svg';
+import ActiveStatusSrc from '../assets/icons/activeusers.svg';
 
 const communityStatus = [
   {

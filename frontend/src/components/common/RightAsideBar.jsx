@@ -5,7 +5,7 @@ import { communityStatus } from '../../utils/fetchCommnityStatus';
 
 function RightAsideBar() {
   return (
-    <aside className="bg-layout-elements flex max-w-80 flex-col items-center p-6">
+    <aside className="bg-layout-elements max-w-full border border-l-white/10 p-6">
       <UpcommingEvents />
       <ActivePoll />
       <CommunityStatus />
@@ -15,8 +15,8 @@ function RightAsideBar() {
 
 function UpcommingEvents() {
   return (
-    <div className="upcomming-events">
-      <h1 className="text-title text-font mb-2 font-semibold">Upcomming Events</h1>
+    <div className="upcomming-events mb-8 w-full">
+      <h1 className="text-title text-font mb-4 font-semibold">Upcomming Events</h1>
       {upcommingEventsArray.map((item, index) => (
         <SingleEvents event={item} key={index} />
       ))}
@@ -26,7 +26,7 @@ function UpcommingEvents() {
 
 function SingleEvents({ event }) {
   return (
-    <div className="individual-upcomming-event mb-4 flex gap-4">
+    <div className="individual-upcomming-event mb-4 flex items-center gap-2">
       <img src={CalenderIcon} alt="Calender Icon" width="20px" height="20px" />
       <div className="upcomming-event-info">
         <h2 className="text-body text-font">{event.title}</h2>
@@ -40,7 +40,7 @@ function SingleEvents({ event }) {
 
 function ActivePoll() {
   return (
-    <div className="active-poll bg-layout-elements-focus rounded-button-round my-4 flex w-60 flex-col items-center border border-white/10">
+    <div className="active-poll bg-layout-elements-focus rounded-button-round mb-8 w-full border border-white/10">
       <h1 className="text-title text-font my-2 ml-5 font-semibold">Active Poll</h1>
       {activePollArray.map((item, index) => {
         return <SinglePolls poll={item} key={index} />;
@@ -52,7 +52,7 @@ function ActivePoll() {
 function SinglePolls({ poll }) {
   return (
     <div className="active-polls mb-2 flex w-full flex-col items-center gap-2">
-      <h2 className="text-body text-font mb-4 text-center">{poll.title}</h2>
+      <h2 className="text-body text-font m-5">{poll.title}</h2>
 
       <div className="relative mb-2 h-2 w-5/6 rounded-2xl bg-[#E0B0FF]">
         <div
@@ -77,12 +77,12 @@ function SinglePolls({ poll }) {
 
 function CommunityStatus() {
   return (
-    <div className="community-satus mt-2">
+    <div className="community-satus width-full mt-2">
       <h1 className="text-title text-font my-4 font-semibold">Community Status</h1>
       <div>
         {communityStatus.map((item, index) => {
           return (
-            <div key={index} className="mb-4 flex items-center gap-1">
+            <div key={index} className="mb-4 flex items-center gap-4">
               <img src={item.imgSrc} />
               <p className="text-body text-font">{item.title}</p>
               <p className="text-font ml-auto font-semibold">{item.count}</p>

@@ -7,4 +7,5 @@ const activePollArray = [
     noCountPercentage: '17',
   },
 ];
+
 export default activePollArray;

@@ -1,8 +1,13 @@
 import { useState } from 'react';
+import DefaultUserPic from '../../assets/icons/defaultUser.svg';
 import BaartaIcon from '../../assets/icons/Baarta.svg';
 import GoogleIcon from '../../assets/icons/googleIcon.svg';
 import GithubIcon from '../../assets/icons/githubIcon.svg';
 import SearchIcon from '../../assets/icons/searchIcon.svg';
+import NotificationIcon from '../../assets/icons/notifications.svg';
+import isAuthenticated from '../../main';
+
+const notificationCount = 3;
 
 function Header() {
   return (
@@ -11,8 +16,31 @@ function Header() {
         <img src={BaartaIcon} alt="Baarta Icon" className="cursor-pointer" />
         <SearchBar />
       </div>
-      <AuthenticateOptions className="flex" />
+      {isAuthenticated ? <ProfileSection /> : <AuthenticateOptions />}
     </nav>
+  );
+}
+
+function ProfileSection() {
+  return (
+    <div className="flex">
+      <div className="relative">
+        <img
+          src={NotificationIcon}
+          alt="Notification Icon"
+          className="hover:bg-layout-elements-focus cursor-pointer rounded-[0.4rem] p-2"
+        />
+        <p className="absolute top-1 right-2 flex min-h-[1.5rem] min-w-[1.5rem] cursor-pointer items-center justify-center rounded-full bg-red-600 text-[1rem] text-white">
+          {notificationCount}
+        </p>
+      </div>
+      <div className="flex size-[56px] items-center justify-center">
+        <img
+          src={DefaultUserPic}
+          className="hover:bg-layout-elements-focus cursor-pointer rounded-full p-2"
+        />
+      </div>
+    </div>
   );
 }
 
@@ -36,9 +64,9 @@ function SearchBar() {
   );
 }
 
-function AuthenticateOptions({ className = ' ' }) {
+function AuthenticateOptions() {
   return (
-    <div className={`${className}`}>
+    <div className="flex">
       <img
         src={GoogleIcon}
         alt="Google Icon"

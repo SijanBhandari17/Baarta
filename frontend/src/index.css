@@ -1,4 +1,13 @@
 @import 'tailwindcss';
+
+@layer base {
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+}
+
 @theme {
   --color-royalpurple-dark: #8b008b;
   --color-layout-elements: #242424;
@@ -6,12 +15,10 @@
   --color-layout-elements-focus: #3a3a3a;
   --color-font: #fff;
   --color-font-light: #efeeea;
-
-  --text-hero: 32px;
+  --text-hero: 38px;
   --text-title: 24px;
   --text-body: 18px;
   --text-small: 14px;
-
   --spacing-button-padding: 8px;
   --radius-button-round: 8px;
 }

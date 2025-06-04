@@ -1,6 +1,9 @@
-import DepartmentSrc from '../assets/icons/department.svg';
-import ThreadSrc from '../assets/icons/message-square-svgrepo-com.svg';
-import ActiveStatusSrc from '../assets/icons/users-svgrepo-com.svg';
+import DepartmentSrc from '../assets/icons/departments.svg';
+import ThreadSrc from '../assets/icons/thread.svg';
+import ActiveStatusSrc from '../assets/icons/activeusers.svg';
+import StudentSrc from '../assets/icons/student.svg';
+import FacultySrc from '../assets/icons/faculty.svg';
+import ResearcherSrc from '../assets/icons/researcher.svg';
 
 const communityStatus = [
   {
@@ -22,19 +25,19 @@ const communityStatus = [
 
 const totalCommunityStatus = [
   {
-    title: 'Student',
+    title: 'Students',
     membersCount: '15,000+',
-    imgSrc: ActiveStatusSrc,
+    imgSrc: StudentSrc,
   },
   {
     title: 'Faculty',
     membersCount: '2,500+',
-    imgSrc: ActiveStatusSrc,
+    imgSrc: FacultySrc,
   },
   {
     title: 'Researcher',
     membersCount: '5,000+',
-    imgSrc: ActiveStatusSrc,
+    imgSrc: ResearcherSrc,
   },
 ];
 

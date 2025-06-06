@@ -9,7 +9,7 @@
     "forum_request_id": ["req001"],
     "profile_id": "img_a1",
     "refreshToken": "",
-    "userRoles": ["user"]
+    "user_roles": ["user"]
   },
   {
     "email": "bob@example.com",
@@ -21,7 +21,7 @@
     "forum_request_id": [],
     "profile_id": "img_b2",
     "refreshToken": "",
-    "userRoles": ["moderator", "user"]
+    "user_roles": ["moderator", "user"]
   },
   {
     "email": "carol@example.com",
@@ -33,7 +33,7 @@
     "forum_request_id": ["req002", "req003"],
     "profile_id": "img_c3",
     "refreshToken": "",
-    "userRoles": ["user"]
+    "user_roles": ["user"]
   },
   {
     "email": "dave@example.com",
@@ -45,7 +45,7 @@
     "forum_request_id": [],
     "profile_id": "img_d4",
     "refreshToken": "",
-    "userRoles": ["user"]
+    "user_roles": ["user"]
   },
   {
     "email": "eve@example.com",
@@ -57,7 +57,7 @@
     "forum_request_id": [],
     "profile_id": "img_e5",
     "refreshToken": "",
-    "userRoles": ["admin", "user"]
+    "user_roles": ["admin", "user"]
   },
   {
     "email": "frank@example.com",
@@ -69,7 +69,7 @@
     "forum_request_id": ["req004"],
     "profile_id": "img_f6",
     "refreshToken": "",
-    "userRoles": ["user"]
+    "user_roles": ["user"]
   },
   {
     "email": "grace@example.com",
@@ -81,7 +81,7 @@
     "forum_request_id": [],
     "profile_id": "img_g7",
     "refreshToken": "",
-    "userRoles": ["moderator", "user"]
+    "user_roles": ["moderator", "user"]
   },
   {
     "email": "hank@example.com",
@@ -93,7 +93,7 @@
     "forum_request_id": ["req005"],
     "profile_id": "img_h8",
     "refreshToken": "",
-    "userRoles": ["user"]
+    "user_roles": ["user"]
   },
   {
     "email": "ivy@example.com",
@@ -105,7 +105,7 @@
     "forum_request_id": [],
     "profile_id": "img_i9",
     "refreshToken": "",
-    "userRoles": ["user"]
+    "user_roles": ["user"]
   },
   {
     "email": "john@example.com",
@@ -117,6 +117,6 @@
     "forum_request_id": ["req006", "req007"],
     "profile_id": "img_j10",
     "refreshToken": "",
-    "userRoles": ["admin", "moderator", "user"]
+    "user_roles": ["admin", "moderator", "user"]
   }
 ]

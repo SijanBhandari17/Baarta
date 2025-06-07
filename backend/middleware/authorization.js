@@ -1,7 +1,8 @@
 const userDB = {
-  users : "../models/User.json",
+  users : require('../models/User.json'),
   setUser : function (data) { this.users = data}
 }
+
 
 const ROLES_LIST = require('../config/roles_list');
 

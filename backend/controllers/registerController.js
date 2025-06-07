@@ -34,7 +34,7 @@ const handleNewUser = async (req ,res)=> {
   const newUser =   {
     "email": user_email,
     "password": hash_password,
-    "user_name": username,
+    "username": username,
     "no_post": 0,
     "no_replies": 0,
     "forum_id": [],

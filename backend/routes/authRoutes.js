@@ -1,31 +1,10 @@
+//// password validation , email conflict , authorization are checked and done in authController.js . 
+///////  basic password length , username validation should be done by frontend , not giving much load to backend for minor twicks/////
+
 const express = require('express');
-const { check } = require('express-validator');
-const validate = require('../middleware/validation');
-const { register, login } = require('../controllers/authController');
-
 const router = express.Router();
+const handleLogin = require('../controllers/authController');
 
-// Register route
-router.post(
-  '/register',
-  [
-    check('username', 'Username must be at least 3 characters').isLength({ min: 3 }),
-    check('email', 'Invalid email').isEmail(),
-    check('password', 'Password must be at least 6 characters').isLength({ min: 6 }),
-  ],
-  validate,
-  register
-);
-
-// Login route
-router.post(
-  '/login',
-  [
-    check('username', 'Username is required').notEmpty(),
-    check('password', 'Password is required').notEmpty(),
-  ],
-  validate,
-  login
-);
+router.post('/' , handleLogin);
 
 module.exports = router;

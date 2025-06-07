@@ -2,7 +2,7 @@
   {
     "email": "alice@example.com",
     "password": "hashed_pw_1",
-    "user_name": "alice_wonder",
+    "username": "alice_wonder",
     "no_post": 5,
     "no_replies": 12,
     "forum_id": ["f101", "f202"],
@@ -14,7 +14,7 @@
   {
     "email": "bob@example.com",
     "password": "hashed_pw_2",
-    "user_name": "bobby23",
+    "username": "bobby23",
     "no_post": 8,
     "no_replies": 3,
     "forum_id": ["f102"],
@@ -26,7 +26,7 @@
   {
     "email": "carol@example.com",
     "password": "hashed_pw_3",
-    "user_name": "carol_91",
+    "username": "carol_91",
     "no_post": 2,
     "no_replies": 7,
     "forum_id": ["f101", "f203"],
@@ -38,7 +38,7 @@
   {
     "email": "dave@example.com",
     "password": "hashed_pw_4",
-    "user_name": "daveD",
+    "username": "daveD",
     "no_post": 0,
     "no_replies": 0,
     "forum_id": [],
@@ -50,7 +50,7 @@
   {
     "email": "eve@example.com",
     "password": "hashed_pw_5",
-    "user_name": "eve_secure",
+    "username": "eve_secure",
     "no_post": 14,
     "no_replies": 30,
     "forum_id": ["f104"],
@@ -62,7 +62,7 @@
   {
     "email": "frank@example.com",
     "password": "hashed_pw_6",
-    "user_name": "frankie",
+    "username": "frankie",
     "no_post": 1,
     "no_replies": 4,
     "forum_id": ["f105", "f101"],
@@ -74,7 +74,7 @@
   {
     "email": "grace@example.com",
     "password": "hashed_pw_7",
-    "user_name": "grace_hopper",
+    "username": "grace_hopper",
     "no_post": 18,
     "no_replies": 41,
     "forum_id": ["f106"],
@@ -86,7 +86,7 @@
   {
     "email": "hank@example.com",
     "password": "hashed_pw_8",
-    "user_name": "hank_22",
+    "username": "hank_22",
     "no_post": 3,
     "no_replies": 9,
     "forum_id": ["f102", "f107"],
@@ -98,7 +98,7 @@
   {
     "email": "ivy@example.com",
     "password": "hashed_pw_9",
-    "user_name": "ivy_leaf",
+    "username": "ivy_leaf",
     "no_post": 7,
     "no_replies": 11,
     "forum_id": ["f101"],
@@ -110,7 +110,7 @@
   {
     "email": "john@example.com",
     "password": "hashed_pw_10",
-    "user_name": "johnny_b",
+    "username": "johnny_b",
     "no_post": 12,
     "no_replies": 27,
     "forum_id": ["f108", "f104"],

@@ -96,3 +96,5 @@ const handleRefreshToken = async (req ,res) => {
 }
 
 }
+
+module.exports = handleRefreshToken;

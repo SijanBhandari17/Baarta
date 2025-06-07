@@ -44,7 +44,7 @@ const handleNewUser = async (req ,res)=> {
     "user_roles": user_roles
   };
 
-  userDB.setUser([...otherUsers ,newUser]);
+  userDB.setUser([...userDB.users ,newUser]);
 
   await fsPromises.writeFile(
     path.join(__dirname , ".." , "models" , "User.json"),

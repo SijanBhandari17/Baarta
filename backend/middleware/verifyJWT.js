@@ -6,7 +6,7 @@ const userDB = {
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
-const verifyJWT = (req , res) => {
+const verifyJWT = (req , res , next) => {
   const authHeader = req.headers.authorization || req.headers.Authorization ; // contains scheme and credentials saperated by a single space 
 
   if(!authHeader) return res.sendStatus(401);
@@ -26,6 +26,10 @@ const verifyJWT = (req , res) => {
 
           ///////// handling valid jwt token /////////
           console.log('token is verified');
+          req.user = {
+            email : decoded.email,
+            user_roles : decoded.user_roles
+          }
           next();
         }
       );

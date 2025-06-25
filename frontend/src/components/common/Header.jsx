@@ -8,6 +8,7 @@ import isAuthenticated from '../../main';
 import userInfo from '../../utils/fetchUserInfo';
 import { Bell } from 'lucide-react';
 import ProfilePic from './ProfilePic';
+import Notification from './Notification';
 
 const notificationCount = 1;
 
@@ -25,6 +26,11 @@ function Header() {
 
 function ProfileSection() {
   const [showProfilePic, setProfilePic] = useState(false);
+  const [showNotification, setNotification] = useState(false);
+
+  function handleNotificationClick() {
+    setNotification(!showNotification);
+  }
   function handleProfileClick() {
     setProfilePic(!showProfilePic);
   }
@@ -35,6 +41,7 @@ function ProfileSection() {
         <Bell
           className="hover:bg-layout-elements-focus h-12 w-14 cursor-pointer rounded-full p-2 text-white"
           title="Notifications"
+          onClick={handleNotificationClick}
         />
         {notificationCount > 0 ? (
           <span className="absolute top-1 right-2 flex min-h-[1.5rem] min-w-[1.5rem] cursor-pointer items-center justify-center rounded-full bg-red-600 text-[1rem] text-white">
@@ -43,6 +50,7 @@ function ProfileSection() {
         ) : (
           ' '
         )}
+        {showNotification && <Notification />}
       </div>
       <div className="flex size-[56px] items-center justify-center rounded-full">
         <img

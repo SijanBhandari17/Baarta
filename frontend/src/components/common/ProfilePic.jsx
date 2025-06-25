@@ -22,7 +22,7 @@ const profileNav = [
 
 function ProfilePic() {
   return (
-    <div className="rounded-button-round absolute top-20 right-5 flex flex-col bg-[#636363] p-4">
+    <div className="rounded-button-round absolute top-20 right-5 z-10 flex flex-col bg-[#636363] p-4">
       <div className="flex items-center justify-evenly gap-2 border-b border-b-white/10 px-4 py-2">
         <img
           src={userInfo.imgSrc}

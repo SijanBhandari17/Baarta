@@ -39,4 +39,5 @@ const dashboardContentNavbar = [
     label: 'Trending',
   },
 ];
+
 export { navbarInfo, dashboardContentNavbar };

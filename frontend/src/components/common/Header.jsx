@@ -4,10 +4,12 @@ import BaartaIcon from '../../assets/icons/Baarta.svg';
 import GoogleIcon from '../../assets/icons/googleIcon.svg';
 import GithubIcon from '../../assets/icons/githubIcon.svg';
 import SearchIcon from '../../assets/icons/searchIcon.svg';
-import NotificationIcon from '../../assets/icons/notifications.svg';
 import isAuthenticated from '../../main';
+import userInfo from '../../utils/fetchUserInfo';
+import { Bell } from 'lucide-react';
+import ProfilePic from './ProfilePic';
 
-const notificationCount = 3;
+const notificationCount = 1;
 
 function Header() {
   return (
@@ -22,24 +24,34 @@ function Header() {
 }
 
 function ProfileSection() {
+  const [showProfilePic, setProfilePic] = useState(false);
+  function handleProfileClick() {
+    setProfilePic(!showProfilePic);
+  }
+
   return (
     <div className="flex">
-      <div className="relative">
-        <img
-          src={NotificationIcon}
-          alt="Notification Icon"
-          className="hover:bg-layout-elements-focus cursor-pointer rounded-[0.4rem] p-2"
+      <div className="relative flex items-center">
+        <Bell
+          className="hover:bg-layout-elements-focus h-12 w-14 cursor-pointer rounded-full p-2 text-white"
+          title="Notifications"
         />
-        <p className="absolute top-1 right-2 flex min-h-[1.5rem] min-w-[1.5rem] cursor-pointer items-center justify-center rounded-full bg-red-600 text-[1rem] text-white">
-          {notificationCount}
-        </p>
+        {notificationCount > 0 ? (
+          <span className="absolute top-1 right-2 flex min-h-[1.5rem] min-w-[1.5rem] cursor-pointer items-center justify-center rounded-full bg-red-600 text-[1rem] text-white">
+            {notificationCount}
+          </span>
+        ) : (
+          ' '
+        )}
       </div>
-      <div className="flex size-[56px] items-center justify-center">
+      <div className="flex size-[56px] items-center justify-center rounded-full">
         <img
-          src={DefaultUserPic}
-          className="hover:bg-layout-elements-focus cursor-pointer rounded-full p-2"
+          src={userInfo.imgSrc}
+          className="hover:bg-layout-elements-focus h-15 w-16 cursor-pointer rounded-full p-2"
+          onClick={handleProfileClick}
         />
       </div>
+      {showProfilePic && <ProfilePic />}
     </div>
   );
 }
@@ -83,4 +95,5 @@ function AuthenticateOptions() {
     </div>
   );
 }
+
 export default Header;

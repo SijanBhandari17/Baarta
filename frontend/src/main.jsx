@@ -3,7 +3,6 @@ import { createRoot } from 'react-dom/client';
 import './index.css';
 import LandingPage from './pages/LandingPage';
 import Dashboard from './pages/Dashboard';
-
 const isAuthenticated = true;
 
 createRoot(document.getElementById('root')).render(

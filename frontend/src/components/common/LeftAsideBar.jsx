@@ -1,8 +1,5 @@
-import HomeSrc from '../../assets/icons/home.svg';
-import ForumSrc from '../../assets/icons/forum.svg';
-import SavedSrc from '../../assets/icons/savedposts.svg';
-import DraftsSrc from '../../assets/icons/drafts.svg';
 import { useState } from 'react';
+import { navbarInfo } from '../../utils/navLists';
 
 const userName = 'Alonso';
 const usersThreadCount = '150';
@@ -19,28 +16,9 @@ const statsData = [
   },
 ];
 
-const navbarInfo = [
-  {
-    label: 'Home',
-    imgSrc: HomeSrc,
-  },
-  {
-    label: 'Forum',
-    imgSrc: ForumSrc,
-  },
-  {
-    label: 'Saved',
-    imgSrc: SavedSrc,
-  },
-  {
-    label: 'Drafts',
-    imgSrc: DraftsSrc,
-  },
-];
-
 function LeftAsideBar() {
   return (
-    <aside className="bg-layout-elements max-w-80 p-6">
+    <aside className="bg-layout-elements w-1/2 border border-l-white/10 p-6">
       <DisplayUserInfo />
       <DisplayNavButtons />
     </aside>
@@ -89,4 +67,5 @@ function DisplayNavButtons() {
     </div>
   );
 }
+
 export default LeftAsideBar;

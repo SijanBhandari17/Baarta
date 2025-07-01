@@ -14,7 +14,7 @@ const notificationCount = 1;
 
 function Header() {
   return (
-    <nav className="bg-layout-elements flex items-center justify-between gap-1 border border-b-white/10 px-3 pt-2 pb-4">
+    <nav className="bg-layout-elements flex w-full items-center justify-between gap-1 border border-b-white/10 px-3 pt-2 pb-4">
       <div className="flex gap-18">
         <img src={BaartaIcon} alt="Baarta Icon" className="cursor-pointer" />
         <SearchBar />

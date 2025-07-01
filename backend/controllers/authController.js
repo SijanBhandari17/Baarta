@@ -1,15 +1,6 @@
-const userDB = {
-  users : require('../models/User.json'),
-  setUser : function (data) { this.users = data}
-}
-
+const User = require('../models/userModel')
 const bcrypt = require('bcrypt');
-const path = require('path');
 const jwt = require('jsonwebtoken');
-const fsPromises = require('fs').promises;
-require('dotenv').config();
-
-
 const handleLogin = async (req , res) => {
   try {
   //////////////// authentication //////////////////////
@@ -17,9 +8,9 @@ const handleLogin = async (req , res) => {
 
   if(!email || !password) return res.status(400).json({"error" : "both email and password are required"});
 
-  const foundUser = userDB.users.find(person => person.email === email);
+  const foundUser = await User.findOne({email}).exec() 
 
-  if(!foundUser) return res.sendStatus(401);
+  if(!foundUser) return res.sendStatus(401).json({"error" : "no such registered username found"});
 
   const hashedPassword = foundUser.password;
 
@@ -29,7 +20,6 @@ const handleLogin = async (req , res) => {
 
   console.log("password is verified for :" , foundUser.username);
 
-  const otherUsers = userDB.users.filter(person=>person.email !== email);
 
   ///////////////////// authorization part , sending access token in response and refresh token in cookies (httpOnly) , updating refreshToken in database . /////////////
   const accessToken = jwt.sign(
@@ -54,13 +44,8 @@ const handleLogin = async (req , res) => {
 
   ////////// updating refeshToken in database /////////////////
   foundUser.refreshToken = refreshToken;
-  userDB.setUser([...otherUsers , foundUser]);
-
-  await fsPromises.writeFile(
-    path.join(__dirname , ".." , "models" ,"User.json"),
-    JSON.stringify(userDB.users)
-  );
-
+  const result = await foundUser.save()
+  console.log(result)
   ///////////////// setting up cookies, (key , value , {httpOnly , maxAge , sameSite : 'none'} // sameSite:"none" is important to allow cookies for cross site requests (helpful when backend and frontend are running in diffrent origin);
 
   res.cookie("jwt" , refreshToken , {

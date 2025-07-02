@@ -18,7 +18,7 @@ const statsData = [
 
 function LeftAsideBar() {
   return (
-    <aside className="bg-layout-elements w-1/2 border border-l-white/10 p-6">
+    <aside className="bg-layout-elements w-[15%] border border-l-white/10 p-6">
       <DisplayUserInfo />
       <DisplayNavButtons />
     </aside>

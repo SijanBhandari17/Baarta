@@ -1,7 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useEffect , useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const SignInPopUp = ({ isOpen, onClose }) => {
+  const [username , setUsername] = useState('')
+  const [email , setEmail]  = useState('')
+  const [password , setPassword] = useState('')
   useEffect(() => {
     const onEsc = (e) => {
       if (e.key === 'Escape' && isOpen) onClose();
@@ -9,7 +12,50 @@ const SignInPopUp = ({ isOpen, onClose }) => {
     window.addEventListener('keydown', onEsc);
     return () => window.removeEventListener('keydown', onEsc);
   }, [isOpen, onClose]);
+  // this is where i am going to do all the form handling and stuff , and this is the function that will send data to the backend , so feel free to move it to another folder or something like that
+function formValidation(user_name , user_email , user_password){
+  let u_name = true
+  let u_email = true
+  let u_password = true
+  let regex = /^[^\s@]+@(gmail\.com|email\.com|ymail\.com)$/
+  if(!regex.test(user_email)) u_email = false
+  regex = /^(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/
+  if(!regex.test(user_password)) u_password = false
+  if(user_name.length < 8) u_name = false
+  return {u_name , u_email , u_password}
+}
+  const handleSubmit = async (e) =>{
+    e.preventDefault()
+    const replyValidatoin = formValidation(username , email , password);
+  if(!replyValidatoin.u_email || !replyValidatoin.u_name || !replyValidatoin.u_password){
+    console.log(replyValidatoin)
+    return;
+  }
+    try{
+      const response = await fetch('http://localhost:5000/register', {
+        method : 'POST',
+        headers : {'Content-Type' : 'application/json'}, 
+        body : JSON.stringify({username , password , email})
+      })
+      if(response.ok){
+        const data = await response.json()
+        console.log(data)
+      }
+      else
+      {
+        console.log('error has occured while registering the data')
+        const data = await response.json()
+        console.log(data)
+      }
+    }
+    catch(err)
+    {
+      console.error(err)
+    }
+  }
 
+
+  ///////////////////////////////////////////////////////////////////////////
   return (
     <AnimatePresence>
       {isOpen && (
@@ -37,20 +83,26 @@ const SignInPopUp = ({ isOpen, onClose }) => {
 
             <h2 className="text-4xl font-semibold mb-8 text-center">Create Your Account</h2>
 
-            <form className="space-y-6">
+            <form className="space-y-6" onSubmit ={handleSubmit}>
               <input
                 type="text"
                 placeholder="Username"
+                value = {username}
+                onChange={(e)=> setUsername(e.target.value)}
                 className="w-full rounded-button-round py-4 px-5 text-lg bg-layout-elements-focus text-font placeholder:text-font-light focus:outline-none"
               />
               <input
                 type="email"
                 placeholder="Email"
+                value = {email}
+                onChange={(e)=> setEmail(e.target.value)}
                 className="w-full rounded-button-round py-4 px-5 text-lg bg-layout-elements-focus text-font placeholder:text-font-light focus:outline-none"
               />
               <input
                 type="password"
                 placeholder="Password"
+                value = {password}
+                onChange={(e)=> setPassword(e.target.value)}
                 className="w-full rounded-button-round py-4 px-5 text-lg bg-layout-elements-focus text-font placeholder:text-font-light focus:outline-none"
               />
               <button

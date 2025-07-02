@@ -1,7 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect , useState} from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const LoginPopUp = ({ isOpen, onClose }) => {
+  const [email , setEmail] = useState('')
+  const [password , setPassword] = useState('')
   useEffect(() => {
     const onEsc = (e) => {
       if (e.key === 'Escape' && isOpen) onClose();
@@ -9,7 +11,28 @@ const LoginPopUp = ({ isOpen, onClose }) => {
     window.addEventListener('keydown', onEsc);
     return () => window.removeEventListener('keydown', onEsc);
   }, [isOpen, onClose]);
-
+ const handleLogin = async (e) =>{
+    e.preventDefault()
+    try{
+      const response = await fetch('http://localhost:5000/login' , {
+        method : 'POST',
+        headers : {'Content-Type' : 'application/json'},
+        body : JSON.stringify({email , password})
+      })
+      const data = await response.json()
+      if(response.ok){
+        console.log(`successful login done`)
+      }
+      else{
+        console.log('login failed')
+      }
+      console.log(data)
+    }
+    catch(err)
+    {
+      console.error(`Err : ${err}`)
+    }
+ }
   return (
     <AnimatePresence>
       {isOpen && (
@@ -37,15 +60,19 @@ const LoginPopUp = ({ isOpen, onClose }) => {
 
             <h2 className="text-4xl font-semibold mb-8 text-center">Welcome Back</h2>
 
-            <form className="space-y-6">
+            <form className="space-y-6" onSubmit = {handleLogin}>
               <input
                 type="email"
                 placeholder="Email"
+                value = {email}
+                onChange={(e)=> setEmail(e.target.value)}
                 className="w-full rounded-button-round py-4 px-5 text-lg bg-layout-elements-focus text-font placeholder:text-font-light focus:outline-none"
               />
               <input
                 type="password"
                 placeholder="Password"
+                value = {password}
+                onChange={(e)=> setPassword(e.target.value)}
                 className="w-full rounded-button-round py-4 px-5 text-lg bg-layout-elements-focus text-font placeholder:text-font-light focus:outline-none"
               />
               <button

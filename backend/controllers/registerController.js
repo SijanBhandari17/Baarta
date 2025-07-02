@@ -21,7 +21,7 @@ const handleNewUser = async (req ,res)=> {
   const hash_password = await bcrypt.hash(password,10);
   const result = await User.create({
     email : user_email,
-    password , 
+    password : hash_password, 
     username 
   })
   res.status(200).json({"message" : "successful insertion" , "result" :result});

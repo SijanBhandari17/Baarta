@@ -9,7 +9,8 @@ import userInfo from '../../utils/fetchUserInfo';
 import { Bell } from 'lucide-react';
 import ProfilePic from './ProfilePic';
 import Notification from './Notification';
-
+import LoginPopUp from '../ui/LoginPopUp';
+import SignInPopUp from '../ui/SignUpPopUp';
 const notificationCount = 1;
 
 function Header() {
@@ -85,23 +86,41 @@ function SearchBar() {
 }
 
 function AuthenticateOptions() {
+  const [showSignIn, setShowSignIn] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
+
   return (
-    <div className="flex">
-      <img
-        src={GoogleIcon}
-        alt="Google Icon"
-        className="hover:bg-layout-elements-focus cursor-pointer rounded-[0.4rem] p-2"
-      />
-      <img
-        src={GithubIcon}
-        alt="Github Icon"
-        className="hover:bg-layout-elements-focus cursor-pointer rounded-[0.4rem] p-2"
-      />
-      <button className="text-royalpurple-dark p-button-padding border-royalpurple-dark rounded-button-round hover:bg-royalpurple-dark cursor-pointer border border-2 px-6 font-medium transition-all duration-300 ease-in hover:text-gray-50">
-        Sign In
-      </button>
-    </div>
+    <>
+      <div className="flex gap-2">
+        <img
+          src={GoogleIcon}
+          alt="Google Icon"
+          className="hover:bg-layout-elements-focus cursor-pointer rounded-[0.4rem] p-2"
+        />
+        <img
+          src={GithubIcon}
+          alt="Github Icon"
+          className="hover:bg-layout-elements-focus cursor-pointer rounded-[0.4rem] p-2"
+        />
+        <button
+          onClick={() => setShowLogin(true)}
+          className="text-royalpurple-dark p-button-padding border-royalpurple-dark rounded-button-round hover:bg-royalpurple-dark cursor-pointer border border-2 px-6 font-medium transition-all duration-300 ease-in hover:text-gray-50"
+        >
+          Sign In
+        </button>
+
+        <button
+          onClick={() => setShowSignIn(true)}
+          className="bg-green-600 text-white p-button-padding rounded-button-round px-6 font-medium transition-all duration-300 ease-in hover:bg-green-700"
+        >
+          Join Now
+        </button>
+      </div>
+
+      {/* Popups */}
+      <SignInPopUp isOpen={showSignIn} onClose={() => setShowSignIn(false)} />
+      <LoginPopUp isOpen={showLogin} onClose={() => setShowLogin(false)} />
+    </>
   );
 }
-
 export default Header;

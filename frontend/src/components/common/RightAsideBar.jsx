@@ -5,7 +5,7 @@ import { communityStatus } from '../../utils/fetchCommnityStatus';
 
 function RightAsideBar() {
   return (
-    <aside className="bg-layout-elements flex max-w-80 flex-col border border-l-white/10 p-6">
+    <aside className="bg-layout-elements flex w-1/2 flex-col border border-l-white/10 p-6">
       <UpcommingEvents />
       <ActivePoll />
       <CommunityStatus />

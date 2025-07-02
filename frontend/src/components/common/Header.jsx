@@ -4,10 +4,14 @@ import BaartaIcon from '../../assets/icons/Baarta.svg';
 import GoogleIcon from '../../assets/icons/googleIcon.svg';
 import GithubIcon from '../../assets/icons/githubIcon.svg';
 import SearchIcon from '../../assets/icons/searchIcon.svg';
-import NotificationIcon from '../../assets/icons/notifications.svg';
 import isAuthenticated from '../../main';
-
-const notificationCount = 3;
+import userInfo from '../../utils/fetchUserInfo';
+import { Bell } from 'lucide-react';
+import ProfilePic from './ProfilePic';
+import Notification from './Notification';
+import LoginPopUp from '../ui/LoginPopUp';
+import SignInPopUp from '../ui/SignUpPopUp';
+const notificationCount = 1;
 
 function Header() {
   return (
@@ -22,24 +26,41 @@ function Header() {
 }
 
 function ProfileSection() {
+  const [showProfilePic, setProfilePic] = useState(false);
+  const [showNotification, setNotification] = useState(false);
+
+  function handleNotificationClick() {
+    setNotification(!showNotification);
+  }
+  function handleProfileClick() {
+    setProfilePic(!showProfilePic);
+  }
+
   return (
     <div className="flex">
-      <div className="relative">
-        <img
-          src={NotificationIcon}
-          alt="Notification Icon"
-          className="hover:bg-layout-elements-focus cursor-pointer rounded-[0.4rem] p-2"
+      <div className="relative flex items-center">
+        <Bell
+          className="hover:bg-layout-elements-focus h-12 w-14 cursor-pointer rounded-full p-2 text-white"
+          title="Notifications"
+          onClick={handleNotificationClick}
         />
-        <p className="absolute top-1 right-2 flex min-h-[1.5rem] min-w-[1.5rem] cursor-pointer items-center justify-center rounded-full bg-red-600 text-[1rem] text-white">
-          {notificationCount}
-        </p>
+        {notificationCount > 0 ? (
+          <span className="absolute top-1 right-2 flex min-h-[1.5rem] min-w-[1.5rem] cursor-pointer items-center justify-center rounded-full bg-red-600 text-[1rem] text-white">
+            {notificationCount}
+          </span>
+        ) : (
+          ' '
+        )}
+        {showNotification && <Notification />}
       </div>
-      <div className="flex size-[56px] items-center justify-center">
+      <div className="flex size-[56px] items-center justify-center rounded-full">
         <img
-          src={DefaultUserPic}
-          className="hover:bg-layout-elements-focus cursor-pointer rounded-full p-2"
+          src={userInfo.imgSrc}
+          className="hover:bg-layout-elements-focus h-15 w-16 cursor-pointer rounded-full p-2"
+          onClick={handleProfileClick}
         />
       </div>
+      {showProfilePic && <ProfilePic />}
     </div>
   );
 }
@@ -65,22 +86,41 @@ function SearchBar() {
 }
 
 function AuthenticateOptions() {
+  const [showSignIn, setShowSignIn] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
+
   return (
-    <div className="flex">
-      <img
-        src={GoogleIcon}
-        alt="Google Icon"
-        className="hover:bg-layout-elements-focus cursor-pointer rounded-[0.4rem] p-2"
-      />
-      <img
-        src={GithubIcon}
-        alt="Github Icon"
-        className="hover:bg-layout-elements-focus cursor-pointer rounded-[0.4rem] p-2"
-      />
-      <button className="text-royalpurple-dark p-button-padding border-royalpurple-dark rounded-button-round hover:bg-royalpurple-dark cursor-pointer border border-2 px-6 font-medium transition-all duration-300 ease-in hover:text-gray-50">
-        Sign In
-      </button>
-    </div>
+    <>
+      <div className="flex gap-2">
+        <img
+          src={GoogleIcon}
+          alt="Google Icon"
+          className="hover:bg-layout-elements-focus cursor-pointer rounded-[0.4rem] p-2"
+        />
+        <img
+          src={GithubIcon}
+          alt="Github Icon"
+          className="hover:bg-layout-elements-focus cursor-pointer rounded-[0.4rem] p-2"
+        />
+        <button
+          onClick={() => setShowLogin(true)}
+          className="text-royalpurple-dark p-button-padding border-royalpurple-dark rounded-button-round hover:bg-royalpurple-dark cursor-pointer border border-2 px-6 font-medium transition-all duration-300 ease-in hover:text-gray-50"
+        >
+          Sign In
+        </button>
+
+        <button
+          onClick={() => setShowSignIn(true)}
+          className="bg-green-600 text-white p-button-padding rounded-button-round px-6 font-medium transition-all duration-300 ease-in hover:bg-green-700"
+        >
+          Join Now
+        </button>
+      </div>
+
+      {/* Popups */}
+      <SignInPopUp isOpen={showSignIn} onClose={() => setShowSignIn(false)} />
+      <LoginPopUp isOpen={showLogin} onClose={() => setShowLogin(false)} />
+    </>
   );
 }
 export default Header;

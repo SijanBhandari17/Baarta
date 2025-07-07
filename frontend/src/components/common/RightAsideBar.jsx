@@ -5,10 +5,10 @@ import { communityStatus } from '../../utils/fetchCommnityStatus';
 
 function RightAsideBar() {
   return (
-    <aside className="bg-layout-elements flex w-1/2 flex-col border border-l-white/10 p-6">
+    <aside className="bg-layout-elements flex w-[15%] flex-col border border-l-white/10 p-6">
       <UpcommingEvents />
       <ActivePoll />
-      <CommunityStatus />
+      {/* <CommunityStatus /> */}
     </aside>
   );
 }
@@ -75,23 +75,23 @@ function SinglePolls({ poll }) {
   );
 }
 
-function CommunityStatus() {
-  return (
-    <div className="community-satus width-full mt-2">
-      <h1 className="text-title text-font my-4 font-semibold">Community Status</h1>
-      <div>
-        {communityStatus.map((item, index) => {
-          return (
-            <div key={index} className="mb-4 flex items-center gap-4">
-              <img src={item.imgSrc} />
-              <p className="text-body text-font">{item.title}</p>
-              <p className="text-font ml-auto font-semibold">{item.count}</p>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
+// function CommunityStatus() {
+//   return (
+//     <div className="community-satus width-full mt-2">
+//       <h1 className="text-title text-font my-4 font-semibold">Community Status</h1>
+//       <div>
+//         {communityStatus.map((item, index) => {
+//           return (
+//             <div key={index} className="mb-4 flex items-center gap-4">
+//               <img src={item.imgSrc} />
+//               <p className="text-body text-font">{item.title}</p>
+//               <p className="text-font ml-auto font-semibold">{item.count}</p>
+//             </div>
+//           );
+//         })}
+//       </div>
+//     </div>
+//   );
+// }
 
 export default RightAsideBar;

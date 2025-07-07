@@ -29,7 +29,7 @@ const LoginPopUp = ({ isOpen, onClose }) => {
           >
             <button
               onClick={onClose}
-              className="text-font hover:text-royalpurple-dark absolute top-4 right-4 cursor-pointer text-3xl leading-none font-bold"
+              className="text-font hover:text-royalpurple-dark absolute top-4 right-4 text-3xl leading-none font-bold"
               aria-label="Close login popup"
             >
               &times;
@@ -50,7 +50,7 @@ const LoginPopUp = ({ isOpen, onClose }) => {
               />
               <button
                 type="submit"
-                className="bg-royalpurple-dark rounded-button-round w-full cursor-pointer py-4 text-lg font-semibold text-white transition hover:bg-purple-900"
+                className="bg-royalpurple-dark rounded-button-round w-full py-4 text-lg font-semibold text-white transition hover:bg-purple-900"
               >
                 Log In
               </button>

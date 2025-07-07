@@ -5,6 +5,7 @@ import BaartaIcon from '../../assets/icons/Baarta.svg';
 import GoogleIcon from '../../assets/icons/googleIcon.svg';
 import GithubIcon from '../../assets/icons/githubIcon.svg';
 import SearchIcon from '../../assets/icons/searchIcon.svg';
+import isAuthenticated from '../../main';
 import userInfo from '../../utils/fetchUserInfo';
 import { Bell } from 'lucide-react';
 import ProfilePic from './ProfilePic';
@@ -12,7 +13,6 @@ import Notification from './Notification';
 import LoginPopUp from '../ui/LoginPopUp';
 import SignInPopUp from '../ui/SignUpPopUp';
 const notificationCount = 1;
-const isAuthenticated = false;
 
 function Header() {
   return (
@@ -118,7 +118,7 @@ function AuthenticateOptions() {
 
         <button
           onClick={() => setShowLogin(true)}
-          className="text-royalpurple-dark p-button-padding border-royalpurple-dark rounded-button-round hover:bg-royalpurple-dark cursor-pointer border border-2 px-6 font-medium transition-all duration-300 ease-in hover:text-gray-50"
+          className="text-royalpurple-dark p-button-padding border-royalpurple-dark rounded-button-round hover:bg-royalpurple-dark cursor-pointer border-2 px-6 font-medium transition-all duration-300 ease-in hover:text-gray-50"
         >
           Sign In
         </button>
@@ -126,6 +126,7 @@ function AuthenticateOptions() {
         <button
           onClick={() => setShowSignIn(true)}
           className="p-button-padding rounded-button-round cursor-pointer bg-green-600 px-6 font-medium text-white transition-all duration-300 ease-in hover:bg-green-700"
+          className="p-button-padding rounded-button-round bg-green-600 px-6 font-medium text-white transition-all duration-300 ease-in hover:bg-green-700"
         >
           Join Now
         </button>

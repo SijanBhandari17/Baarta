@@ -29,7 +29,7 @@ const SignInPopUp = ({ isOpen, onClose }) => {
           >
             <button
               onClick={onClose}
-              className="text-font hover:text-royalpurple-dark absolute top-4 right-4 cursor-pointer text-3xl leading-none font-bold"
+              className="text-font hover:text-royalpurple-dark absolute top-4 right-4 text-3xl leading-none font-bold"
               aria-label="Close sign in popup"
             >
               &times;

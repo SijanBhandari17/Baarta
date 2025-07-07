@@ -12,7 +12,7 @@ function DashBoardContent() {
   }
 
   return (
-    <div className="bg-main-elements flex flex-1 flex-col gap-4 p-6">
+    <div className="bg-main-elements flex w-[70%] flex-col gap-4 p-6">
       <div className="flex gap-2" onClick={event => handleClick(event)}>
         <DashBoardNav activeButton={activeButton} />
       </div>

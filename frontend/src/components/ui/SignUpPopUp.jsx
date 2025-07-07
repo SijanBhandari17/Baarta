@@ -52,6 +52,13 @@ function formValidation(user_name , user_email , user_password){
       console.error(err)
     }
   }
+ function onClickEye(e)
+ {
+  const passwordField = e.currentTarget.previousSibling 
+  console.log(typeof passwordField.type)
+  if(passwordField.type === 'password') passwordField.type = 'text'
+  else passwordField.type='password'
+ }
 
 
   ///////////////////////////////////////////////////////////////////////////
@@ -66,12 +73,13 @@ function formValidation(user_name , user_email , user_password){
           onClick={onClose}
         >
           <motion.div
-            className="bg-layout-elements p-12 rounded-2xl w-[600px] text-font relative shadow-2xl"
+            className="bg-layout-elements  rounded-2xl w-[500px] h-[500px] text-font relative shadow-2xl flex flex-col flex-nowrap "
             initial={{ scale: 0.85, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.85, opacity: 0 }}
             onClick={(e) => e.stopPropagation()}
           >
+            <h2 className="text-4xl relative font-semibold mb-8 text-center  grow-1 flex justify-center items-center rounded-tr-2xl rounded-tl-2xl bg-linear-to-tr from-royalpurple-dark to-indigo-500">Create Your Account
             <button
               onClick={onClose}
               className="absolute top-4 right-4 text-font hover:text-royalpurple-dark font-bold text-3xl leading-none"
@@ -79,10 +87,8 @@ function formValidation(user_name , user_email , user_password){
             >
               &times;
             </button>
-
-            <h2 className="text-4xl font-semibold mb-8 text-center">Create Your Account</h2>
-
-            <form className="w-full h-fit flex flex-col flex-nowrap gap-6 relative  border-0  border-pink-600" onSubmit ={handleSubmit}>
+               </h2>
+            <form className="w-full h-fit px-12 pb-2 flex flex-col flex-nowrap gap-6 relative  border-0  border-pink-600" onSubmit ={handleSubmit}>
               <div className ="relative">
               <input
                 id='username'
@@ -103,7 +109,7 @@ function formValidation(user_name , user_email , user_password){
                 onChange={(e)=> setEmail(e.target.value)}
                 className="w-full peer rounded-button-round py-4 px-5 text-lg bg-layout-elements-focus focus:bg-layout-elements focus:border-royalpurple-dark focus:border-2 duration-300 text-font placeholder:text-font-light focus:outline-none"
               />
-              <label htmlFor="username" className= "absolute left-5 top-0 text-sm text-gray-200   -translate-y-1/2 peer-placeholder-shown:top-1/4   peer-focus:top-0 peer-focus:text-sm peer-focus:text-royalpurple-dark peer-focus:bg-layout-elements peer-focus:-translate-y-1/2 duration-300 peer-placeholder-shown:text-gray-200 peer-placeholder-shown:text-xl peer-placeholder-shown:translate-y-0">Email</label>
+              <label htmlFor="email" className= "absolute left-5 top-0 text-sm text-gray-200   -translate-y-1/2 peer-placeholder-shown:top-1/4   peer-focus:top-0 peer-focus:text-sm peer-focus:text-royalpurple-dark peer-focus:bg-layout-elements peer-focus:-translate-y-1/2 duration-300 peer-placeholder-shown:text-gray-200 peer-placeholder-shown:text-xl peer-placeholder-shown:translate-y-0">Email</label>
               </div>
               <div className='relative'>
               <input
@@ -114,11 +120,12 @@ function formValidation(user_name , user_email , user_password){
                 onChange={(e)=> setPassword(e.target.value)}
                 className="w-full peer rounded-button-round py-4 px-5 text-lg bg-layout-elements-focus focus:bg-layout-elements focus:border-royalpurple-dark focus:border-2 duration-300 text-font placeholder:text-font-light focus:outline-none"
               />
-              <label htmlFor="username" className= "absolute left-5 top-0 text-sm text-gray-200   -translate-y-1/2 peer-placeholder-shown:top-1/4   peer-focus:top-0 peer-focus:text-sm peer-focus:text-royalpurple-dark peer-focus:bg-layout-elements peer-focus:-translate-y-1/2 duration-300 peer-placeholder-shown:text-gray-200 peer-placeholder-shown:text-xl peer-placeholder-shown:translate-y-0">Password</label>
+              <div className='absolute bg-[url(../../assets/icons/eye.png)] bg-pink-400 h-[40px] w-[40px] right-[10px] top-0 translate-y-1/4'onClick={onClickEye}></div>
+              <label htmlFor="password" className= "absolute left-5 top-0 text-sm text-gray-200   -translate-y-1/2 peer-placeholder-shown:top-1/4   peer-focus:top-0 peer-focus:text-sm peer-focus:text-royalpurple-dark peer-focus:bg-layout-elements peer-focus:-translate-y-1/2 duration-300 peer-placeholder-shown:text-gray-200 peer-placeholder-shown:text-xl peer-placeholder-shown:translate-y-0">Password</label>
               </div>
               <button
                 type="submit"
-                className="bg-green-600 w-full py-4 text-lg rounded-button-round text-white font-semibold hover:bg-green-700 transition"
+                className=" w-full py-4 text-lg rounded-button-round text-white font-semibold bg-linear-to-tr from-royalpurple-dark to-indigo-500 hover:scale-105 duration-150"
               >
                 Sign Up
               </button>

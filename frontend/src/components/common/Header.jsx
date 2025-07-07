@@ -1,13 +1,25 @@
 import { useState } from 'react';
+import { Moon, Sun } from 'lucide-react';
 import DefaultUserPic from '../../assets/icons/defaultUser.svg';
 import BaartaIcon from '../../assets/icons/Baarta.svg';
 import GoogleIcon from '../../assets/icons/googleIcon.svg';
 import GithubIcon from '../../assets/icons/githubIcon.svg';
 import SearchIcon from '../../assets/icons/searchIcon.svg';
+<<<<<<< Updated upstream
 import NotificationIcon from '../../assets/icons/notifications.svg';
 import isAuthenticated from '../../main';
 
 const notificationCount = 3;
+=======
+import userInfo from '../../utils/fetchUserInfo';
+import { Bell } from 'lucide-react';
+import ProfilePic from './ProfilePic';
+import Notification from './Notification';
+import LoginPopUp from '../ui/LoginPopUp';
+import SignInPopUp from '../ui/SignUpPopUp';
+const notificationCount = 1;
+const isAuthenticated = false;
+>>>>>>> Stashed changes
 
 function Header() {
   return (
@@ -65,6 +77,7 @@ function SearchBar() {
 }
 
 function AuthenticateOptions() {
+<<<<<<< Updated upstream
   return (
     <div className="flex">
       <img
@@ -81,6 +94,56 @@ function AuthenticateOptions() {
         Sign In
       </button>
     </div>
+=======
+  const [showSignIn, setShowSignIn] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
+  const [darkMode, setDarkMode] = useState(true);
+
+  function handleThemeClick() {
+    setDarkMode(!darkMode);
+  }
+
+  return (
+    <>
+      <div className="flex gap-2">
+        <img
+          src={GoogleIcon}
+          alt="Google Icon"
+          className="hover:bg-layout-elements-focus cursor-pointer rounded-[0.4rem] p-2"
+        />
+
+        {darkMode ? (
+          <Moon
+            onClick={handleThemeClick}
+            className="hover:bg-layout-elements-focus size-[50px] cursor-pointer rounded-[0.4rem] p-2 text-gray-100/50"
+          />
+        ) : (
+          <Sun
+            onClick={handleThemeClick}
+            className="hover:bg-layout-elements-focus size-[50px] cursor-pointer rounded-[0.4rem] p-2 text-gray-100/50"
+          />
+        )}
+
+        <button
+          onClick={() => setShowLogin(true)}
+          className="text-royalpurple-dark p-button-padding border-royalpurple-dark rounded-button-round hover:bg-royalpurple-dark cursor-pointer border border-2 px-6 font-medium transition-all duration-300 ease-in hover:text-gray-50"
+        >
+          Sign In
+        </button>
+
+        <button
+          onClick={() => setShowSignIn(true)}
+          className="p-button-padding rounded-button-round cursor-pointer bg-green-600 px-6 font-medium text-white transition-all duration-300 ease-in hover:bg-green-700"
+        >
+          Join Now
+        </button>
+      </div>
+
+      {/* Popups */}
+      <SignInPopUp isOpen={showSignIn} onClose={() => setShowSignIn(false)} />
+      <LoginPopUp isOpen={showLogin} onClose={() => setShowLogin(false)} />
+    </>
+>>>>>>> Stashed changes
   );
 }
 export default Header;

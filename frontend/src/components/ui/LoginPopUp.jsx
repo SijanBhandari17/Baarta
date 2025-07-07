@@ -1,9 +1,12 @@
 import React, { useEffect , useState} from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-
+import {useNavigate} from 'react-router-dom'
+export let accessToken , setAccessToken; 
 const LoginPopUp = ({ isOpen, onClose }) => {
+  const navigate = useNavigate()
   const [email , setEmail] = useState('')
   const [password , setPassword] = useState('')
+
   useEffect(() => {
     const onEsc = (e) => {
       if (e.key === 'Escape' && isOpen) onClose();
@@ -27,6 +30,13 @@ const LoginPopUp = ({ isOpen, onClose }) => {
         console.log('login failed')
       }
       console.log(data)
+      console.log(data.accessToken)
+      const redirectPromise = await fetch('http://localhost:5000/dashboard' , {
+        headers : {"Authorization" : `Bearer ${data.accessToken}`}
+      })
+      if(!redirectPromise.ok) return
+      const redirectMessage = await redirectPromise.json()
+      // you are supposed to be redirected from here.
     }
     catch(err)
     {

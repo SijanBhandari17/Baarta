@@ -1,6 +1,5 @@
 import React, { useEffect , useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-
 const SignInPopUp = ({ isOpen, onClose }) => {
   const [username , setUsername] = useState('')
   const [email , setEmail]  = useState('')
@@ -37,16 +36,16 @@ function formValidation(user_name , user_email , user_password){
         headers : {'Content-Type' : 'application/json'}, 
         body : JSON.stringify({username , password , email})
       })
+      const data = await response.json()
       if(response.ok){
-        const data = await response.json()
         console.log(data)
       }
       else
       {
         console.log('error has occured while registering the data')
-        const data = await response.json()
         console.log(data)
       }
+
     }
     catch(err)
     {
@@ -83,28 +82,40 @@ function formValidation(user_name , user_email , user_password){
 
             <h2 className="text-4xl font-semibold mb-8 text-center">Create Your Account</h2>
 
-            <form className="space-y-6" onSubmit ={handleSubmit}>
+            <form className="w-full h-fit flex flex-col flex-nowrap gap-6 relative  border-0  border-pink-600" onSubmit ={handleSubmit}>
+              <div className ="relative">
               <input
+                id='username'
                 type="text"
-                placeholder="Username"
+                placeholder=" "
                 value = {username}
                 onChange={(e)=> setUsername(e.target.value)}
-                className="w-full rounded-button-round py-4 px-5 text-lg bg-layout-elements-focus text-font placeholder:text-font-light focus:outline-none"
+                className="w-full peer rounded-button-round py-4 px-5 text-lg bg-layout-elements-focus focus:bg-layout-elements focus:border-royalpurple-dark focus:border-2 duration-300 text-font placeholder:text-font-light focus:outline-none"
               />
+              <label htmlFor="username" className= "absolute left-5 top-0 text-sm text-gray-200   -translate-y-1/2 peer-placeholder-shown:top-1/4   peer-focus:top-0 peer-focus:text-sm peer-focus:text-royalpurple-dark peer-focus:bg-layout-elements peer-focus:-translate-y-1/2 duration-300 peer-placeholder-shown:text-gray-200 peer-placeholder-shown:text-xl peer-placeholder-shown:translate-y-0">Username</label>
+              </div>
+              <div className='relative'>
               <input
+                id='email'
                 type="email"
-                placeholder="Email"
+                placeholder=" "
                 value = {email}
                 onChange={(e)=> setEmail(e.target.value)}
-                className="w-full rounded-button-round py-4 px-5 text-lg bg-layout-elements-focus text-font placeholder:text-font-light focus:outline-none"
+                className="w-full peer rounded-button-round py-4 px-5 text-lg bg-layout-elements-focus focus:bg-layout-elements focus:border-royalpurple-dark focus:border-2 duration-300 text-font placeholder:text-font-light focus:outline-none"
               />
+              <label htmlFor="username" className= "absolute left-5 top-0 text-sm text-gray-200   -translate-y-1/2 peer-placeholder-shown:top-1/4   peer-focus:top-0 peer-focus:text-sm peer-focus:text-royalpurple-dark peer-focus:bg-layout-elements peer-focus:-translate-y-1/2 duration-300 peer-placeholder-shown:text-gray-200 peer-placeholder-shown:text-xl peer-placeholder-shown:translate-y-0">Email</label>
+              </div>
+              <div className='relative'>
               <input
+                id='password'
                 type="password"
-                placeholder="Password"
+                placeholder=" "
                 value = {password}
                 onChange={(e)=> setPassword(e.target.value)}
-                className="w-full rounded-button-round py-4 px-5 text-lg bg-layout-elements-focus text-font placeholder:text-font-light focus:outline-none"
+                className="w-full peer rounded-button-round py-4 px-5 text-lg bg-layout-elements-focus focus:bg-layout-elements focus:border-royalpurple-dark focus:border-2 duration-300 text-font placeholder:text-font-light focus:outline-none"
               />
+              <label htmlFor="username" className= "absolute left-5 top-0 text-sm text-gray-200   -translate-y-1/2 peer-placeholder-shown:top-1/4   peer-focus:top-0 peer-focus:text-sm peer-focus:text-royalpurple-dark peer-focus:bg-layout-elements peer-focus:-translate-y-1/2 duration-300 peer-placeholder-shown:text-gray-200 peer-placeholder-shown:text-xl peer-placeholder-shown:translate-y-0">Password</label>
+              </div>
               <button
                 type="submit"
                 className="bg-green-600 w-full py-4 text-lg rounded-button-round text-white font-semibold hover:bg-green-700 transition"

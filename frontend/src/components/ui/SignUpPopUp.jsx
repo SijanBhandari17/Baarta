@@ -85,6 +85,7 @@ function formValidation(user_name , user_email , user_password){
  {
   const emailField = e.currentTarget;
   const emailInfo = emailField.nextSibling.nextSibling;
+  const regex = /^[^\s@]+@(gmail\.com|email\.com|ymail\.com)$/
   if(emailField.value.length === 0) {
     emailInfo.classList.remove('visible')
     emailInfo.classList.add('invisible')

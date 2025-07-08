@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { navbarInfo } from '../../utils/navLists';
+import { NavLink, Link } from 'react-router-dom';
 
 const userName = 'Alonso';
 const usersThreadCount = '150';
@@ -52,16 +53,17 @@ function DisplayNavButtons() {
     <div className="my-8">
       {navbarInfo.map((item, index) => {
         return (
-          <div
+          <NavLink
             key={index}
+            to={item.label.toLowerCase()}
             onClick={() => setActiveIcon(index)}
             className={`${
               index === activeIcon ? activeStyle : ''
-            } hover:bg-layout-elements-focus rounded-button-round my-2 flex cursor-pointer items-center px-2 py-4`}
+            } hover:bg-layout-elements-focus rounded-button-round my-2 flex cursor-pointer items-center px-2 py-4 no-underline`}
           >
-            <img src={item.imgSrc} className="mr-4" />
+            <img src={item.imgSrc} alt={item.label} className="mr-4" />
             <h1 className="text-font text-title">{item.label}</h1>
-          </div>
+          </NavLink>
         );
       })}
     </div>

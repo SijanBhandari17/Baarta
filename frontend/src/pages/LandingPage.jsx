@@ -33,12 +33,12 @@ function MainContent() {
 
 function StatusContent() {
   return (
-    <div className="my-8 flex w-full cursor-pointer gap-4">
+    <div className="my-8 flex w-full gap-4">
       {totalCommunityStatus.map((item, index) => {
         return (
           <div
             key={index}
-            className="bg-layout-elements-focus rounded-button-round flex w-1/5 flex-col gap-4 border border-white/20 p-5"
+            className="bg-layout-elements-focus rounded-button-round flex w-1/5 cursor-pointer flex-col gap-4 border border-white/20 p-5"
           >
             <img src={item.imgSrc} height="30px" width="30px" />
             <p className="text-font font-semibold">{item.title}</p>

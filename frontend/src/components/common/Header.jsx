@@ -3,9 +3,7 @@ import { Moon, Sun } from 'lucide-react';
 import DefaultUserPic from '../../assets/icons/defaultUser.svg';
 import BaartaIcon from '../../assets/icons/Baarta.svg';
 import GoogleIcon from '../../assets/icons/googleIcon.svg';
-import GithubIcon from '../../assets/icons/githubIcon.svg';
 import SearchIcon from '../../assets/icons/searchIcon.svg';
-import isAuthenticated from '../../main';
 import userInfo from '../../utils/fetchUserInfo';
 import { Bell } from 'lucide-react';
 import ProfilePic from './ProfilePic';
@@ -13,6 +11,8 @@ import Notification from './Notification';
 import LoginPopUp from '../ui/LoginPopUp';
 import SignInPopUp from '../ui/SignUpPopUp';
 const notificationCount = 1;
+
+let isAuthenticated = true;
 
 function Header() {
   return (
@@ -126,7 +126,6 @@ function AuthenticateOptions() {
         <button
           onClick={() => setShowSignIn(true)}
           className="p-button-padding rounded-button-round cursor-pointer bg-green-600 px-6 font-medium text-white transition-all duration-300 ease-in hover:bg-green-700"
-          className="p-button-padding rounded-button-round bg-green-600 px-6 font-medium text-white transition-all duration-300 ease-in hover:bg-green-700"
         >
           Join Now
         </button>

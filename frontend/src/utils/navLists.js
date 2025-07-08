@@ -17,12 +17,12 @@ const navbarInfo = [
     imgSrc: SavedSrc,
   },
   {
-    label: 'Drafts',
+    label: 'Draft',
     imgSrc: DraftsSrc,
   },
 ];
 
-const dashboardContentNavbar = [
+const homeContentNavbar = [
   {
     label: 'Live Discussions',
   },
@@ -40,4 +40,4 @@ const dashboardContentNavbar = [
   },
 ];
 
-export { navbarInfo, dashboardContentNavbar };
+export { navbarInfo, homeContentNavbar };

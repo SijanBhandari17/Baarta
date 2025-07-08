@@ -1,7 +1,8 @@
 import Header from '../components/common/Header';
 import RightAsideBar from '../components/common/RightAsideBar';
 import LeftAsideBar from '../components/common/LeftAsideBar';
-import DashboardContent from '../components/common/DashboardContent';
+import HomeContent from '../components/common/HomeContent';
+import { Outlet } from 'react-router-dom';
 
 function Dashboard() {
   return (
@@ -9,7 +10,7 @@ function Dashboard() {
       <Header />
       <div className="flex w-screen flex-1">
         <LeftAsideBar />
-        <DashboardContent />
+        <Outlet />
         <RightAsideBar />
       </div>
     </div>

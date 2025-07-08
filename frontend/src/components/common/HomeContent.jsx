@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { dashboardContentNavbar } from '../../utils/navLists';
+import { homeContentNavbar } from '../../utils/navLists';
 import Button from '../ui/Button';
 import LiveDiscussions from './LiveDiscussions';
 
-function DashBoardContent() {
+function HomeContent() {
   const [activeButton, setActiveButton] = useState(0);
   function handleClick(event) {
     const targetedEvent = event.target;
@@ -26,7 +26,7 @@ function DashBoardNav({ activeButton }) {
   const activeColor = 'bg-[#2F77FF] hover:bg-[#255FCC]';
   return (
     <>
-      {dashboardContentNavbar.map((item, index) => {
+      {homeContentNavbar.map((item, index) => {
         return (
           <Button
             label={item.label}
@@ -40,4 +40,4 @@ function DashBoardNav({ activeButton }) {
     </>
   );
 }
-export default DashBoardContent;
+export default HomeContent;

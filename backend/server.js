@@ -6,8 +6,10 @@ const handleNewUser = require('./routes/registerRoute');
 const handleLogin = require('./routes/authRoutes');
 const handleLogout = require('./routes/logoutRoutes');
 const showDashBoard = require('./routes/dashboardRoute')
+const profilepic = require('./routes/profilePic')
 const verifyJWT = require('./middleware/verifyJWT');
 const cors = require('cors')
+const cloudinaryMiddleware = require('./middleware/cloudinaryMiddleware')
 const corsOptions = require('./config/corsOption')
 const mongoose = require('mongoose')
 const connectDB = require('./config/dbConfig')
@@ -16,19 +18,17 @@ connectDB()
 app.use(cookieParser());
 app.use(cors(corsOptions))
 app.use(express.json());
-app.post('/test' , (req , res)=>{
-  if(!req?.body) res.status(400).json({"error" : "body is missing"})
-  console.log(`Oh! hi there ${req.body.username} and you email is ${req.body.email} btw`)
-  res.status(404).json({'message' : "data insertion successful"})
-})
-app.use('/register',handleNewUser);
-app.use('/login',handleLogin);
-app.use('/logout',handleLogout);
-app.use('/dashboard' ,verifyJWT )
-app.use('/dashboard' , showDashBoard)
+// this is the part where we call in the routes with verification.
+// app.use('/register',handleNewUser);
+// app.use('/login',handleLogin);
+// app.use('/logout',handleLogout);
+// app.use('/dashboard' ,verifyJWT )
+// app.use('/dashboard' , showDashBoard)
+app.use('/uploads', cloudinaryMiddleware) 
+app.use('/uploads' , profilepic)
 mongoose.connection.once('open' , ()=>{
   console.log('connected to MongoDB atlas')
-  app.listen(PORT , ()=>{
+  app.listen(5000 , ()=>{
     console.log(`the server is listening to port no . ${PORT}`)
   })
 })

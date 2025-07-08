@@ -1,14 +1,15 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Moon, Sun } from 'lucide-react';
 import BaartaIcon from '../../assets/icons/Baarta.svg';
 import GoogleIcon from '../../assets/icons/googleIcon.svg';
 import SearchIcon from '../../assets/icons/searchIcon.svg';
 import userInfo from '../../utils/fetchUserInfo';
 import { Bell } from 'lucide-react';
-import ProfilePic from './ProfilePic';
+import Profile from './Profile';
 import Notification from './Notification';
 import LoginPopUp from '../ui/LoginPopUp';
 import SignInPopUp from '../ui/SignUpPopUp';
+import { useCallback } from 'react';
 const notificationCount = 1;
 
 let isAuthenticated = true;
@@ -25,24 +26,46 @@ function Header() {
   );
 }
 
-function ProfileSection() {
-  const [showProfilePic, setProfilePic] = useState(false);
-  const [showNotification, setNotification] = useState(false);
+//Custom Hook
+function useDropdown(selector) {
+  const [isOpen, setIsOpen] = useState(false);
 
-  function handleNotificationClick() {
-    setNotification(!showNotification);
-  }
-  function handleProfileClick() {
-    setProfilePic(!showProfilePic);
-  }
+  const toggle = useCallback(() => setIsOpen(prev => !prev), []);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleEsc = e => {
+      if (e.key === 'Escape') toggle();
+    };
+
+    const handleOutsideClick = e => {
+      if (!e.target.closest(selector)) toggle();
+    };
+
+    window.addEventListener('keydown', handleEsc);
+    window.addEventListener('click', handleOutsideClick);
+
+    return () => {
+      window.removeEventListener('keydown', handleEsc);
+      window.removeEventListener('click', handleOutsideClick);
+    };
+  }, [isOpen, toggle, selector]);
+
+  return [isOpen, toggle];
+}
+
+function ProfileSection() {
+  const [showProfile, toggleProfile] = useDropdown('.profile-section');
+  const [showNotification, toggleNotification] = useDropdown('.notification-section');
 
   return (
     <div className="flex">
-      <div className="relative flex items-center">
+      <div className="notification-section relative flex items-center">
         <Bell
           className="hover:bg-layout-elements-focus h-12 w-14 cursor-pointer rounded-full p-2 text-white"
           title="Notifications"
-          onClick={handleNotificationClick}
+          onClick={toggleNotification}
         />
         {notificationCount > 0 ? (
           <span className="absolute top-1 right-2 flex min-h-[1.5rem] min-w-[1.5rem] cursor-pointer items-center justify-center rounded-full bg-red-600 text-[1rem] text-white">
@@ -53,14 +76,14 @@ function ProfileSection() {
         )}
         {showNotification && <Notification />}
       </div>
-      <div className="flex size-[56px] items-center justify-center rounded-full">
+      <div className="profile-section flex size-[56px] items-center justify-center rounded-full">
         <img
           src={userInfo.imgSrc}
           className="hover:bg-layout-elements-focus h-15 w-16 cursor-pointer rounded-full p-2"
-          onClick={handleProfileClick}
+          onClick={toggleProfile}
         />
       </div>
-      {showProfilePic && <ProfilePic />}
+      {showProfile && <Profile />}
     </div>
   );
 }

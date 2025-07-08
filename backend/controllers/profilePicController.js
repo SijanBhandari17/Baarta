@@ -1,5 +1,7 @@
 const {Readable} = require('stream')
 const cloudinary = require('../config/cloudinaryConfig')
+const Profile = require('../models/profilePicModel')
+const User = require('../models/userModel')
 const uploadToCloudinary = (buffer , options = {})=>{
     return new Promise((resolve , reject)=>{
         const stream  = Readable.from(buffer) 
@@ -28,12 +30,18 @@ const handleProfilePic = async (req, res)=>{
             public_id : publicId,
             folder : 'uploads',
             resource_type : 'auto'
-        } 
-        
-        )
-         res.status(201).json({
-      message: 'File uploaded successfully',
-      file: {
+        })
+        const user = await User.findOne({email : req.user.email}).exec()
+        if(!user) return res.status(400).json({"error" : 'bad email recieved'}) 
+        const userId = user._id;
+        const resultDB = await Profile.create({
+            userId : userId,
+            profilePicLink :result.secure_url
+        })
+        console.log('result' , resultDB)
+        res.status(201).json({
+        message: 'File uploaded successfully',
+        file: {
         public_id: result.public_id,
         url: result.secure_url,
         original_filename: req.file.originalname,

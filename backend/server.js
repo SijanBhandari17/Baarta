@@ -19,12 +19,12 @@ app.use(cookieParser());
 app.use(cors(corsOptions))
 app.use(express.json());
 // this is the part where we call in the routes with verification.
-// app.use('/register',handleNewUser);
-// app.use('/login',handleLogin);
-// app.use('/logout',handleLogout);
-// app.use('/dashboard' ,verifyJWT )
-// app.use('/dashboard' , showDashBoard)
-app.use('/uploads', cloudinaryMiddleware) 
+app.use('/register',handleNewUser);
+app.use('/login',handleLogin);
+app.use('/logout',handleLogout);
+app.use('/dashboard' ,verifyJWT )
+app.use('/dashboard' , showDashBoard)
+app.use('/uploads', [verifyJWT ,cloudinaryMiddleware]) 
 app.use('/uploads' , profilepic)
 mongoose.connection.once('open' , ()=>{
   console.log('connected to MongoDB atlas')

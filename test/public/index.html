@@ -45,12 +45,25 @@
 
 <script>
     const form = document.querySelector('.form')
+    async function sendRegistration()
+    {
+      const response = await fetch('http://localhost:5000/login' ,{
+        method : 'POST',
+        headers : {"Content-Type" : "application/json"},
+        body : JSON.stringify({email : 'testfornow@gmail.com' , password : '11111111!'}),
+        credentials : 'include' 
+      })
+      const msg = await response.json()
+      console.log(msg)
+    }
+    sendRegistration()
     form.addEventListener('submit' , async (e)=>{
         e.preventDefault()
         const fileData = new FormData(e.currentTarget)
         const response = await fetch('http://localhost:5000/uploads/profilepic' , {
             method : 'POST',
-            body : fileData
+            body : fileData,
+            credentials : 'include'
         })
         const data = await response.json();
         console.log(data)

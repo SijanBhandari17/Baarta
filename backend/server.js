@@ -4,7 +4,6 @@ const cookieParser = require('cookie-parser');
 const app = express();
 const handleNewUser = require('./routes/registerRoute');
 const handleLogin = require('./routes/authRoutes');
-const handleRefreshToken = require('./routes/refreshTokenRoutes');
 const handleLogout = require('./routes/logoutRoutes');
 const showDashBoard = require('./routes/dashboardRoute')
 const verifyJWT = require('./middleware/verifyJWT');
@@ -24,13 +23,9 @@ app.post('/test' , (req , res)=>{
 })
 app.use('/register',handleNewUser);
 app.use('/login',handleLogin);
-app.use('/refresh',handleRefreshToken);
 app.use('/logout',handleLogout);
 app.use('/dashboard' ,verifyJWT )
 app.use('/dashboard' , showDashBoard)
-
-/////////// testing : verifyJWT ///////////////
-/////// use verifyJWT ,where routes that should only be accessible to authenticated users with a valid JWT (JSON Web Token).////////
 mongoose.connection.once('open' , ()=>{
   console.log('connected to MongoDB atlas')
   app.listen(PORT , ()=>{

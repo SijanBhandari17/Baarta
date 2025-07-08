@@ -1,7 +1,7 @@
 const whiteList = require('./whiteList');
 const options = {
    origin :  (origin , callback) =>{
-    if(whiteList.indexOf(origin) !== 1 || !origin)
+    if(whiteList.indexOf(origin) !== -1 || !origin)
     {
         callback(null , true)
     }
@@ -11,8 +11,7 @@ const options = {
     }
    }
    ,
-   allowedHeaders : ['Content-Type' , 'Authorization'],
    credentials : true,
-   methods : ['PUT' , 'DELETE' , 'OPTIONS']
+   methods : ['POST','DELETE' , 'OPTIONS']
 }
 module.exports = options

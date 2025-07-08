@@ -4,27 +4,27 @@ const handleLogout = async (req ,res)=> {
 
   const cookies = req.cookies;
 
-  if(!cookies?.jwt) return res.status(401).json({"error" : "no cookies found "});
-
-  const refreshToken = cookies.jwt;
-
+  if(!cookies?.refreshToken) return res.status(401).json({"error" : "no cookies found "});
+  const {refreshToken} = cookies;
   const foundUser = await User.findOne({refreshToken}).exec()
-
   if(!foundUser) return res.status(203).json({"error" : "no user found in db with that refreshToken"});
-
   foundUser.refreshToken="";
   const result = await foundUser.save()
   console.log(result)
   /////////// clearing the cookie ///////////////
-  res.clearCookie('jwt' , 
+  res.clearCookie('refreshToken' , 
     {
       HttpOnly : true,
-      sameSite : 'none',
-      maxAge : 3*24*60*60*1000
+      sameSite : 'lax',
+      maxAge : 30*24*60*60*1000
     }
   );
+  res.clearCookie('accessToken', {
+    HttpOnly : true,
+    sameSite : 'lax',
+    maxAge : 30*24*60*60*1000
+  })
 
-  //////////// updating the database /////////////
 
   res.status(201).json({"message" : "successful logout"});
 }

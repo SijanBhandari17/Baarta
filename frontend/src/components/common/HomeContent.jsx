@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { homeContentNavbar } from '../../utils/navLists';
 import Button from '../ui/Button';
 import LiveDiscussions from './LiveDiscussions';
+import { Navigate, NavLink, Outlet } from 'react-router-dom';
 
 function HomeContent() {
   const [activeButton, setActiveButton] = useState(0);
@@ -17,7 +18,7 @@ function HomeContent() {
         <DashBoardNav activeButton={activeButton} />
       </div>
       <div>
-        <LiveDiscussions />
+        <Outlet />
       </div>
     </div>
   );
@@ -28,13 +29,14 @@ function DashBoardNav({ activeButton }) {
     <>
       {homeContentNavbar.map((item, index) => {
         return (
-          <Button
-            label={item.label}
-            key={index}
-            index={index}
-            isActive={index == activeButton}
-            activeColor={activeColor}
-          />
+          <NavLink key={index} to={item.label.replace(/\s/g, '').toLowerCase()}>
+            <Button
+              label={item.label}
+              index={index}
+              isActive={index == activeButton}
+              activeColor={activeColor}
+            />
+          </NavLink>
         );
       })}
     </>

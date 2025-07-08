@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Moon, Sun } from 'lucide-react';
-import DefaultUserPic from '../../assets/icons/defaultUser.svg';
 import BaartaIcon from '../../assets/icons/Baarta.svg';
 import GoogleIcon from '../../assets/icons/googleIcon.svg';
 import SearchIcon from '../../assets/icons/searchIcon.svg';

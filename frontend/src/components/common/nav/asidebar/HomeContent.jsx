@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { homeContentNavbar } from '../../utils/navLists';
-import Button from '../ui/Button';
-import LiveDiscussions from './LiveDiscussions';
+import { homeContentNavbar } from '../../../../utils/navLists';
+import Button from '../../../ui/Button';
+import LiveDiscussions from '../home/LiveDiscussions';
 import { Navigate, NavLink, Outlet } from 'react-router-dom';
 
 function HomeContent() {

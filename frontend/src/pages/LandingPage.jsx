@@ -1,7 +1,7 @@
 import Header from '../components/common/Header';
 import RightAsideBar from '../components/common/RightAsideBar';
 import { totalCommunityStatus } from '../utils/fetchCommnityStatus';
-import LiveDiscussions from '../components/common/LiveDiscussions';
+import LiveDiscussions from '../components/common/nav/home/LiveDiscussions';
 
 function LandingPage() {
   return (
@@ -19,7 +19,7 @@ function MainContent() {
   return (
     <div className="bg-main-elements flex flex-1 flex-col px-8 py-6">
       <h1 className="text-font text-hero my-2 font-semibold">Where Academia Meets Innovation</h1>
-      <p className="text-font-light text-font-light text-title mb-4">
+      <p className="text-font-light text-title mb-4">
         Join the next generation of academic discourse
       </p>
       <StatusContent />

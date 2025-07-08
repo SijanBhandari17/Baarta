@@ -1,23 +1,17 @@
-import {
-  createBrowserRouter,
-  createRoutesFromElements,
-  Navigate,
-  Route,
-  RouterProvider,
-} from 'react-router-dom';
+import { createBrowserRouter, createRoutesFromElements, Navigate, Route } from 'react-router-dom';
 import Dashboard from '../pages/Dashboard';
 import LandingPage from '../pages/LandingPage';
-import LoginPopUp from '../components/ui/LoginPopUp';
 import ProtectedRoute from './protectedroutes';
-import HomeContent from '../components/common/HomeContent';
-import ForumContent from '../components/common/ForumContent';
-import Saved from '../components/common/SavedContent';
-import Drafts from '../components/common/DraftContent';
-import LiveDiscussions from '../components/common/LiveDiscussions';
-import Threads from '../components/common/Threads';
-import Following from '../components/common/Following';
-import EnrolledForms from '../components/common/EnrolledForms';
-import Trending from '../components/common/Trending';
+import HomeContent from '../components/common/nav/asidebar/HomeContent';
+import ForumContent from '../components/common/nav/asidebar/ForumContent';
+import Saved from '../components/common/nav/asidebar/SavedContent';
+import Drafts from '../components/common/nav/asidebar/DraftContent';
+
+import LiveDiscussions from '../components/common/nav/home/LiveDiscussions';
+import Threads from '../components/common/nav/home/Threads';
+import Following from '../components/common/nav/home/Following';
+import EnrolledForms from '../components/common/nav/home/EnrolledForms';
+import Trending from '../components/common/nav/home/Trending';
 
 const router = createBrowserRouter(
   createRoutesFromElements(

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { navbarInfo } from '../../utils/navLists';
-import { NavLink, Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 
 const userName = 'Alonso';
 const usersThreadCount = '150';

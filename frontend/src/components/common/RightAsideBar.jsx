@@ -16,7 +16,7 @@ function RightAsideBar() {
 function UpcommingEvents() {
   return (
     <div className="upcomming-events mb-8 w-full">
-      <h1 className="text-title text-font mb-4 font-semibold">Upcomming Events</h1>
+      <h1 className="text-title text-font mb-4 font-semibold uppercase">Upcomming Events</h1>
       {upcommingEventsArray.map((item, index) => (
         <SingleEvents event={item} key={index} />
       ))}
@@ -26,7 +26,7 @@ function UpcommingEvents() {
 
 function SingleEvents({ event }) {
   return (
-    <div className="individual-upcomming-event mb-4 flex items-center gap-2">
+    <div className="individual-upcomming-event hover:bg-layout-elements-focus rounded-button-round mb-4 flex cursor-pointer items-center gap-2 pl-1">
       <img src={CalenderIcon} alt="Calender Icon" width="20px" height="20px" />
       <div className="upcomming-event-info">
         <h2 className="text-body text-font">{event.title}</h2>
@@ -40,8 +40,8 @@ function SingleEvents({ event }) {
 
 function ActivePoll() {
   return (
-    <div className="active-poll bg-layout-elements-focus rounded-button-round mb-8 w-full border border-white/10">
-      <h1 className="text-title text-font my-2 ml-5 font-semibold">Active Poll</h1>
+    <div className="active-poll bg-layout-elements-focus rounded-button-round mb-8 w-full cursor-pointer border border-white/10">
+      <h1 className="text-title text-font my-2 ml-5 font-semibold uppercase">Active Poll</h1>
       {activePollArray.map((item, index) => {
         return <SinglePolls poll={item} key={index} />;
       })}

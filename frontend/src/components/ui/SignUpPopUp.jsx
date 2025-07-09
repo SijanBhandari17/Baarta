@@ -3,7 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 const SignInPopUp = ({ isOpen, onClose }) => {
   const [username , setUsername] = useState('')
   const [email , setEmail]  = useState('')
+  const [otp , setOtp] = useState('')
   const [password , setPassword] = useState('')
+  const [showOtpForm , setShowOtpForm] = useState(false)
   useEffect(() => {
     const onEsc = (e) => {
       if (e.key === 'Escape' && isOpen) onClose();
@@ -16,7 +18,7 @@ function formValidation(user_name , user_email , user_password){
   let u_name = true
   let u_email = true
   let u_password = true
-  let regex = /^[^\s@]+@(gmail\.com|email\.com|ymail\.com)$/
+  let regex = /^[^\s@]+@(gmail\.com|student\.[a-zA-Z]+\.edu\.np)$/
   if(!regex.test(user_email)) u_email = false
   regex = /^(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/
   if(!regex.test(user_password)) u_password = false
@@ -39,6 +41,7 @@ function formValidation(user_name , user_email , user_password){
       const data = await response.json()
       if(response.ok){
         console.log(data)
+        setShowOtpForm(true) 
       }
       else
       {
@@ -51,6 +54,31 @@ function formValidation(user_name , user_email , user_password){
     {
       console.error(err)
     }
+  }
+  const handleOtpSubmit = async(e) =>{
+    e.preventDefault()
+    try{
+      const response = await fetch('http://localhost:5000/register/otp', {
+        method : 'POST',
+        headers : {'Content-Type' : 'application/json'}, 
+        body : JSON.stringify({otp})
+      })
+      const data = await response.json()
+      if(response.ok){
+        console.log(data)
+      }
+      else
+      {
+        console.log('error has occured while registering the data')
+        console.log(data)
+      }
+
+    }
+    catch(err)
+    {
+      console.error(err)
+    }
+    
   }
  function onClickEye(e)
  {
@@ -85,7 +113,7 @@ function formValidation(user_name , user_email , user_password){
  {
   const emailField = e.currentTarget;
   const emailInfo = emailField.nextSibling.nextSibling;
-  const regex = /^[^\s@]+@(gmail\.com|email\.com|ymail\.com)$/
+  const regex = /^[^\s@]+@(gmail\.com|student\.[a-zA-Z]+\.edu\.np)$/
   if(emailField.value.length === 0) {
     emailInfo.classList.remove('visible')
     emailInfo.classList.add('invisible')
@@ -156,7 +184,7 @@ function formValidation(user_name , user_email , user_password){
               &times;
             </button>
                </h2>
-            <form className="w-full h-fit px-12 pb-2 flex flex-col flex-nowrap gap-5 relative  border-0  border-pink-600" onSubmit ={handleSubmit}>
+          {!showOtpForm && (<form className="w-full h-fit px-12 pb-2 flex flex-col flex-nowrap gap-5 relative  border-0  border-pink-600" onSubmit ={handleSubmit}>
               <div className ="relative">
               <input
                 id='username'
@@ -206,7 +234,28 @@ function formValidation(user_name , user_email , user_password){
               >
                 Sign Up
               </button>
-            </form>
+            </form>)}
+            
+           {showOtpForm && (<form className="w-full h-[200px] px-12 pb-2  flex-col flex-nowrap gap-5 relative  border-0  border-pink-600" onSubmit ={handleOtpSubmit}>
+              <div className ="relative">
+              <input
+                id='otp'
+                type="text"
+                placeholder=" "
+                value = {otp}
+                onChange={e=>setOtp(e.target.value)}
+                className="w-full peer rounded-button-round py-4 px-5 text-lg bg-layout-elements-focus focus:bg-layout-elements focus:border-royalpurple-dark focus:border-2 duration-300 text-font placeholder:text-font-light focus:outline-none"
+              />
+              <label htmlFor="otp" className= "absolute left-5 top-0 text-sm text-gray-200   -translate-y-1/2 peer-placeholder-shown:top-1/4   peer-focus:top-0 peer-focus:text-sm peer-focus:text-royalpurple-dark peer-focus:bg-layout-elements peer-focus:-translate-y-1/2 duration-300 peer-placeholder-shown:text-gray-200 peer-placeholder-shown:text-xl peer-placeholder-shown:-translate-y-1/4">Otp</label>
+              <span className='test-sm text-green-600'>*An Otp has been sent to your mail</span>
+              </div>
+              <button
+                type="submit"
+                className=" w-full py-4 text-lg rounded-button-round text-white font-semibold bg-linear-to-tr from-royalpurple-dark to-indigo-500 hover:scale-105 duration-150"
+              >
+                Send Otp
+              </button>
+            </form>)}
           </motion.div>
         </motion.div>
       )}

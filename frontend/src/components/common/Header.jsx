@@ -10,16 +10,17 @@ import Notification from './Notification';
 import LoginPopUp from '../ui/LoginPopUp';
 import SignInPopUp from '../ui/SignUpPopUp';
 import { useCallback } from 'react';
+import { useAuth } from '../../context/AuthContext';
 const notificationCount = 1;
-let isAuthenticated = false
 function Header() {
+  const { user } = useAuth();
   return (
     <nav className="bg-layout-elements flex w-full items-center justify-between gap-1 border border-b-white/10 px-3 pt-2 pb-4">
       <div className="flex gap-18">
         <img src={BaartaIcon} alt="Baarta Icon" className="cursor-pointer" />
         <SearchBar />
       </div>
-      {isAuthenticated ? <ProfileSection /> : <AuthenticateOptions />}
+      {user ? <ProfileSection /> : <AuthenticateOptions />}
     </nav>
   );
 }

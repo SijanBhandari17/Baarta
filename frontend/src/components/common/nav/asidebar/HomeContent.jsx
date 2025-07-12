@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { homeContentNavbar } from '../../../../utils/navLists';
 import Button from '../../../ui/Button';
-import LiveDiscussions from '../home/LiveDiscussions';
-import { Navigate, NavLink, Outlet } from 'react-router-dom';
+import { NavLink, Outlet } from 'react-router-dom';
 
 function HomeContent() {
   const [activeButton, setActiveButton] = useState(0);
@@ -14,7 +13,7 @@ function HomeContent() {
 
   return (
     <div className="bg-main-elements flex w-[70%] flex-col gap-4 p-6">
-      <div className="flex gap-2" onClick={event => handleClick(event)}>
+      <div className="flex gap-1" onClick={event => handleClick(event)}>
         <DashBoardNav activeButton={activeButton} />
       </div>
       <div>

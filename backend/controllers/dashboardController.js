@@ -1,5 +1,5 @@
 const Profile = require('../models/profilePicModel')
-const User = require('../models/User')
+const User = require('../models/userModel')
 const handleDashBoard = async (req , res)=>{
     const result = await User.findOne({email : req.user.email}).exec()
     if(!result)return res.status(400).json({"error" : "bad request at accessing the dashboard"})

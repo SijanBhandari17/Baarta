@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+
 
 const LoginPopUp = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState(''); // NEW
+  const auth = useAuth();
 
   useEffect(() => {
     const onEsc = e => {
@@ -16,28 +19,28 @@ const LoginPopUp = ({ isOpen, onClose }) => {
     return () => window.removeEventListener('keydown', onEsc);
   }, [isOpen, onClose]);
 
-  const handleLogin = async (e) => {
+  const handleLogin = async e => {
     e.preventDefault();
-    setLoginError(''); // reset on each attempt
     try {
       const response = await fetch('http://localhost:5000/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
-        credentials: 'include'
+        credentials: 'include',
       });
       const data = await response.json();
       if (response.ok) {
+        navigate('/home');
+        auth.loginAction(true);
+
         console.log('successful login done');
       } else {
         console.log('login failed');
-        setLoginError('Login failed. Please check your email or password.');
       }
       console.log(data);
-
       const redirectPromise = await fetch('http://localhost:5000/dashboard', {
         method: 'GET',
-        credentials: 'include'
+        credentials: 'include',
       });
       if (!redirectPromise.ok) return;
       const redirectMessage = await redirectPromise.json();

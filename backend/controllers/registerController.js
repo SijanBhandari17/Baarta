@@ -17,6 +17,9 @@ const handleNewUser = async (req ,res)=> {
   req.user = {username : username , email : user_email , password :password , otp : otp }
   try
   {
+    const alreadyExisting = await pendingUser.findOne({email: user_email}).exec()
+    if(!alreadyExisting)
+    {
     const hash_password = await bcrypt.hash(password,10);
     const result = await pendingUser.create({
       username : username,
@@ -24,6 +27,13 @@ const handleNewUser = async (req ,res)=> {
       password : hash_password,
       otp : otp
     })
+  }
+  else{
+    alreadyExisting.otp = otp
+    alreadyExisting.username = username
+    alreadyExisting.password = await bcrypt.hash(password , 10)
+    await alreadyExisting.save()
+  }
   }
   catch(err)
   {
@@ -33,13 +43,13 @@ const handleNewUser = async (req ,res)=> {
   let transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'abhiyanregmi@gmail.com',
-    pass: 'adjw ieyj gila oowl'
+    user: process.env.NODEMAILER_USER,
+    pass:process.env.NODEMAILER_PASS
   }
 });
 
 let mailOptions = {
-  from: 'abhiyanregmi@gmail.com',
+  from: process.env.NODEMAILER_USER,
   to: user_email,
   subject: 'Your otp for login',
   text: otp

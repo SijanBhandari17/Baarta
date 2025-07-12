@@ -65,7 +65,8 @@ function formValidation(user_name , user_email , user_password){
       })
       const data = await response.json()
       if(response.ok){
-        console.log(data)
+        console.log(data) // here route to the dahsbboard 
+        // here sent post fetch request to simulate login automatically 
       }
       else
       {

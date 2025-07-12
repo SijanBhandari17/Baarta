@@ -12,6 +12,7 @@ const storeUser = async (req , res)=>{
         password : pendingPerson.password, 
         username : pendingPerson.username 
     })
+    await pendingUser.deleteOne({email : pendingPerson.email})
     return res.status(200).json({"message" : "successful insertion" , "result" :result});
     } catch(err) {
         console.log("server error");

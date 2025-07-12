@@ -11,9 +11,7 @@ import LoginPopUp from '../ui/LoginPopUp';
 import SignInPopUp from '../ui/SignUpPopUp';
 import { useCallback } from 'react';
 const notificationCount = 1;
-
-let isAuthenticated = true;
-
+let isAuthenticated = false
 function Header() {
   return (
     <nav className="bg-layout-elements flex w-full items-center justify-between gap-1 border border-b-white/10 px-3 pt-2 pb-4">

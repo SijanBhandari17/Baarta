@@ -1,10 +1,10 @@
-import React, { useEffect , useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import {useNavigate} from 'react-router-dom'
+import { useNavigate } from 'react-router-dom';
 const LoginPopUp = ({ isOpen, onClose }) => {
-  const navigate = useNavigate()
-  const [email , setEmail] = useState('')
-  const [password , setPassword] = useState('')
+  const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   useEffect(() => {
     const onEsc = e => {
@@ -13,37 +13,34 @@ const LoginPopUp = ({ isOpen, onClose }) => {
     window.addEventListener('keydown', onEsc);
     return () => window.removeEventListener('keydown', onEsc);
   }, [isOpen, onClose]);
- const handleLogin = async (e) =>{
-    e.preventDefault()
-    try{
-      const response = await fetch('http://localhost:5000/login' , {
-        method : 'POST',
-        headers : {'Content-Type' : 'application/json'},
-        body : JSON.stringify({email , password}),
-        credentials : 'include'
-      })
-      const data = await response.json()
-      if(response.ok){
-        console.log(`successful login done`)
+  const handleLogin = async e => {
+    e.preventDefault();
+    try {
+      const response = await fetch('http://localhost:5000/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+        credentials: 'include',
+      });
+      const data = await response.json();
+      if (response.ok) {
+        console.log(`successful login done`);
+      } else {
+        console.log('login failed');
       }
-      else{
-        console.log('login failed')
-      }
-      console.log(data)
-      const redirectPromise = await fetch('http://localhost:5000/dashboard' , {
-        method : 'GET',
-        credentials: 'include'
-      })
-      if(!redirectPromise.ok) return
-      const redirectMessage = await redirectPromise.json()
-      console.log(redirectMessage)
+      console.log(data);
+      const redirectPromise = await fetch('http://localhost:5000/dashboard', {
+        method: 'GET',
+        credentials: 'include',
+      });
+      if (!redirectPromise.ok) return;
+      const redirectMessage = await redirectPromise.json();
+      console.log(redirectMessage);
       // you are supposed to be redirected from here.
+    } catch (err) {
+      console.error(`Err : ${err}`);
     }
-    catch(err)
-    {
-      console.error(`Err : ${err}`)
-    }
- }
+  };
   return (
     <AnimatePresence>
       {isOpen && (
@@ -71,28 +68,20 @@ const LoginPopUp = ({ isOpen, onClose }) => {
 
             <h2 className="mb-8 text-center text-4xl font-semibold">Welcome Back</h2>
 
-            <form className="space-y-6" onSubmit = {handleLogin}>
+            <form className="space-y-6" onSubmit={handleLogin}>
               <input
                 type="email"
                 placeholder="Email"
-<<<<<<< HEAD
-                value = {email}
-                onChange={(e)=> setEmail(e.target.value)}
-                className="w-full rounded-button-round py-4 px-5 text-lg bg-layout-elements-focus text-font placeholder:text-font-light focus:outline-none"
-=======
+                value={email}
+                onChange={e => setEmail(e.target.value)}
                 className="rounded-button-round bg-layout-elements-focus text-font placeholder:text-font-light w-full px-5 py-4 text-lg focus:outline-none"
->>>>>>> 2e44babe4df2b4477445760c8e368b253cb4866a
               />
               <input
                 type="password"
                 placeholder="Password"
-<<<<<<< HEAD
-                value = {password}
-                onChange={(e)=> setPassword(e.target.value)}
-                className="w-full rounded-button-round py-4 px-5 text-lg bg-layout-elements-focus text-font placeholder:text-font-light focus:outline-none"
-=======
+                value={password}
+                onChange={e => setPassword(e.target.value)}
                 className="rounded-button-round bg-layout-elements-focus text-font placeholder:text-font-light w-full px-5 py-4 text-lg focus:outline-none"
->>>>>>> 2e44babe4df2b4477445760c8e368b253cb4866a
               />
               <button
                 type="submit"

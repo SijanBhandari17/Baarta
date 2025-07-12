@@ -1,49 +1,32 @@
-const userDB = {
-  users : require('../models/User.json'),
-  setUser : function (data) { this.users = data}
-}
-
-const fsPromises = require('fs').promises;
-const path = require('path');
+const User = require('../models/userModel')
 
 const handleLogout = async (req ,res)=> {
 
   const cookies = req.cookies;
 
-  if(!cookies?.jwt) return res.status(401).json({"error" : "no cookies found "});
-
-  const refreshToken = cookies.jwt;
-
-  const foundUser = userDB.users.find(person=>person.refreshToken === refreshToken);
-
+  if(!cookies?.refreshToken) return res.status(401).json({"error" : "no cookies found "});
+  const {refreshToken} = cookies;
+  const foundUser = await User.findOne({refreshToken}).exec()
   if(!foundUser) return res.status(203).json({"error" : "no user found in db with that refreshToken"});
-
   foundUser.refreshToken="";
-
+  const result = await foundUser.save()
+  console.log(result)
   /////////// clearing the cookie ///////////////
-  res.clearCookie('jwt' , 
+  res.clearCookie('refreshToken' , 
     {
       HttpOnly : true,
-      sameSite : 'none',
-      maxAge : 3*24*60*60*1000
+      sameSite : 'lax',
+      maxAge : 30*24*60*60*1000
     }
   );
+  res.clearCookie('accessToken', {
+    HttpOnly : true,
+    sameSite : 'lax',
+    maxAge : 30*24*60*60*1000
+  })
 
-  //////////// updating the database /////////////
 
-  const otherUsers = userDB.users.filter(person=>person.email !== foundUser.email);
-  userDB.setUser([...otherUsers , foundUser]);
-
-  try {
-    await fsPromises.writeFile(
-      path.join(__dirname , ".." , "models" , "User.json"),
-      JSON.stringify(userDB.users)
-    );
-  } catch(err) {
-    console.log("error in writing in User.json file");
-    res.sendStatus(500);
-  }
-  res.sendStatus(204);
+  res.status(201).json({"message" : "successful logout"});
 }
 
 module.exports = handleLogout;

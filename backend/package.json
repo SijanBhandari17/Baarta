@@ -4,6 +4,7 @@
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
+    "cloudinary": "^2.7.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "date-fns": "^4.1.0",
@@ -14,6 +15,9 @@
     "fs": "^0.0.1-security",
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.17.0",
+    "mongoose": "^8.16.1",
+    "multer": "^2.0.1",
+    "nodemailer": "^7.0.5",
     "path": "^0.12.7",
     "util": "^0.12.5",
     "uuid": "^11.1.0"

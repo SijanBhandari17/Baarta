@@ -3,18 +3,11 @@
 // use refesh token rotation method - Refresh token rotation is a security mechanism designed to minimize the risks associated with token theft and unauthorized use. In this process, each time a refresh token is used to acquire a new access token, a brand new refresh token is also generated and the previous one is invalidated. This strategy ensures that compromised refresh tokens lose their utility almost immediately, drastically reducing the potential for compromise. ///////
 ///////////// here we will be using refresh token rotation method , and implementing refresh token reuse detection //////////////
 /// check the link - https://www.descope.com/blog/post/refresh-token-rotation ////////////
-
+const User = require('../models/userModel')
 const jwt = require('jsonwebtoken');
-const fsPromises = require('fs').promises;
-const path = require('path');
-require('dotenv').config();
 const util = require('util');
 const jwtVerify = util.promisify(jwt.verify);
 
-const userDB = {
-  users : require('../models/User.json'),
-  setUser : function (data) { this.users = data}
-}
 
 const handleRefreshToken = async (req ,res) => {
 
@@ -25,8 +18,7 @@ const handleRefreshToken = async (req ,res) => {
   const refreshToken = cookies.jwt;
 
 
-  const foundUser = userDB.users.find(person=>person.refreshToken === refreshToken);
-
+  const foundUser = await User.findOne({refreshToken}).exec()
   if(!foundUser) {
     console.log('no user with this refresh token !!!!! , logout the user immediately!');
     return  res.status(403).json({"error" : "no user matched with this refresh Token"});
@@ -68,15 +60,9 @@ const handleRefreshToken = async (req ,res) => {
   );
 
   foundUser.refreshToken = newRefreshToken;
-  const otherUsers = userDB.users.filter(person=> person.email !== foundUser.email);
-
-  userDB.setUser([...otherUsers , foundUser]);
+  const result = await foundUser.save()
+  console.log(result)
   try {
-  await fsPromises.writeFile(
-    path.join(__dirname , ".." , "models" , "User.json"),
-    JSON.stringify(userDB.users)
-  );
-
   res.cookie(
     "jwt" ,
     newRefreshToken,

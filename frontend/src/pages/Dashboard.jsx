@@ -1,9 +1,14 @@
 import Header from '../components/common/Header';
 import RightAsideBar from '../components/common/RightAsideBar';
 import LeftAsideBar from '../components/common/LeftAsideBar';
-import { Outlet } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 function Dashboard() {
+  const { user } = useAuth();
+  if (!user) {
+    return <Navigate to="/landingpage" replace />;
+  }
   return (
     <div className="flex h-svh flex-col">
       <Header />

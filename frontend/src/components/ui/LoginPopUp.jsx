@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+
 const LoginPopUp = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const auth = useAuth();
 
   useEffect(() => {
     const onEsc = e => {
@@ -13,6 +16,7 @@ const LoginPopUp = ({ isOpen, onClose }) => {
     window.addEventListener('keydown', onEsc);
     return () => window.removeEventListener('keydown', onEsc);
   }, [isOpen, onClose]);
+
   const handleLogin = async e => {
     e.preventDefault();
     try {
@@ -24,7 +28,10 @@ const LoginPopUp = ({ isOpen, onClose }) => {
       });
       const data = await response.json();
       if (response.ok) {
-        console.log(`successful login done`);
+        navigate('/home');
+        auth.loginAction(true);
+
+        console.log('successful login done');
       } else {
         console.log('login failed');
       }
@@ -36,11 +43,11 @@ const LoginPopUp = ({ isOpen, onClose }) => {
       if (!redirectPromise.ok) return;
       const redirectMessage = await redirectPromise.json();
       console.log(redirectMessage);
-      // you are supposed to be redirected from here.
     } catch (err) {
       console.error(`Err : ${err}`);
     }
   };
+
   return (
     <AnimatePresence>
       {isOpen && (

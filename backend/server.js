@@ -22,9 +22,9 @@ app.use(express.json());
 app.use('/register',handleNewUser);
 app.use('/login',handleLogin);
 app.use('/logout',handleLogout);
-app.use('/dashboard' ,verifyJWT )
-app.use('/dashboard' , showDashBoard)
-app.use('/uploads', [verifyJWT ,cloudinaryMiddleware]) 
+app.use('/dashboard' ,verifyJWT ) // middleware
+app.use('/dashboard' , showDashBoard) 
+app.use('/uploads', [verifyJWT ,cloudinaryMiddleware])  // middleware
 app.use('/uploads' , profilepic)
 mongoose.connection.once('open' , ()=>{
   console.log('connected to MongoDB atlas')

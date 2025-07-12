@@ -33,6 +33,8 @@ const handleProfilePic = async (req, res)=>{
         })
         const user = await User.findOne({email : req.user.email}).exec()
         if(!user) return res.status(400).json({"error" : 'bad email recieved'}) 
+        const existingProfile = await Profile.findOne({userId : user._id})
+        if(!existingProfile){
         const userId = user._id;
         const resultDB = await Profile.create({
             userId : userId,
@@ -53,6 +55,26 @@ const handleProfilePic = async (req, res)=>{
         type: result.resource_type
       }
     })
+}
+    else
+    {
+        existingProfile.profilePicLink = result.secure_url
+        await existingProfile.save()
+        res.status(201).json({
+        message : 'File uploaded successfully',
+        file: {
+        public_id: result.public_id,
+        url: result.secure_url,
+        original_filename: req.file.originalname,
+        width: result.width,
+        height: result.height,
+        format: result.format,
+        bytes: result.bytes,
+        created_at: result.created_at,
+        type: result.resource_type
+      }
+        })
+    }
     }
     catch(err){
     console.error('Upload error: ' , err)     

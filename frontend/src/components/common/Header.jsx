@@ -12,7 +12,6 @@ import SignInPopUp from '../ui/SignUpPopUp';
 import { useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
 const notificationCount = 1;
-
 function Header() {
   const { user } = useAuth();
   return (

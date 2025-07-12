@@ -9,54 +9,53 @@ const handleNewUser = async (req, res) => {
   const user_email = registerData.email;
   const username = registerData.username;
   const password = registerData.password;
-  if (!user_email || !username || !password)
-    return res.status(400).json({
-      error: "all field ( username , email , password ) are required",
-    });
-  const replyValidatoin = formValidation(username, user_email, password);
-  if (
-    !replyValidatoin.u_email ||
-    !replyValidatoin.u_name ||
-    !replyValidatoin.u_password
-  )
-    return res
-      .status(400)
-      .json({ error: "incorrect format", format: replyValidatoin });
-  const foundUser = await User.findOne({ email: user_email }).exec();
-  if (foundUser) return res.status(409).json({ error: "email already exists" }); // 409 - conflict
-  const otp = generateOTP();
-  req.user = {
-    username: username,
-    email: user_email,
-    password: password,
-    otp: otp,
-  };
-  try {
-    const hash_password = await bcrypt.hash(password, 10);
+  if(!user_email || !username || !password ) return res.status(400).json({"error" : "all field ( username , email , password ) are required"});
+  const replyValidatoin = formValidation(username , user_email , password)
+  if(!replyValidatoin.u_email || !replyValidatoin.u_name || !replyValidatoin.u_password) return res.status(400).json({"error" : "incorrect format" , "format" : replyValidatoin})
+  const foundUser = await User.findOne({email : user_email}).exec()
+  if(foundUser) return res.status(409).json({"error" : "email already exists"});  // 409 - conflict
+  const otp = generateOTP()
+  req.user = {username : username , email : user_email , password :password , otp : otp }
+  try
+  {
+    const alreadyExisting = await pendingUser.findOne({email: user_email}).exec()
+    if(!alreadyExisting)
+    {
+    const hash_password = await bcrypt.hash(password,10);
     const result = await pendingUser.create({
       username: username,
       email: user_email,
       password: hash_password,
       otp: otp,
     });
-  } catch (err) {
-    return res.status(500).json({ error: err.name });
   }
-  // this is where node mailer works
+   
+  else{
+    alreadyExisting.otp = otp
+    alreadyExisting.username = username
+    alreadyExisting.password = await bcrypt.hash(password , 10)
+    await alreadyExisting.save()
+  }
+  }
+  catch(err)
+  {
+    return res.status(500).json({"error" : err.name})
+  }
+  // this is where node mailer works 
   let transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.NODEMAILER_USER,
-      pass: process.env.NODEMAILER_PASS,
-    },
-  });
+  service: 'gmail',
+  auth: {
+    user: process.env.NODEMAILER_USER,
+    pass:process.env.NODEMAILER_PASS
+  }
+});
 
-  let mailOptions = {
-    from: process.env.NODEMAILER_USER,
-    to: user_email,
-    subject: "Your otp for login",
-    text: otp,
-  };
+let mailOptions = {
+  from: process.env.NODEMAILER_USER,
+  to: user_email,
+  subject: 'Your otp for login',
+  text: otp
+};
 
   transporter.sendMail(mailOptions, function (error, info) {
     if (error) {

@@ -14,7 +14,7 @@ function Profile() {
   const fileInputRef = useRef(null);
 
   const handleChangeProfile = () => {
-    fileInputRef.current?.click();
+    fileInputRef.current.click();
   };
 
   const handleFileChange = event => {

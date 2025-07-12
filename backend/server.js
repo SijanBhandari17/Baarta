@@ -1,32 +1,34 @@
+require('dotenv').config()
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const app = express();
 const handleNewUser = require('./routes/registerRoute');
 const handleLogin = require('./routes/authRoutes');
-const handleRefreshToken = require('./routes/refreshTokenRoutes');
 const handleLogout = require('./routes/logoutRoutes');
-const verifyRoles = require('./middleware/authorization');
+const showDashBoard = require('./routes/dashboardRoute')
+const profilepic = require('./routes/profilePic')
 const verifyJWT = require('./middleware/verifyJWT');
-
+const cors = require('cors')
+const cloudinaryMiddleware = require('./middleware/cloudinaryMiddleware')
+const corsOptions = require('./config/corsOption')
+const mongoose = require('mongoose')
+const connectDB = require('./config/dbConfig')
 const PORT = process.env.PORT || 5500;
-
-app.use(express.json());
+connectDB()
 app.use(cookieParser());
-
+app.use(cors(corsOptions))
+app.use(express.json());
+// this is the part where we call in the routes with verification.
 app.use('/register',handleNewUser);
 app.use('/login',handleLogin);
-app.use('/refresh',handleRefreshToken);
 app.use('/logout',handleLogout);
-
-app.get('/' , (req ,res)=>{
-  res.send('hello world');
-});
-
-/////////// testing : verifyJWT ///////////////
-/////// use verifyJWT ,where routes that should only be accessible to authenticated users with a valid JWT (JSON Web Token).////////
-
-app.get('/dashboard' , verifyJWT , (req ,res)=>{   
-  res.json({"message" : "welcome to the dashboard"});
+app.use('/dashboard' ,verifyJWT ) // middleware
+app.use('/dashboard' , showDashBoard) 
+app.use('/uploads', [verifyJWT ,cloudinaryMiddleware])  // middleware
+app.use('/uploads' , profilepic)
+mongoose.connection.once('open' , ()=>{
+  console.log('connected to MongoDB atlas')
+  app.listen(5000 , ()=>{
+    console.log(`the server is listening to port no . ${PORT}`)
+  })
 })
-
-app.listen(PORT , ()=>{console.log(`app is running on port : ${PORT}`)});

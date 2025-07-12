@@ -1,4 +1,4 @@
-import liveDiscussion from '../../utils/fetchLiveDiscussions';
+import liveDiscussion from '../../../../utils/fetchLiveDiscussions';
 
 function LiveDiscussions() {
   return (

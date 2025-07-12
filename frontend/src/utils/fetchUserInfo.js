@@ -1,4 +1,4 @@
-import MichealScott from '../assets//images/michealscott.jpeg';
+import MichealScott from '../assets/images/defaultUser.svg';
 import MozartProfilePic from '../assets/images/mozart.jpeg';
 
 const userInfo = {

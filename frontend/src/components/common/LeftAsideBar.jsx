@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { navbarInfo } from '../../utils/navLists';
+import { Navigate, NavLink } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
-const userName = 'Alonso';
-const usersThreadCount = '150';
-const usersRepliesCount = '500';
-
+const usersThreadCount = 10;
+const usersRepliesCount = 20;
 const statsData = [
   {
     label: 'Threads',
@@ -17,8 +17,12 @@ const statsData = [
 ];
 
 function LeftAsideBar() {
+  const { user } = useAuth();
+  if (!user) {
+    return <Navigate to="/landingpage" replace />;
+  }
   return (
-    <aside className="bg-layout-elements w-[15%] border border-l-white/10 p-6">
+    <aside className="bg-layout-elements w-[15%] border border-r-white/10 p-4">
       <DisplayUserInfo />
       <DisplayNavButtons />
     </aside>
@@ -26,9 +30,12 @@ function LeftAsideBar() {
 }
 
 function DisplayUserInfo() {
+  const { user } = useAuth();
   return (
     <div>
-      <h1 className="text-font mb-8 text-[28px] font-semibold">Welcome Back, {userName}</h1>
+      <h1 className="text-font mb-8 text-[28px] font-semibold">
+        Welcome Back, {user.info.username}
+      </h1>
       <div className="flex gap-2">
         {statsData.map((stat, index) => (
           <div
@@ -52,16 +59,17 @@ function DisplayNavButtons() {
     <div className="my-8">
       {navbarInfo.map((item, index) => {
         return (
-          <div
+          <NavLink
             key={index}
+            to={item.label.toLowerCase()}
             onClick={() => setActiveIcon(index)}
             className={`${
               index === activeIcon ? activeStyle : ''
-            } hover:bg-layout-elements-focus rounded-button-round my-2 flex cursor-pointer items-center px-2 py-4`}
+            } hover:bg-layout-elements-focus rounded-button-round my-2 flex cursor-pointer items-center px-2 py-4 no-underline`}
           >
-            <img src={item.imgSrc} className="mr-4" />
+            <img src={item.imgSrc} alt={item.label} className="mr-4" />
             <h1 className="text-font text-title">{item.label}</h1>
-          </div>
+          </NavLink>
         );
       })}
     </div>

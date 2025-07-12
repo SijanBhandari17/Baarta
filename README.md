@@ -9,6 +9,9 @@ A university centered forum web appliaction
 - React js (for front end ) 
 - Tailwind Css (for styling)
 - JWT (for authentication)
+- MongoDB Atlas (for ui database interface)
+- Multer (for handling multipart/form-data)
+- Cloudinary (for storing image in the cloud)
 - (to be continued)...
 
 ## Installation

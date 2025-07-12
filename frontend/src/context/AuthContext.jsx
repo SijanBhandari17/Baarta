@@ -5,7 +5,6 @@ const AuthContext = createContext();
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [token, setToken] = useState(localStorage.getItem('site') || '');
 
   useEffect(() => {
     checkAuthStatus();
@@ -47,14 +46,11 @@ const AuthProvider = ({ children }) => {
     }
 
     setUser(null);
-    setToken('');
-    localStorage.removeItem('site');
   };
 
   return (
     <AuthContext.Provider
       value={{
-        token,
         user,
         loading,
         loginAction,

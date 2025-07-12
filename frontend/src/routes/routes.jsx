@@ -1,7 +1,7 @@
 import { createBrowserRouter, createRoutesFromElements, Navigate, Route } from 'react-router-dom';
 import Dashboard from '../pages/Dashboard';
 import LandingPage from '../pages/LandingPage';
-import ProtectedRoute from './protectedroutes';
+import { ProtectedRoute, PublicRoute } from './protectedroutes';
 import HomeContent from '../components/common/nav/asidebar/HomeContent';
 import ForumContent from '../components/common/nav/asidebar/ForumContent';
 import Saved from '../components/common/nav/asidebar/SavedContent';
@@ -37,7 +37,14 @@ const router = createBrowserRouter(
         <Route path="saved" element={<Saved />} />
         <Route path="draft" element={<Drafts />} />
       </Route>
-      <Route path="/landingpage" element={<LandingPage />} />
+      <Route
+        path="/landingpage"
+        element={
+          <PublicRoute>
+            <LandingPage />
+          </PublicRoute>
+        }
+      />
     </>,
   ),
 );

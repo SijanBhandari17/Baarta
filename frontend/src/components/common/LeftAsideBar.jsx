@@ -1,11 +1,10 @@
 import { useState } from 'react';
 import { navbarInfo } from '../../utils/navLists';
-import { NavLink } from 'react-router-dom';
+import { Navigate, NavLink } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
-const userName = 'Alonso';
-const usersThreadCount = '150';
-const usersRepliesCount = '500';
-
+const usersThreadCount = 10;
+const usersRepliesCount = 20;
 const statsData = [
   {
     label: 'Threads',
@@ -18,6 +17,10 @@ const statsData = [
 ];
 
 function LeftAsideBar() {
+  const { user } = useAuth();
+  if (!user) {
+    return <Navigate to="/landingpage" replace />;
+  }
   return (
     <aside className="bg-layout-elements w-[15%] border border-r-white/10 p-4">
       <DisplayUserInfo />
@@ -27,9 +30,12 @@ function LeftAsideBar() {
 }
 
 function DisplayUserInfo() {
+  const { user } = useAuth();
   return (
     <div>
-      <h1 className="text-font mb-8 text-[28px] font-semibold">Welcome Back, {userName}</h1>
+      <h1 className="text-font mb-8 text-[28px] font-semibold">
+        Welcome Back, {user.info.username}
+      </h1>
       <div className="flex gap-2">
         {statsData.map((stat, index) => (
           <div

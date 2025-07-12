@@ -2,14 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-
+import { Eye, EyeOff } from 'lucide-react';
 
 const LoginPopUp = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState(''); // NEW
-  const auth = useAuth();
 
   useEffect(() => {
     const onEsc = e => {
@@ -19,8 +19,11 @@ const LoginPopUp = ({ isOpen, onClose }) => {
     return () => window.removeEventListener('keydown', onEsc);
   }, [isOpen, onClose]);
 
+  const { loginAction } = useAuth();
+
   const handleLogin = async e => {
     e.preventDefault();
+
     try {
       const response = await fetch('http://localhost:5000/login', {
         method: 'POST',
@@ -28,33 +31,40 @@ const LoginPopUp = ({ isOpen, onClose }) => {
         body: JSON.stringify({ email, password }),
         credentials: 'include',
       });
-      const data = await response.json();
-      if (response.ok) {
-        navigate('/home');
-        auth.loginAction(true);
 
-        console.log('successful login done');
-      } else {
-        console.log('login failed');
+      if (!response.ok) {
+        setLoginError('Wrong email or password entered');
+        return;
       }
-      console.log(data);
-      const redirectPromise = await fetch('http://localhost:5000/dashboard', {
+
+      console.log('Login successful');
+
+      const dashboardResponse = await fetch('http://localhost:5000/dashboard', {
         method: 'GET',
         credentials: 'include',
       });
-      if (!redirectPromise.ok) return;
-      const redirectMessage = await redirectPromise.json();
-      console.log(redirectMessage);
+
+      if (!dashboardResponse.ok) {
+        setLoginError('Failed to fetch user data after login');
+        return;
+      }
+
+      const userData = await dashboardResponse.json();
+      console.log(userData);
+
+      loginAction(userData);
+
+      navigate('/home');
+
+      console.log('User data after login:', userData);
     } catch (err) {
-      console.error(`Err : ${err}`);
-      setLoginError('Wrong email or password entered');
+      console.error(`Login error: ${err}`);
+      setLoginError('Something went wrong. Please try again.');
     }
   };
 
-  function onClickEye(e) {
-    const passwordField = e.currentTarget.previousSibling;
-    if (passwordField.type === 'password') passwordField.type = 'text';
-    else passwordField.type = 'password';
+  function togglePasswordVisibility(e) {
+    setShowPassword(prev => !prev);
   }
 
   return (
@@ -68,13 +78,13 @@ const LoginPopUp = ({ isOpen, onClose }) => {
           onClick={onClose}
         >
           <motion.div
-            className="bg-layout-elements rounded-2xl w-[500px] h-[420px] text-font relative shadow-2xl flex flex-col flex-nowrap"
+            className="bg-layout-elements text-font relative flex h-[420px] w-[500px] flex-col flex-nowrap rounded-2xl shadow-2xl"
             initial={{ scale: 0.85, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.85, opacity: 0 }}
             onClick={e => e.stopPropagation()}
           >
-            <h2 className="text-4xl relative font-semibold mb-8 text-center grow-1 flex justify-center items-center rounded-tr-2xl rounded-tl-2xl bg-linear-to-tr from-royalpurple-dark to-indigo-500">
+            <h2 className="from-royalpurple-dark relative mb-8 flex grow-1 items-center justify-center rounded-tl-2xl rounded-tr-2xl bg-linear-to-tr to-indigo-500 text-center text-4xl font-semibold">
               Welcome Back
               <button
                 onClick={onClose}
@@ -86,7 +96,7 @@ const LoginPopUp = ({ isOpen, onClose }) => {
             </h2>
 
             <form
-              className="w-full h-fit px-12 pb-2 flex flex-col flex-nowrap gap-5 relative"
+              className="relative flex h-fit w-full flex-col flex-nowrap gap-5 px-12 pb-2"
               onSubmit={handleLogin}
             >
               <div className="relative">
@@ -95,15 +105,12 @@ const LoginPopUp = ({ isOpen, onClose }) => {
                   type="email"
                   placeholder=" "
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full peer rounded-button-round py-4 px-5 text-lg bg-layout-elements-focus focus:bg-layout-elements focus:border-royalpurple-dark focus:border-2 duration-300 text-font placeholder:text-font-light focus:outline-none"
+                  onChange={e => setEmail(e.target.value)}
+                  className="peer rounded-button-round bg-layout-elements-focus focus:bg-layout-elements focus:border-royalpurple-dark text-font placeholder:text-font-light w-full px-5 py-4 text-lg duration-300 focus:border-2 focus:outline-none"
                 />
                 <label
                   htmlFor="email"
-                  className="absolute left-5 top-0 text-sm text-gray-200 -translate-y-1/2 
-                    peer-placeholder-shown:top-1/4 peer-focus:top-0 peer-focus:text-sm peer-focus:text-royalpurple-dark
-                    peer-focus:bg-layout-elements peer-focus:-translate-y-1/2 duration-300
-                    peer-placeholder-shown:text-gray-200 peer-placeholder-shown:text-xl peer-placeholder-shown:-translate-y-0"
+                  className="peer-focus:text-royalpurple-dark peer-focus:bg-layout-elements absolute top-0 left-5 -translate-y-1/2 text-sm text-gray-200 duration-300 peer-placeholder-shown:top-1/4 peer-placeholder-shown:-translate-y-0 peer-placeholder-shown:text-xl peer-placeholder-shown:text-gray-200 peer-focus:top-0 peer-focus:-translate-y-1/2 peer-focus:text-sm"
                 >
                   Email
                 </label>
@@ -112,22 +119,28 @@ const LoginPopUp = ({ isOpen, onClose }) => {
               <div className="relative">
                 <input
                   id="password"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   placeholder=" "
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full peer rounded-button-round py-4 px-5 text-lg bg-layout-elements-focus focus:bg-layout-elements focus:border-royalpurple-dark focus:border-2 duration-300 text-font placeholder:text-font-light focus:outline-none"
+                  onChange={e => setPassword(e.target.value)}
+                  className="peer rounded-button-round bg-layout-elements-focus focus:bg-layout-elements focus:border-royalpurple-dark text-font placeholder:text-font-light w-full px-5 py-4 text-lg duration-300 focus:border-2 focus:outline-none"
                 />
-                <div
-                  className="absolute bg-[url(../../assets/icons/eye.png)] bg-pink-400 h-[40px] w-[40px] right-[10px] top-0 translate-y-1/4 cursor-pointer"
-                  onClick={onClickEye}
-                ></div>
+
+                {showPassword ? (
+                  <Eye
+                    className="absolute top-0 right-[10px] size-[40px] translate-y-1/4 cursor-pointer"
+                    onClick={togglePasswordVisibility}
+                  />
+                ) : (
+                  <EyeOff
+                    className="absolute top-0 right-[10px] size-[40px] translate-y-1/4 cursor-pointer"
+                    onClick={togglePasswordVisibility}
+                  />
+                )}
+
                 <label
                   htmlFor="password"
-                  className="absolute left-5 top-0 text-sm text-gray-200 -translate-y-1/2 
-                    peer-placeholder-shown:top-1/4 peer-focus:top-0 peer-focus:text-sm peer-focus:text-royalpurple-dark
-                    peer-focus:bg-layout-elements peer-focus:-translate-y-1/2 duration-300
-                    peer-placeholder-shown:text-gray-200 peer-placeholder-shown:text-xl peer-placeholder-shown:-translate-y-0"
+                  className="peer-focus:text-royalpurple-dark peer-focus:bg-layout-elements absolute top-0 left-5 -translate-y-1/2 text-sm text-gray-200 duration-300 peer-placeholder-shown:top-1/4 peer-placeholder-shown:-translate-y-0 peer-placeholder-shown:text-xl peer-placeholder-shown:text-gray-200 peer-focus:top-0 peer-focus:-translate-y-1/2 peer-focus:text-sm"
                 >
                   Password
                 </label>
@@ -135,12 +148,12 @@ const LoginPopUp = ({ isOpen, onClose }) => {
 
               {/* Conditionally render error message */}
               {loginError && (
-                <div className="text-sm text-red-600 text-center -mt-2">{loginError}</div>
+                <div className="-mt-2 text-center text-sm text-red-600">{loginError}</div>
               )}
 
               <button
                 type="submit"
-                className="w-full py-4 text-lg rounded-button-round text-white font-semibold bg-linear-to-tr from-royalpurple-dark to-indigo-500 hover:scale-105 duration-150"
+                className="rounded-button-round from-royalpurple-dark w-full bg-linear-to-tr to-indigo-500 py-4 text-lg font-semibold text-white duration-150 hover:scale-105"
               >
                 Log In
               </button>

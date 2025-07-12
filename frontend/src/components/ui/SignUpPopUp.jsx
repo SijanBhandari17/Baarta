@@ -2,12 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { Eye, EyeOff } from 'lucide-react';
 
 const SignInPopUp = ({ isOpen, onClose }) => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [showOtpForm, setShowOtpForm] = useState(false);
   const auth = useAuth();
   const navigate = useNavigate();
@@ -62,30 +64,41 @@ const SignInPopUp = ({ isOpen, onClose }) => {
     e.preventDefault();
 
     try {
-      const response = await fetch('http://localhost:5000/register/otp', {
+      const otpResponse = await fetch('http://localhost:5000/register/otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ otp }),
       });
-      const data = await response.json();
 
-      if (response.ok) {
-        console.log(data);
-        auth.loginAction(true);
-        navigate('/home');
+      const otpData = await otpResponse.json();
+
+      if (otpResponse.ok) {
+        console.log('OTP verification successful:', otpData);
+        const loginResponse = await fetch('http://localhost:5000/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+          credentials: 'include',
+        });
+
+        const loginData = await loginResponse.json();
+
+        if (loginResponse.ok) {
+          navigate('/home');
+          console.log('Successful login:', loginData);
+        } else {
+          console.log('Login failed:', loginData);
+        }
       } else {
-        console.log('error has occured while registering the data');
-        console.log(data);
+        console.log('Error occurred while verifying OTP:', otpData);
       }
     } catch (err) {
-      console.error(err);
+      console.error('Error during request:', err);
     }
   };
-  function onClickEye(e) {
-    const passwordField = e.currentTarget.previousSibling;
-    console.log(typeof passwordField.type);
-    if (passwordField.type === 'password') passwordField.type = 'text';
-    else passwordField.type = 'password';
+
+  function togglePasswordVisibility(e) {
+    setShowPassword(prev => !prev);
   }
   function onUserEnter(e) {
     const usernameField = e.currentTarget;
@@ -230,7 +243,7 @@ const SignInPopUp = ({ isOpen, onClose }) => {
                 <div className="relative">
                   <input
                     id="password"
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     placeholder=" "
                     value={password}
                     onChange={e => {
@@ -239,10 +252,17 @@ const SignInPopUp = ({ isOpen, onClose }) => {
                     }}
                     className="peer rounded-button-round bg-layout-elements-focus focus:bg-layout-elements focus:border-royalpurple-dark text-font placeholder:text-font-light w-full px-5 py-4 text-lg duration-300 focus:border-2 focus:outline-none"
                   />
-                  <div
-                    className="absolute top-0 right-[10px] h-[40px] w-[40px] translate-y-1/4 bg-pink-400 bg-[url(../../assets/icons/eye.png)]"
-                    onClick={onClickEye}
-                  ></div>
+                  {showPassword ? (
+                    <Eye
+                      className="absolute top-0 right-[10px] size-[40px] translate-y-1/4 cursor-pointer"
+                      onClick={togglePasswordVisibility}
+                    />
+                  ) : (
+                    <EyeOff
+                      className="absolute top-0 right-[10px] size-[40px] translate-y-1/4 cursor-pointer"
+                      onClick={togglePasswordVisibility}
+                    />
+                  )}
                   <label
                     htmlFor="password"
                     className="peer-focus:text-royalpurple-dark peer-focus:bg-layout-elements absolute top-0 left-5 -translate-y-1/2 text-sm text-gray-200 duration-300 peer-placeholder-shown:top-1/4 peer-placeholder-shown:-translate-y-1/4 peer-placeholder-shown:text-xl peer-placeholder-shown:text-gray-200 peer-focus:top-0 peer-focus:-translate-y-1/2 peer-focus:text-sm"

@@ -19,8 +19,9 @@ const AuthProvider = ({ children }) => {
 
       if (response.ok) {
         const userData = await response.json();
-        console.log(userData)
-        setUser(userData);
+        setUser(userData); // store full user object
+        console.log(userData);
+        console.trace();
       } else {
         setUser(null);
       }
@@ -38,15 +39,21 @@ const AuthProvider = ({ children }) => {
 
   const logOut = async () => {
     try {
-      await fetch('http://localhost:5000/logout', {
+      const response = await fetch('http://localhost:5000/logout', {
         method: 'POST',
         credentials: 'include',
       });
+
+      if (response.ok) {
+        console.log('Logout successful');
+      } else {
+        console.error('Logout failed on server:', response.status);
+      }
     } catch (error) {
       console.error('Logout error:', error);
+    } finally {
+      setUser(null);
     }
-
-    setUser(null);
   };
 
   return (

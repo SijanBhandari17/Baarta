@@ -8,10 +8,8 @@ import { useAuth } from '../context/AuthContext';
 import { Navigate } from 'react-router-dom';
 
 function LandingPage() {
-  const { user, loading } = useAuth();
-  if (user) {
-    return <Navigate to="/home" replace />;
-  }
+  const { user } = useAuth();
+  console.log(user);
   return (
     <div className="flex h-screen flex-col">
       <Header />

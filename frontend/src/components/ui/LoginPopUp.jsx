@@ -7,7 +7,7 @@ const LoginPopUp = ({ isOpen, onClose }) => {
   const [password , setPassword] = useState('')
 
   useEffect(() => {
-    const onEsc = (e) => {
+    const onEsc = e => {
       if (e.key === 'Escape' && isOpen) onClose();
     };
     window.addEventListener('keydown', onEsc);
@@ -55,40 +55,48 @@ const LoginPopUp = ({ isOpen, onClose }) => {
           onClick={onClose}
         >
           <motion.div
-            className="bg-layout-elements p-12 rounded-2xl w-[600px] text-font relative shadow-2xl"
+            className="bg-layout-elements text-font relative w-[600px] rounded-2xl p-12 shadow-2xl"
             initial={{ scale: 0.85, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.85, opacity: 0 }}
-            onClick={(e) => e.stopPropagation()}
+            onClick={e => e.stopPropagation()}
           >
             <button
               onClick={onClose}
-              className="absolute top-4 right-4 text-font hover:text-royalpurple-dark font-bold text-3xl leading-none"
+              className="text-font hover:text-royalpurple-dark absolute top-4 right-4 text-3xl leading-none font-bold"
               aria-label="Close login popup"
             >
               &times;
             </button>
 
-            <h2 className="text-4xl font-semibold mb-8 text-center">Welcome Back</h2>
+            <h2 className="mb-8 text-center text-4xl font-semibold">Welcome Back</h2>
 
             <form className="space-y-6" onSubmit = {handleLogin}>
               <input
                 type="email"
                 placeholder="Email"
+<<<<<<< HEAD
                 value = {email}
                 onChange={(e)=> setEmail(e.target.value)}
                 className="w-full rounded-button-round py-4 px-5 text-lg bg-layout-elements-focus text-font placeholder:text-font-light focus:outline-none"
+=======
+                className="rounded-button-round bg-layout-elements-focus text-font placeholder:text-font-light w-full px-5 py-4 text-lg focus:outline-none"
+>>>>>>> 2e44babe4df2b4477445760c8e368b253cb4866a
               />
               <input
                 type="password"
                 placeholder="Password"
+<<<<<<< HEAD
                 value = {password}
                 onChange={(e)=> setPassword(e.target.value)}
                 className="w-full rounded-button-round py-4 px-5 text-lg bg-layout-elements-focus text-font placeholder:text-font-light focus:outline-none"
+=======
+                className="rounded-button-round bg-layout-elements-focus text-font placeholder:text-font-light w-full px-5 py-4 text-lg focus:outline-none"
+>>>>>>> 2e44babe4df2b4477445760c8e368b253cb4866a
               />
               <button
                 type="submit"
-                className="bg-royalpurple-dark w-full py-4 text-lg rounded-button-round text-white font-semibold hover:bg-purple-900 transition"
+                className="bg-royalpurple-dark rounded-button-round w-full py-4 text-lg font-semibold text-white transition hover:bg-purple-900"
               >
                 Log In
               </button>

@@ -7,7 +7,7 @@ const SignInPopUp = ({ isOpen, onClose }) => {
   const [password , setPassword] = useState('')
   const [showOtpForm , setShowOtpForm] = useState(false)
   useEffect(() => {
-    const onEsc = (e) => {
+    const onEsc = e => {
       if (e.key === 'Escape' && isOpen) onClose();
     };
     window.addEventListener('keydown', onEsc);
@@ -173,12 +173,12 @@ function formValidation(user_name , user_email , user_password){
             initial={{ scale: 0.85, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.85, opacity: 0 }}
-            onClick={(e) => e.stopPropagation()}
+            onClick={e => e.stopPropagation()}
           >
             <h2 className="text-4xl relative font-semibold mb-8 text-center  grow-1 flex justify-center items-center rounded-tr-2xl rounded-tl-2xl bg-linear-to-tr from-royalpurple-dark to-indigo-500">Create Your Account
             <button
               onClick={onClose}
-              className="absolute top-4 right-4 text-font hover:text-royalpurple-dark font-bold text-3xl leading-none"
+              className="text-font hover:text-royalpurple-dark absolute top-4 right-4 text-3xl leading-none font-bold"
               aria-label="Close sign in popup"
             >
               &times;

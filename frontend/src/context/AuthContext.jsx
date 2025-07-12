@@ -40,7 +40,7 @@ const AuthProvider = ({ children }) => {
   const logOut = async () => {
     try {
       const response = await fetch('http://localhost:5000/logout', {
-        method: 'POST',
+        method: 'GET',
         credentials: 'include',
       });
 

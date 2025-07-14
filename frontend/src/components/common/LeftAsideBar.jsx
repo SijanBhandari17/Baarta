@@ -61,7 +61,7 @@ function DisplayNavButtons() {
         return (
           <NavLink
             key={index}
-            to={item.label.toLowerCase()}
+            to={'/' + item.label.toLowerCase()}
             onClick={() => setActiveIcon(index)}
             className={`${
               index === activeIcon ? activeStyle : ''

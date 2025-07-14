@@ -2,6 +2,7 @@ import upcommingEventsArray from '../../utils/fetchUpcommingEvents';
 import CalenderIcon from '../../assets/icons/calendar.svg';
 import activePollArray from '../../utils/fetchActivePolls';
 import { communityStatus } from '../../utils/fetchCommnityStatus';
+import { useNavigate } from 'react-router-dom';
 
 function RightAsideBar() {
   return (
@@ -14,8 +15,9 @@ function RightAsideBar() {
 }
 
 function UpcommingEvents() {
+  const navigate = useNavigate();
   return (
-    <div className="upcomming-events mb-8 w-full">
+    <div onClick={() => navigate('/upcommingevents')} className="upcomming-events mb-8 w-full">
       <h1 className="text-title text-font mb-4 font-semibold uppercase">Upcomming Events</h1>
       {upcommingEventsArray.map((item, index) => (
         <SingleEvents event={item} key={index} />

@@ -12,6 +12,7 @@ import Threads from '../components/common/nav/home/Threads';
 import Following from '../components/common/nav/home/Following';
 import EnrolledForms from '../components/common/nav/home/EnrolledForms';
 import Trending from '../components/common/nav/home/Trending';
+import UpcommingEventInfo from '../pages/UpcommingEvents';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -37,6 +38,7 @@ const router = createBrowserRouter(
         <Route path="saved" element={<Saved />} />
         <Route path="draft" element={<Drafts />} />
       </Route>
+      <Route path="upcommingevents" element={<UpcommingEventInfo />} />
       <Route
         path="/landingpage"
         element={

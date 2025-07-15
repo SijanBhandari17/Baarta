@@ -11,7 +11,6 @@ const postSchema = new Schema({
     author_id : {type : mongoose.Schema.Types.ObjectId , ref : 'User' , required : true} ,
     upvote_id : [{type:mongoose.Schema.Types.ObjectId , ref : 'User' }],
     comment_id : [{type : mongoose.Schema.Types.ObjectId , ref : 'Comment'}],
-    forum_id : [{type:mongoose.Schema.Types.ObjectId , ref : "User"}],
     genre : {type : String , enum : ['Question' , 'Announcement' , 'Event']}
 })
 module.exports = mongoose.model('Post' , postSchema)

@@ -8,6 +8,7 @@ const handleLogout = require('./routes/logoutRoutes');
 const showDashBoard = require('./routes/dashboardRoute')
 const postHandler = require('./routes/postRoutes')
 const profilepic = require('./routes/profilePic')
+const commentRoute = require('./routes/commentRoutes')
 const verifyJWT = require('./middleware/verifyJWT');
 const cors = require('cors')
 const cloudinaryMiddleware = require('./middleware/cloudinaryProfilePicMiddleware')
@@ -29,6 +30,8 @@ app.use('/uploads', [verifyJWT ,cloudinaryMiddleware])  // middleware
 app.use('/uploads' , profilepic)
 app.use('/post' , verifyJWT)
 app.use('/post' , postHandler)
+app.use('/comment' , verifyJWT)
+app.use('/comment',  commentRoute)
 mongoose.connection.once('open' , ()=>{
   console.log('connected to MongoDB atlas')
   app.listen(5000 , ()=>{

@@ -9,10 +9,6 @@ import {
 } from '../utils/fetchInfoEvent';
 import Header from '../components/common/Header';
 import LeftAsideBar from '../components/common/LeftAsideBar';
-import Micheal from '../assets/images/michealscott.jpeg';
-import Mclovin from '../assets/images/mclovin.jpeg';
-import Mozart from '../assets/images/mozart.jpeg';
-import Rock from '../assets/images/rock.jpeg';
 
 function UpcommingEventInfo() {
   return (
@@ -20,7 +16,7 @@ function UpcommingEventInfo() {
       <Header />
       <main className="bg-main-elements flex flex-1">
         <LeftAsideBar />
-        <section className="ml-8">
+        <section className="ml-8 w-[70%]">
           <EventHeader />
           <FeaturedSpeaker />
           <EventSchedule />

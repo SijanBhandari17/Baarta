@@ -11,13 +11,21 @@ import LoginPopUp from '../ui/LoginPopUp';
 import SignInPopUp from '../ui/SignUpPopUp';
 import { useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 const notificationCount = 1;
+
 function Header() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   return (
-    <nav className="bg-layout-elements flex w-full items-center justify-between gap-1 border border-b-white/10 px-3 pt-2 pb-4">
+    <nav className="bg-layout-elements sticky top-0 flex h-20 w-full items-center justify-between gap-1 border border-b-white/10 px-3 pt-2 pb-4">
       <div className="flex gap-18">
-        <img src={BaartaIcon} alt="Baarta Icon" className="cursor-pointer" />
+        <img
+          onClick={() => navigate('/home/livediscussions')}
+          src={BaartaIcon}
+          alt="Baarta Icon"
+          className="cursor-pointer"
+        />
         <SearchBar />
       </div>
       {user ? <ProfileSection /> : <AuthenticateOptions />}
@@ -25,7 +33,6 @@ function Header() {
   );
 }
 
-//Custom Hook
 function useDropdown(selector) {
   const [isOpen, setIsOpen] = useState(false);
 

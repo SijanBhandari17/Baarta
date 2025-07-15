@@ -9,6 +9,7 @@ import {
 } from '../utils/fetchInfoEvent';
 import Header from '../components/common/Header';
 import LeftAsideBar from '../components/common/LeftAsideBar';
+import CalenderIcon from '../assets/icons/calendar.svg';
 
 function UpcommingEventInfo() {
   return (
@@ -30,11 +31,10 @@ function EventHeader() {
   return (
     <section className="mb-5">
       <div className="text-font text-hero my-2 font-semibold">{event.title}</div>
-      <div className="flex gap-2">
-        <p className="text-font-light/80 text-font-light text-body before:mr-2 before:content-['🗓️']">
-          {event.date}
-        </p>
-        <p className="text-font-light/80 text-font-light text-body mb-4 before:mr-2 before:content-['🕛']">
+      <div className="mb-4 flex items-center gap-2">
+        <img src={CalenderIcon} alt="Calender Icon" width="20px" height="20px" />
+        <p className="text-font-light/80 text-font-light text-body">{event.date}</p>
+        <p className="text-font-light/80 text-font-light text-body before:mr-2 before:content-['🕛']">
           {event.time}
         </p>
       </div>

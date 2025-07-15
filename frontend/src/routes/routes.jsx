@@ -9,8 +9,6 @@ import Drafts from '../components/common/nav/asidebar/DraftContent';
 
 import LiveDiscussions from '../components/common/nav/home/LiveDiscussions';
 import Threads from '../components/common/nav/home/Threads';
-import Following from '../components/common/nav/home/Following';
-import EnrolledForms from '../components/common/nav/home/EnrolledForms';
 import Trending from '../components/common/nav/home/Trending';
 import UpcommingEventInfo from '../pages/UpcommingEvents';
 
@@ -30,8 +28,6 @@ const router = createBrowserRouter(
           <Route index element={<Navigate to="livediscussions" replace />} />
           <Route path="livediscussions" element={<LiveDiscussions />} />
           <Route path="mythreads" element={<Threads />} />
-          <Route path="following" element={<Following />} />
-          <Route path="enrolledforums" element={<EnrolledForms />} />
           <Route path="trending" element={<Trending />} />
         </Route>
         <Route path="forum" element={<ForumContent />} />

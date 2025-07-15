@@ -51,7 +51,7 @@ function Profile() {
   ];
 
   return (
-    <div className="rounded-button-round profile-section absolute top-20 right-5 z-10 flex flex-col bg-gray-600 p-4">
+    <div className="rounded-button-round profile-section absolute top-20 right-5 z-50 flex flex-col bg-gray-600 p-4">
       {/* {/* Hidden file input /} */}
       <input
         type="file"

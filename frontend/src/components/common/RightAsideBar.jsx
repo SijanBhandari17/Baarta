@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 
 function RightAsideBar() {
   return (
-    <aside className="bg-layout-elements sticky top-20 z-0 flex h-[calc(100vh-5rem)] w-[15%] flex-col border border-l-white/10 p-6">
+    <aside className="bg-layout-elements top-20 flex h-[calc(100vh-5rem)] w-[15%] flex-col border border-l-white/10 p-6">
       <UpcommingEvents />
       <ActivePoll />
       {/* <CommunityStatus /> */}

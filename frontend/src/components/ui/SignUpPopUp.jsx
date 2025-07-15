@@ -72,6 +72,16 @@ const SignInPopUp = ({ isOpen, onClose }) => {
       if (response.ok) {
         console.log(data);
         auth.loginAction(true);
+        /*
+        
+        step 1 : suppose fetch for /login route
+        automaticall attach body : josn.stringfiy ({ email : email , username : username ,  })
+        if(response.ok)
+      {
+        auth.loginAction = true
+        navigate to home 
+        }
+        **/
         navigate('/home');
       } else {
         console.log('error has occured while registering the data');

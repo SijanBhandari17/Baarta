@@ -1,23 +1,6 @@
-const {Readable} = require('stream')
-const cloudinary = require('../config/cloudinaryConfig')
 const Profile = require('../models/profilePicModel')
 const User = require('../models/userModel')
-const uploadToCloudinary = (buffer , options = {})=>{
-    return new Promise((resolve , reject)=>{
-        const stream  = Readable.from(buffer) 
-        const uploadStream = cloudinary.uploader.upload_stream({
-            folder : 'uploads',
-            resource_type : 'auto',
-            ...options
-        },
-        (error , result)=>{
-            if(error) reject(error)
-            else resolve(result)
-        }
-    ) 
-    stream.pipe(uploadStream)
-    })
-}
+const uploadToCloudinary = require('../config/uploadCloudinaryConfig')
 const handleProfilePic = async (req, res)=>{
      try{
         if(!req?.file){

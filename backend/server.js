@@ -6,10 +6,13 @@ const handleNewUser = require('./routes/registerRoute');
 const handleLogin = require('./routes/authRoutes');
 const handleLogout = require('./routes/logoutRoutes');
 const showDashBoard = require('./routes/dashboardRoute')
+const forumHandler = require('./routes/forumRoutes')
+const postHandler = require('./routes/postRoutes')
 const profilepic = require('./routes/profilePic')
+const commentRoute = require('./routes/commentRoutes')
 const verifyJWT = require('./middleware/verifyJWT');
 const cors = require('cors')
-const cloudinaryMiddleware = require('./middleware/cloudinaryMiddleware')
+const cloudinaryMiddleware = require('./middleware/cloudinaryProfilePicMiddleware')
 const corsOptions = require('./config/corsOption')
 const mongoose = require('mongoose')
 const connectDB = require('./config/dbConfig')
@@ -26,6 +29,12 @@ app.use('/dashboard' ,verifyJWT ) // middleware
 app.use('/dashboard' , showDashBoard) 
 app.use('/uploads', [verifyJWT ,cloudinaryMiddleware])  // middleware
 app.use('/uploads' , profilepic)
+app.use('/forum' , verifyJWT)
+app.use('/forum' , forumHandler)
+app.use('/post' , verifyJWT)
+app.use('/post' , postHandler)
+app.use('/comment' , verifyJWT)
+app.use('/comment',  commentRoute)
 mongoose.connection.once('open' , ()=>{
   console.log('connected to MongoDB atlas')
   app.listen(5000 , ()=>{

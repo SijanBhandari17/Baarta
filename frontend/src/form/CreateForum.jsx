@@ -9,10 +9,10 @@ function CreateForum({ isOpen, onClose, addNewForum }) {
     e.preventDefault();
     const form = e.target;
     const data = new FormData(form);
-    const title = data.get('forum-name');
-    const category = 'Computer Engineering';
-    const description = data.get('forum-description');
-    addNewForum({ title, category, description });
+    const forumName = data.get('forum-name');
+    const genre = 'AI';
+    const descriptionText = data.get('forum-description');
+    addNewForum({ forumName, genre, descriptionText });
     setForumName('');
     setForumDescription('');
     form.reset();

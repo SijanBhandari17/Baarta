@@ -1,19 +1,36 @@
-import forumData from '../../../../utils/fetchForumsData';
 import { SquarePen, X } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CreateForum from '../../../../form/CreateForum';
+import { useForum } from '../../../../context/ForumContext';
+import LoadingSpinner from '../../LoadingSpinner';
 
 function ForumContent() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [x, setUpdated] = useState(0);
+  const { forum, addForum, loading } = useForum();
 
-  const addNewForum = forum => {
-    if (forum && Object.keys(forum).length !== 0) {
-      forumData.push(forum);
-      setUpdated(x => x + 1);
+  const addNewForum = async forumData => {
+    if (forumData && Object.keys(forumData).length !== 0) {
+      try {
+        const response = await fetch('http://localhost:5000/forum', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify(forumData),
+        });
+        const data = await response.json();
+
+        if (response.ok) {
+          addForum(data.body);
+        }
+      } catch (err) {
+        console.log('error:', err);
+      }
     }
   };
+  if (loading) return <LoadingSpinner />;
 
   return (
     <div className="bg-main-elements flex w-[70%] flex-col gap-4 p-6">
@@ -28,13 +45,13 @@ function ForumContent() {
         />
       </div>
       <div className="grid grid-cols-3 gap-2">
-        {forumData.map(item => {
+        {forum?.map(item => {
           return (
-            <IndividualFormComponent
-              title={item.title}
-              category={item.category}
-              participants={item.participants}
-              key={item.id}
+            <IndividualFourmComponent
+              title={item.forum_name}
+              category={item.genre}
+              participants={item.member_id.length + item.moderator_id.length + 1}
+              key={item._id}
             />
           );
         })}
@@ -48,8 +65,9 @@ function ForumContent() {
   );
 }
 
-function IndividualFormComponent({ title, category, participants }) {
+function IndividualFourmComponent({ activeUser, title, category, participants }) {
   const navigate = useNavigate();
+  console.log(participants);
 
   const handleEnterForum = () => {
     navigate(`/b/${encodeURIComponent(title)}`);
@@ -61,7 +79,7 @@ function IndividualFormComponent({ title, category, participants }) {
       <p className="text-font rounded-button-round inline-block w-fit bg-[#5a5a5a] p-1">
         {category}
       </p>
-      <p className="text-font-light/80">{participants || 0} participants</p>
+      {participants ? <p className="text-font-light/80">{participants || 0} participants</p> : ''}
       <button
         className="text-font rounded-button-round text-body cursor-pointer bg-[#5a5a5a] p-2 text-center font-semibold transition-colors hover:bg-[#6a6a6a]"
         onClick={handleEnterForum}

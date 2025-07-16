@@ -28,7 +28,6 @@ function ForumHomePage() {
     () => forum?.find(item => item.forum_name === decodedTitle),
     [forum, decodedTitle],
   );
-  console.log(forum);
 
   if (!forumToShow) return <LoadingSpinner />;
 

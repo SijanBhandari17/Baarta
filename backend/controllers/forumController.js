@@ -54,4 +54,48 @@ const createForum = async (req, res)=>{
 
 }
 
-module.exports = {createForum}
+const getForum = async (req , res)=>{
+    const session = await mongoose.startSession()
+    try
+    { 
+        await session.startTransaction()
+        if(!req.user) return res.status(401).json({"error" : "unaunthenticated user access"})
+        
+        const {email} = req.user
+
+        const foundUser = await User.findOne({email}).session(session).exec() 
+
+        if(!foundUser)
+        {
+            await session.abortTransaction()
+            res.status(404).json({"message" : "deleted or removed user"})
+        }
+
+        const foundForums = await Forum.find({
+            $or : [
+                {admin_id : foundUser._id},
+                {moderator_id : foundUser._id},
+                {member_id : foundUser._id}
+            ]
+            
+            }).session(session).exec() 
+        if(!foundForums)
+        {
+            await session.abortTransaction()
+            res.status(404).json({"message" : 'no forums joined '})
+        }
+
+        await session.commitTransaction()
+        res.status(200).json({"message" : "successful retrieval" , "body" : foundForums})
+    }
+    catch(err)
+    {
+        await session.abortTransaction()
+        res.status(500).json({"error" : `${err.name}`})
+    }
+    finally{
+       await session.endSession() 
+    }
+}
+
+module.exports = {createForum , getForum}

@@ -1,6 +1,7 @@
 import forumData from '../../../../utils/fetchForumsData';
 import { SquarePen, X } from 'lucide-react';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 function ForumContent() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -17,7 +18,7 @@ function ForumContent() {
     <div className="bg-main-elements flex w-[70%] flex-col gap-4 p-6">
       <div className="flex items-center">
         <p className="text-font mr-auto text-3xl font-semibold">My Forums</p>
-        <button className="text-font text-title rounded-button-round cursor-pointer bg-[#4169E1] px-3 py-2 hover:bg-[#255FCC]">
+        <button className="text-font rounded-button-round text-body cursor-pointer bg-[#4169E1] px-3 py-2 text-2xl hover:bg-[#255FCC]">
           Join New Forum
         </button>
         <SquarePen
@@ -26,21 +27,14 @@ function ForumContent() {
         />
       </div>
       <div className="grid grid-cols-3 gap-2">
-        {forumData.map((item, index) => {
+        {forumData.map(item => {
           return (
-            <div
-              key={index}
-              className="bg-layout-elements-focus rounded-button-round flex flex-col gap-2 p-6"
-            >
-              <p className="text-title text-font mb-2 font-semibold">{item.title}</p>
-              <p className="text-font rounded-button-round inline-block w-fit bg-[#5a5a5a] p-1">
-                {item.category}
-              </p>
-              <p className="text-font-light/80">{item.participants || 0} participants</p>
-              <button className="text-font rounded-button-round text-body cursor-pointer bg-[#5a5a5a] p-2 text-center font-semibold transition-colors hover:bg-[#6a6a6a]">
-                Enter Forum
-              </button>
-            </div>
+            <IndividualFormComponent
+              title={item.title}
+              category={item.category}
+              participants={item.participants}
+              key={item.id}
+            />
           );
         })}
       </div>
@@ -49,6 +43,30 @@ function ForumContent() {
         addNewForum={addNewForum}
         onClose={() => setIsDialogOpen(false)}
       />
+    </div>
+  );
+}
+
+function IndividualFormComponent({ title, category, participants }) {
+  const navigate = useNavigate();
+
+  const handleEnterForum = () => {
+    navigate(`/b/${encodeURIComponent(title)}`);
+  };
+
+  return (
+    <div className="bg-layout-elements-focus rounded-button-round flex flex-col gap-2 p-6">
+      <p className="text-title text-font mb-2 font-semibold">{title}</p>
+      <p className="text-font rounded-button-round inline-block w-fit bg-[#5a5a5a] p-1">
+        {category}
+      </p>
+      <p className="text-font-light/80">{participants || 0} participants</p>
+      <button
+        className="text-font rounded-button-round text-body cursor-pointer bg-[#5a5a5a] p-2 text-center font-semibold transition-colors hover:bg-[#6a6a6a]"
+        onClick={handleEnterForum}
+      >
+        Enter Forum
+      </button>
     </div>
   );
 }

@@ -17,7 +17,7 @@ function UpcommingEventInfo() {
       <Header />
       <main className="bg-main-elements flex flex-1">
         <LeftAsideBar />
-        <section className="ml-8 w-[70%]">
+        <section className="w-[70%] p-6">
           <EventHeader />
           <FeaturedSpeaker />
           <EventSchedule />
@@ -30,7 +30,7 @@ function UpcommingEventInfo() {
 function EventHeader() {
   return (
     <section className="mb-5">
-      <div className="text-font text-hero my-2 font-semibold">{event.title}</div>
+      <div className="text-font text-hero font-semibold">{event.title}</div>
       <div className="mb-4 flex items-center gap-2">
         <img src={CalenderIcon} alt="Calender Icon" width="20px" height="20px" />
         <p className="text-font-light/80 text-font-light text-body">{event.date}</p>

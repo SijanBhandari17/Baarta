@@ -11,6 +11,7 @@ import LiveDiscussions from '../components/common/nav/home/LiveDiscussions';
 import Threads from '../components/common/nav/home/Threads';
 import Trending from '../components/common/nav/home/Trending';
 import UpcommingEventInfo from '../pages/UpcommingEvents';
+import ForumHomePage from '../pages/ForumHomePage';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -35,6 +36,7 @@ const router = createBrowserRouter(
         <Route path="draft" element={<Drafts />} />
       </Route>
       <Route path="upcommingevents" element={<UpcommingEventInfo />} />
+      <Route path="/b/:forumTitle" element={<ForumHomePage />} />
       <Route
         path="/landingpage"
         element={

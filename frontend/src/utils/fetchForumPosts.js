@@ -1,0 +1,42 @@
+const forumPosts = [
+  {
+    title: 'Recent Advances in Quantum Error Correction: A Comprehensive Review',
+    author: 'Dr. Sarah Chen',
+    timePosted: '2 hours ago',
+    replies: 24,
+    views: 156,
+    isBookmarked: false,
+  },
+  {
+    title: 'Recent Advances in Quantum Error Correction: A Comprehensive Review',
+    author: 'Dr. Sarah Chen',
+    timePosted: '2 hours ago',
+    replies: 24,
+    views: 156,
+    isBookmarked: false,
+  },
+  {
+    title: 'Recent Advances in Quantum Error Correction: A Comprehensive Review',
+    author: 'Dr. Sarah Chen',
+    timePosted: '2 hours ago',
+    replies: 24,
+    views: 156,
+    isBookmarked: false,
+  },
+  {
+    title: 'Recent Advances in Quantum Error Correction: A Comprehensive Review',
+    author: 'Dr. Sarah Chen',
+    timePosted: '2 hours ago',
+    replies: 24,
+    views: 156,
+    isBookmarked: false,
+  },
+  {
+    title: 'Recent Advances in Quantum Error Correction: A Comprehensive Review',
+    author: 'Dr. Sarah Chen',
+    timePosted: '2 hours ago',
+    replies: 24,
+    views: 156,
+    isBookmarked: false,
+  },
+];

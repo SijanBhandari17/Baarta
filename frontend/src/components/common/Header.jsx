@@ -126,12 +126,6 @@ function AuthenticateOptions() {
   return (
     <>
       <div className="flex gap-2">
-        <img
-          src={GoogleIcon}
-          alt="Google Icon"
-          className="hover:bg-layout-elements-focus cursor-pointer rounded-[0.4rem] p-2"
-        />
-
         {darkMode ? (
           <Moon
             onClick={handleThemeClick}

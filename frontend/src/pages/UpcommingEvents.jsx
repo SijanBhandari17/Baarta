@@ -33,8 +33,8 @@ function EventHeader() {
       <div className="text-font text-hero font-semibold">{event.title}</div>
       <div className="mb-4 flex items-center gap-2">
         <img src={CalenderIcon} alt="Calender Icon" width="20px" height="20px" />
-        <p className="text-font-light/80 text-font-light text-body">{event.date}</p>
-        <p className="text-font-light/80 text-font-light text-body before:mr-2 before:content-['🕛']">
+        <p className="text-font-light/80 text-body">{event.date}</p>
+        <p className="text-font-light/80 text-body before:mr-2 before:content-['🕛']">
           {event.time}
         </p>
       </div>

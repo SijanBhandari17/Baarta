@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Moon, Sun } from 'lucide-react';
 import BaartaIcon from '../../assets/icons/Baarta.svg';
-import GoogleIcon from '../../assets/icons/googleIcon.svg';
 import SearchIcon from '../../assets/icons/searchIcon.svg';
 import userInfo from '../../utils/fetchUserInfo';
 import { Bell } from 'lucide-react';

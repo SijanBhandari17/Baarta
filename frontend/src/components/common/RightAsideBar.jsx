@@ -1,34 +1,40 @@
-import upcommingEventsArray from '../../utils/fetchUpcommingEvents';
-import CalenderIcon from '../../assets/icons/calendar.svg';
+import { useState } from 'react';
+import upcomingEventsArray from '../../utils/fetchUpcommingEvents';
 import activePollArray from '../../utils/fetchActivePolls';
-import { communityStatus } from '../../utils/fetchCommnityStatus';
+import CalenderIcon from '../../assets/icons/calendar.svg';
+import PollModal from './nav/asidebar/pollmodal';
 
 function RightAsideBar() {
+  const [selectedPoll, setSelectedPoll] = useState(null);
+
   return (
-    <aside className="bg-layout-elements flex w-[15%] flex-col border border-l-white/10 p-6">
-      <UpcommingEvents />
-      <ActivePoll />
+    <aside className="bg-layout-elements flex w-1/2 flex-col border border-l-white/10 p-6">
+      <UpcomingEvents />
+      <ActivePoll onPollClick={setSelectedPoll} />
+      {selectedPoll && (
+        <PollModal poll={selectedPoll} onClose={() => setSelectedPoll(null)} />
+      )}
       {/* <CommunityStatus /> */}
     </aside>
   );
 }
 
-function UpcommingEvents() {
+function UpcomingEvents() {
   return (
-    <div className="upcomming-events mb-8 w-full">
-      <h1 className="text-title text-font mb-4 font-semibold uppercase">Upcomming Events</h1>
-      {upcommingEventsArray.map((item, index) => (
-        <SingleEvents event={item} key={index} />
+    <div className="upcoming-events mb-8 w-full">
+      <h1 className="text-title text-font mb-4 font-semibold uppercase">Upcoming Events</h1>
+      {upcomingEventsArray.map((item, index) => (
+        <SingleEvent event={item} key={index} />
       ))}
     </div>
   );
 }
 
-function SingleEvents({ event }) {
+function SingleEvent({ event }) {
   return (
-    <div className="individual-upcomming-event hover:bg-layout-elements-focus rounded-button-round mb-4 flex cursor-pointer items-center gap-2 pl-1">
-      <img src={CalenderIcon} alt="Calender Icon" width="20px" height="20px" />
-      <div className="upcomming-event-info">
+    <div className="individual-upcoming-event hover:bg-layout-elements-focus rounded-button-round mb-4 flex cursor-pointer items-center gap-2 pl-1">
+      <img src={CalenderIcon} alt="Calendar Icon" width="20px" height="20px" />
+      <div className="upcoming-event-info">
         <h2 className="text-body text-font">{event.title}</h2>
         <p className="text-small text-font-light/50">
           {event.date} at {event.time}
@@ -38,57 +44,64 @@ function SingleEvents({ event }) {
   );
 }
 
-function ActivePoll() {
+function ActivePoll({ onPollClick }) {
   return (
     <div className="active-poll bg-layout-elements-focus rounded-button-round mb-8 w-full cursor-pointer border border-white/10">
       <h1 className="text-title text-font my-2 ml-5 font-semibold uppercase">Active Poll</h1>
-      {activePollArray.map((item, index) => {
-        return <SinglePolls poll={item} key={index} />;
-      })}
+      {activePollArray.map((item, index) => (
+        <SinglePoll poll={item} key={index} onClick={() => onPollClick(item)} />
+      ))}
     </div>
   );
 }
 
-function SinglePolls({ poll }) {
+function SinglePoll({ poll, onClick }) {
+  const options = poll.options || [];
+  const total = options.reduce((sum, opt) => sum + (opt.votes || 0), 0);
+
   return (
-    <div className="active-polls mb-2 flex w-full flex-col items-center gap-2">
-      <h2 className="text-body text-font m-5">{poll.title}</h2>
-
-      <div className="relative mb-2 h-2 w-5/6 rounded-2xl bg-[#E0B0FF]">
-        <div
-          className="bg-royalpurple-dark absolute top-0 left-0 h-2 rounded-2xl"
-          style={{ width: `${poll.yesCountPercentage}%` }}
-        />
-      </div>
-
-      <div className="relative mb-2 h-2 w-5/6 rounded-2xl bg-blue-300">
-        <div
-          className="absolute top-0 left-0 h-2 rounded-2xl bg-[#2F77FF]"
-          style={{ width: `${poll.noCountPercentage}%` }}
-        />
-      </div>
-
-      <div className="text-small text-font-light/50 text-center">
-        {poll.votesCount} votes · {poll.deadline}
+    <div
+      className="flex w-full flex-col items-center gap-2 hover:bg-layout-elements-hover transition cursor-pointer px-3 py-2"
+      onClick={onClick}
+    >
+      <h2 className="text-body text-font m-2 text-center font-medium">{poll.title}</h2>
+      {options.map((opt, idx) => {
+        const percent = total > 0 ? ((opt.votes / total) * 100).toFixed(1) : 0;
+        return (
+          <div key={idx} className="w-5/6 mb-2">
+            <div className="flex justify-between text-sm text-white/60 mb-1">
+              <span>{opt.label}</span>
+              <span>{percent}%</span>
+            </div>
+            <div className="relative h-2 w-full rounded-xl bg-gray-700">
+              <div
+                className="absolute top-0 left-0 h-2 rounded-xl bg-purple-500"
+                style={{ width: `${percent}%` }}
+              />
+            </div>
+          </div>
+        );
+      })}
+      <div className="text-sm text-white/50 text-center mb-2">
+        {total} votes · {poll.deadline}
       </div>
     </div>
   );
 }
 
+// Optional: Uncomment if you need it
 // function CommunityStatus() {
 //   return (
-//     <div className="community-satus width-full mt-2">
+//     <div className="community-status width-full mt-2">
 //       <h1 className="text-title text-font my-4 font-semibold">Community Status</h1>
 //       <div>
-//         {communityStatus.map((item, index) => {
-//           return (
-//             <div key={index} className="mb-4 flex items-center gap-4">
-//               <img src={item.imgSrc} />
-//               <p className="text-body text-font">{item.title}</p>
-//               <p className="text-font ml-auto font-semibold">{item.count}</p>
-//             </div>
-//           );
-//         })}
+//         {communityStatus.map((item, index) => (
+//           <div key={index} className="mb-4 flex items-center gap-4">
+//             <img src={item.imgSrc} />
+//             <p className="text-body text-font">{item.title}</p>
+//             <p className="text-font ml-auto font-semibold">{item.count}</p>
+//           </div>
+//         ))}
 //       </div>
 //     </div>
 //   );

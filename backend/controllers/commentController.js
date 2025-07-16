@@ -28,6 +28,7 @@ const addCommentToPost = async (req , res)=>{
         }
         
         const result = await Comment.create([{
+            parent : { kind : 'Post' , parent_id : postId },
             author_id : foundUser._id,
             text : comment,
         }] , {session}) 
@@ -77,13 +78,13 @@ const removeCommentFromPost = async (req , res)=>{
            return res.status(403).json({"error": "unauthorized access to the comment"}) 
         }
 
-        const foundPost = await Post.findOne({comment_id : foundComment._id}).session(session).exec()
+        // const foundPost = await Post.findOne({comment_id : foundComment._id}).session(session).exec()
         
-        if(!foundPost){
-            await session.abortTransaction()
-            return res.status(404).json({"error" : "the post might have been deleted or cleared "})
-        }
-        await Comment.deleteOne({_id : foundComment._id}, {session})
+        // if(!foundPost){
+        //     await session.abortTransaction()
+        //     return res.status(404).json({"error" : "the post might have been deleted or cleared "})
+        // }
+        await Comment.deleteOne({_id : parent.parent_id}, {session})
         const result = await Post.updateOne({_id : foundPost._id} , {$pull :  { comment_id : foundComment._id }} , {session})
         await session.commitTransaction()
         return res.status(201).json({"message" : 'successfully added comment' , "body" : result})
@@ -135,12 +136,13 @@ const updateCommentOfPost = async (req,  res)=>{
     }
     catch(err)
     {
-        session.abortTransaction()
+        await session.abortTransaction()
         res.status(500).json({"error" : `${err.message}`}) 
     }
     finally {
-        session.endSession()
+        await session.endSession()
     }
 }
+
 
 module.exports = {addCommentToPost , removeCommentFromPost , updateCommentOfPost}

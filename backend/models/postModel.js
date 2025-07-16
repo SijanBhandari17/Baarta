@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema;
 const postSchema = new Schema({
+    parent_forum : {type : mongoose.Schema.Types.ObjectId , ref : 'Forum'},
     title : {type : String , required: true},
     content: {
         text : {type : String , required : true},

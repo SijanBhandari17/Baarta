@@ -6,6 +6,7 @@ const handleNewUser = require('./routes/registerRoute');
 const handleLogin = require('./routes/authRoutes');
 const handleLogout = require('./routes/logoutRoutes');
 const showDashBoard = require('./routes/dashboardRoute')
+const forumHandler = require('./routes/forumRoutes')
 const postHandler = require('./routes/postRoutes')
 const profilepic = require('./routes/profilePic')
 const commentRoute = require('./routes/commentRoutes')
@@ -28,6 +29,8 @@ app.use('/dashboard' ,verifyJWT ) // middleware
 app.use('/dashboard' , showDashBoard) 
 app.use('/uploads', [verifyJWT ,cloudinaryMiddleware])  // middleware
 app.use('/uploads' , profilepic)
+app.use('/forum' , verifyJWT)
+app.use('/forum' , forumHandler)
 app.use('/post' , verifyJWT)
 app.use('/post' , postHandler)
 app.use('/comment' , verifyJWT)

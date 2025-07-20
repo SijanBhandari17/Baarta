@@ -1,6 +1,7 @@
 const Post = require("../models/postModel");
 const Forum = require("../models/forumModel");
 const User = require("../models/userModel");
+const Comment = require("../models/commentModel");
 const uploadToCloudinary = require("../config/uploadCloudinaryConfig");
 const mongoose = require("mongoose");
 
@@ -15,7 +16,7 @@ const createForum = async (req, res) => {
     if (!req.body?.descriptionText)
       return res
         .status(400)
-        .json({ error: " description text missing in the request header" });
+        .json({ error: " discription text missing in the request header" });
     if (!req.body?.genre)
       return res
         .status(400)
@@ -59,7 +60,7 @@ const createForum = async (req, res) => {
       .json({ message: "the forum has been created ", body: result[0] });
   } catch (err) {
     await session.abortTransaction();
-    return res.status(500).json({ error: `hahah ${err.message}` });
+    return res.status(500).json({ error: `${err.message}` });
   } finally {
     await session.endSession();
   }
@@ -107,5 +108,91 @@ const getForum = async (req, res) => {
   }
 };
 
-module.exports = { createForum, getForum };
+const deleteForum = async (req, res) => {
+  const session = await mongoose.startSession();
+  try {
+    if (!req.body?.forumId)
+      return res
+        .status(400)
+        .json({ error: "forumId missing in the request header" });
+    if (!req.user)
+      return res.status(400).json({ error: "unaunthenticated user request " });
 
+    const { forumId } = req.body;
+
+    const { email } = req.user;
+
+    const foundUser = await User.findOne({ email }).session(session).exec();
+
+    if (!foundUser) {
+      await session.abortTransaction();
+      return res
+        .status(404)
+        .json({ error: "the user account is deleted or removed" });
+    }
+
+    const foundForum = await Forum.findOne({ _id: forumId })
+      .session(session)
+      .exec();
+
+    if (!foundForum) {
+      await session.abortTransaction();
+      return res
+        .status(404)
+        .json({ error: "the forum is either deleted or non existent" });
+    }
+
+    if (foundUser._id.toString() !== foundForum.admin_id.toString()) {
+      await session.abortTransaction();
+      return res.status(403).json({ error: "unauthorized request sent" });
+    }
+
+    const result = await foundForum.deleteOne(
+      { _id: foundForum._id },
+      { session },
+    );
+
+    const foundPostArr = await Post.find({
+      parent_forum: foundForum._id,
+    }).session(session);
+    const foundPostArrId = foundPostArr.map((item) => item._id);
+
+    if (!foundPostArr) {
+      await session.commitTransaction();
+      return res
+        .status(201)
+        .json({ message: "successfull forum deletion ", body: result });
+    }
+
+    const foundCommentArr = await Comment.find({
+      "parent.parent_id": { $in: foundPostArrId },
+    }).session(session);
+
+    await Post.deleteMany({ parent_forum: foundForum._id }, { session });
+
+    if (!foundCommentArr) {
+      await session.commitTransaction();
+      return res
+        .status(201)
+        .json({ message: "successfull forum deletion ", body: result });
+    }
+
+    const foundCommentArrId = foundCommentArr.map(
+      (item) => foundCommentArr._id,
+    );
+
+    await Comment.deleteMany({
+      "parent.parent_id": { $in: foundPostArrId },
+    }).session(session);
+
+    await session.commitTransaction();
+    res.status(201).json({ message: "success forum deletion", body: result });
+  } catch (err) {
+    await session.abortTransaction();
+    return res.status(500).json({ error: `${err.message}` });
+  } finally {
+    await session.endSession();
+  }
+};
+
+module.exports = { createForum, getForum, deleteForum };

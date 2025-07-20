@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { Moon, Sun } from 'lucide-react';
 import BaartaIcon from '../../assets/icons/Baarta.svg';
 import SearchIcon from '../../assets/icons/searchIcon.svg';
-import userInfo from '../../utils/fetchUserInfo';
 import { Bell } from 'lucide-react';
 import Profile from './Profile';
 import Notification from './Notification';
@@ -10,6 +9,7 @@ import LoginPopUp from '../ui/LoginPopUp';
 import SignInPopUp from '../ui/SignUpPopUp';
 import { useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import DefaultProfile from '../../assets/images/defaultUser.svg';
 import { useNavigate } from 'react-router-dom';
 const notificationCount = 1;
 
@@ -83,7 +83,7 @@ function ProfileSection() {
       </div>
       <div className="profile-section flex size-[56px] items-center justify-center rounded-full">
         <img
-          src={userInfo.imgSrc}
+          src={DefaultProfile}
           className="hover:bg-layout-elements-focus h-15 w-16 cursor-pointer rounded-full p-2"
           onClick={toggleProfile}
         />

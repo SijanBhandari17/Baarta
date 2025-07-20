@@ -67,7 +67,6 @@ function ForumContent() {
 
 function IndividualFourmComponent({ activeUser, title, category, participants }) {
   const navigate = useNavigate();
-  console.log(participants);
 
   const handleEnterForum = () => {
     navigate(`/b/${encodeURIComponent(title)}`);

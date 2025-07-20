@@ -2,8 +2,7 @@ import Header from '../components/common/Header';
 import LeftAsideBar from '../components/common/LeftAsideBar';
 import { useParams } from 'react-router-dom';
 import { useForum } from '../context/ForumContext';
-import { useMemo, useState } from 'react';
-import forumPosts from '../utils/fetchForumPosts';
+import { useEffect, useMemo, useState } from 'react';
 import { User, Clock, MessageCircle, Eye, Bookmark } from 'lucide-react';
 import CreatePost from '../form/CreatePosts';
 import LoadingSpinner from '../components/common/LoadingSpinner';
@@ -13,21 +12,68 @@ function ForumHomePage() {
   const decodedTitle = decodeURIComponent(forumTitle || '');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { forum } = useForum();
+  const [posts, setPosts] = useState([]);
 
-  const addNewPost = post => {
-    if (forum && Object.keys(forum).length !== 0) {
-      forumPosts.push(post);
+  const forumToShow = useMemo(
+    () => forum?.find(item => item.forum_name === decodedTitle),
+    [forum, decodedTitle],
+  );
+
+  const forumId = forumToShow?._id || '';
+
+  useEffect(() => {
+    if (forumId) fetchPosts();
+  }, [forumId]);
+
+  const fetchPosts = async () => {
+    if (forumId) {
+      try {
+        const response = await fetch(`http://localhost:5000/post?forumId=${forumId}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          console.log(data);
+          setPosts(data.body);
+        }
+      } catch (err) {
+        console.log(`Err: ${err}`);
+      }
+    }
+  };
+
+  const addNewPost = async post => {
+    console.log(post);
+    if (post && Object.keys(post).length !== 0) {
+      try {
+        const response = await fetch('http://localhost:5000/post', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify(post),
+        });
+        const data = await response.json();
+        console.log(data);
+        if (response.ok) {
+          setPosts(prev => [...prev, data.body[0]]);
+        }
+      } catch (err) {
+        console.log(`Err: ${err}`);
+      }
     }
   };
 
   const handleClick = () => {
     setIsDialogOpen(true);
   };
-
-  const forumToShow = useMemo(
-    () => forum?.find(item => item.forum_name === decodedTitle),
-    [forum, decodedTitle],
-  );
 
   if (!forumToShow) return <LoadingSpinner />;
 
@@ -40,9 +86,10 @@ function ForumHomePage() {
           {forum ? (
             <>
               <ForumHeader forum={forumToShow} handleClick={handleClick} />
-              <ForumPosts forum={forumToShow} />
+              <ForumPosts forum={forumToShow} posts={posts} />
               <ForumLeftBar forum={forumToShow} />
               <CreatePost
+                forumId={forumId}
                 isOpen={isDialogOpen}
                 addNewPost={addNewPost}
                 onClose={() => setIsDialogOpen(false)}
@@ -79,38 +126,44 @@ function ForumHeader({ forum, handleClick }) {
   );
 }
 
-function ForumPosts() {
+function ForumPosts({ posts }) {
   return (
-    <div className="flex flex-col gap-4">
-      {forumPosts.map((item, index) => (
-        <div key={index} className="bg-layout-elements-focus rounded-button-round p-3">
-          <div className="mb-2 flex items-start justify-between">
-            <p className="text-title text-font font-semibold">{item.title}</p>
-            <Bookmark className="ml-2 flex-shrink-0 cursor-pointer text-white" />
-          </div>
-          <div className="flex gap-4">
-            <div className="flex items-center gap-1">
-              <User className="text-font-light/80 h-4 w-4" />
-              <p className="text-font-light/80">{item.author}</p>
+    <>
+      {posts && posts.length > 0 ? (
+        <div className="flex flex-col gap-4">
+          {posts.map((item, index) => (
+            <div key={index} className="bg-layout-elements-focus rounded-button-round p-3">
+              <div className="mb-2 flex items-start justify-between">
+                <p className="text-title text-font font-semibold">{item.title}</p>
+                <Bookmark className="ml-2 flex-shrink-0 cursor-pointer text-white" />
+              </div>
+              <div className="flex gap-4">
+                <div className="flex items-center gap-1">
+                  <User className="text-font-light/80 h-4 w-4" />
+                  <p className="text-font-light/80">{item.author}</p>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Clock className="text-font-light/80 h-4 w-4" />
+                  <p className="text-font-light/80">{item.timePosted || 0}</p>
+                </div>
+              </div>
+              <div className="flex gap-4">
+                <div className="flex items-center gap-1">
+                  <MessageCircle className="text-font-light/80 h-4 w-4" />
+                  <p className="text-font-light/80">{item.replies || 0} replies</p>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Eye className="text-font-light/80 h-4 w-4" />
+                  <p className="text-font-light/80">{item.views || 0} views</p>
+                </div>
+              </div>
             </div>
-            <div className="flex items-center gap-1">
-              <Clock className="text-font-light/80 h-4 w-4" />
-              <p className="text-font-light/80">{item.timePosted || 0}</p>
-            </div>
-          </div>
-          <div className="flex gap-4">
-            <div className="flex items-center gap-1">
-              <MessageCircle className="text-font-light/80 h-4 w-4" />
-              <p className="text-font-light/80">{item.replies || 0} replies</p>
-            </div>
-            <div className="flex items-center gap-1">
-              <Eye className="text-font-light/80 h-4 w-4" />
-              <p className="text-font-light/80">{item.views || 0} views</p>
-            </div>
-          </div>
+          ))}
         </div>
-      ))}
-    </div>
+      ) : (
+        <div className="py-8 text-center text-lg text-gray-400">No posts yet</div>
+      )}
+    </>
   );
 }
 

@@ -25,7 +25,7 @@ const ForumProvider = ({ children }) => {
     } catch (err) {
       console.log(`error:${err} `);
     } finally {
-      setLoading(false); // Set loading to false after fetching
+      setLoading(false);
     }
   };
 

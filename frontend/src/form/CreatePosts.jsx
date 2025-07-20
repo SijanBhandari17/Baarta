@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
 
-function CreatePost({ isOpen, onClose, addNewPost }) {
+function CreatePost({ forumId, isOpen, onClose, addNewPost }) {
   const [postName, setPostName] = useState('');
   const [postDescription, setPostDescription] = useState('');
   const [timePost, setTimePosted] = useState('');
@@ -12,10 +12,9 @@ function CreatePost({ isOpen, onClose, addNewPost }) {
     const form = e.target;
     const data = new FormData(form);
     const title = data.get('post-name');
-    const description = data.get('post-description');
-    const author = 'Dr Scott';
-    const timePosted = new Date().toLocaleString();
-    addNewPost({ title, timePosted, author, description });
+    const content_text = data.get('post-description');
+    const genre = 'Event';
+    addNewPost({ title, forumId, content_text, genre });
     setPostName('');
     setPostDescription('');
     form.reset();

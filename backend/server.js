@@ -37,7 +37,7 @@ app.use('/comment' , verifyJWT)
 app.use('/comment',  commentRoute)
 mongoose.connection.once('open' , ()=>{
   console.log('connected to MongoDB atlas')
-  app.listen(5000 , ()=>{
+  app.listen(5000 , '0.0.0.0' ,()=>{
     console.log(`the server is listening to port no . ${PORT}`)
   })
 })

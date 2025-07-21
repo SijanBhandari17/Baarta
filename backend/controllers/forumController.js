@@ -158,7 +158,7 @@ const deleteForum = async (req,  res) =>{
         if(foundPostArr.length === 0)
         {
             await session.commitTransaction()            
-            return res.status(201).json({"message" : "successfull forum deletion " , "body" : result})
+            return res.status(201).json({"message" : "successfull forum deletion and there are not posts and comments " , "body" : result})
         }
 
 
@@ -169,7 +169,7 @@ const deleteForum = async (req,  res) =>{
         if(foundCommentArr.flat().length === 0)
         {
             await session.commitTransaction()
-            return res.status(201).json({"message" : "successfull forum deletion " , "body" : result})
+            return res.status(201).json({"message" : "successfull forum deletion and there are not comments and replies " , "body" : result})
         }
 
         const foundCommentArrId = foundCommentArr.map(item => foundCommentArr._id)  

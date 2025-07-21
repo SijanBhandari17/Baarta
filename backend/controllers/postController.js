@@ -2,6 +2,7 @@ const Post = require('../models/postModel')
 const User = require('../models/userModel')
 const Forum = require('../models/forumModel')
 const Comment = require('../models/commentModel')
+const Profile = require('../models/profilePicModel')
 const uploadToCloudinary = require('../config/uploadCloudinaryConfig')
 const mongoose = require('mongoose')
 const uploadPost  = async (req , res) =>{
@@ -214,7 +215,7 @@ const getPost = async (req, res)=>{
     { 
         await session.startTransaction()
 
-        if(!req.query?.forumId) return res.status(400).json({"error" : "forum id missing in the request header"})
+        if(!req.query?.forumId) return res.status(400).json({"error" : "forum id missing in the query header"})
         
         const {forumId}  = req.query
 
@@ -228,10 +229,18 @@ const getPost = async (req, res)=>{
         // const postArr = foundForum.post_id
 
         const foundPostArr = await Post.find({parent_forum : forumId}).session(session)
+        const toSendPostBody = await Promise.all(foundPostArr.map(async(item)=>{
+            const postUploader = await User.findOne({_id : item.author_id}).session(session).exec()
+            const postUploaderProfilePic = await Profile.findOne({userId : postUploader?._id}).session(session).exec()
 
+            const toReturnObject = {...item.toObject() , authorName : postUploader?.username || '[deleted user]' , authorEmail : postUploader?.email || '[deleted user]', authorProfilePic : postUploaderProfilePic?.profilePicLink || 'https://res.cloudinary.com/dlddcx3uw/image/upload/v1752323363/defaultUser_cfqyxq.svg'}
+            return toReturnObject
+        }))
+
+        
         await session.commitTransaction()
         
-        res.status(200).json({"message" : "successfully recovered the comments from the given post"  , "body" : foundPostArr })
+        res.status(200).json({"message" : "successfully recovered the comments from the given post"  , "body" : toSendPostBody })
         
         
     }

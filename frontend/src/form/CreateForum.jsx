@@ -1,16 +1,29 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
+import Select from 'react-select';
+
+const genreOptions = [
+  { value: 'AI', label: 'AI' },
+  { value: 'EdTech', label: 'EdTech' },
+  { value: 'Research', label: 'Research' },
+  { value: 'Climate', label: 'Climate' },
+  { value: 'Literature', label: 'Literature' },
+  { value: 'Analysis', label: 'Analysis' },
+  { value: 'Quantum', label: 'Quantum' },
+];
 
 function CreateForum({ isOpen, onClose, addNewForum }) {
   const [forumName, setForumName] = useState('');
   const [forumDescription, setForumDescription] = useState('');
+  const [forumGenre, setForumGenre] = useState(null);
+  const selectedGenre = ' text-amber-400';
 
   const handleSubmit = e => {
     e.preventDefault();
     const form = e.target;
     const data = new FormData(form);
     const forumName = data.get('forum-name');
-    const genre = 'AI';
+    const genre = genreOptions[forumGenre].value;
     const descriptionText = data.get('forum-description');
     addNewForum({ forumName, genre, descriptionText });
     setForumName('');
@@ -70,6 +83,26 @@ function CreateForum({ isOpen, onClose, addNewForum }) {
               className="min-h-[120px] w-full rounded-lg border border-gray-700 bg-gray-800 p-3 text-white placeholder-gray-400 focus:border-blue-600 focus:outline-none"
               required
             />
+          </div>
+          <div>
+            <label htmlFor="forum-genre" className="mb-2 block text-lg font-semibold text-white">
+              Select Genre
+            </label>
+            <div className="text-font flex gap-7 text-lg" id="forum-genre">
+              {genreOptions.map((item, index) => {
+                return (
+                  <div
+                    key={index}
+                    onClick={() => setForumGenre(index)}
+                    className={`cursor-pointer rounded-lg bg-gray-800 p-2 ${
+                      index === forumGenre ? selectedGenre : ''
+                    }`}
+                  >
+                    <p>{item.label}</p>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
         <div className="mt-12 flex justify-end space-x-6">

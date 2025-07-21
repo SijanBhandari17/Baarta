@@ -90,9 +90,7 @@ const getForum = async (req , res)=>{
 
         const toSendForumBody =await Promise.all(foundForums.map(async (item) =>{
             const userResult = await User.findOne({_id : item.admin_id}).session(session).exec()
-            console.log(userResult)
             const profilePicResult = await Profile.findOne({userId : userResult?._id}).session(session).exec() 
-            console.log(profilePicResult)
             const toReturnObject = { ...item.toObject(), adminName : userResult?.username || '[deleted account]' , adminEmail : userResult?.email || '[deleted account]' , adminProfile : profilePicResult?.profilePicLink || 'https://res.cloudinary.com/dlddcx3uw/image/upload/v1752323363/defaultUser_cfqyxq.svg'} 
 
             return toReturnObject

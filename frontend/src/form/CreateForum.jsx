@@ -1,16 +1,7 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
-import Select from 'react-select';
 
-const genreOptions = [
-  { value: 'AI', label: 'AI' },
-  { value: 'EdTech', label: 'EdTech' },
-  { value: 'Research', label: 'Research' },
-  { value: 'Climate', label: 'Climate' },
-  { value: 'Literature', label: 'Literature' },
-  { value: 'Analysis', label: 'Analysis' },
-  { value: 'Quantum', label: 'Quantum' },
-];
+const genreOptions = ['AI', 'EdTech', 'Research', 'Climate', 'Literature', 'Analysis', 'Quantum'];
 
 function CreateForum({ isOpen, onClose, addNewForum }) {
   const [forumName, setForumName] = useState('');
@@ -23,7 +14,7 @@ function CreateForum({ isOpen, onClose, addNewForum }) {
     const form = e.target;
     const data = new FormData(form);
     const forumName = data.get('forum-name');
-    const genre = genreOptions[forumGenre].value;
+    const genre = genreOptions[forumGenre];
     const descriptionText = data.get('forum-description');
     addNewForum({ forumName, genre, descriptionText });
     setForumName('');
@@ -37,7 +28,7 @@ function CreateForum({ isOpen, onClose, addNewForum }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <form
-        className="create-forum-form bg-layout-elements relative mx-4 w-full max-w-[900px] rounded-2xl bg-gray-900 p-12 shadow-2xl"
+        className="create-forum-form bg-layout-elements relative mx-4 w-full max-w-[900px] rounded-2xl p-12 shadow-2xl"
         onSubmit={handleSubmit}
       >
         <div className="mb-8 flex items-center justify-between">
@@ -98,7 +89,7 @@ function CreateForum({ isOpen, onClose, addNewForum }) {
                       index === forumGenre ? selectedGenre : ''
                     }`}
                   >
-                    <p>{item.label}</p>
+                    <p>{item}</p>
                   </div>
                 );
               })}

@@ -4,8 +4,10 @@ import { X } from 'lucide-react';
 function CreatePost({ forumId, isOpen, onClose, addNewPost }) {
   const [postName, setPostName] = useState('');
   const [postDescription, setPostDescription] = useState('');
-  const [timePost, setTimePosted] = useState('');
-  const [postAuthor, setPostAuthor] = useState('');
+  const [postGenre, setPostGenre] = useState(null);
+  const selectedGenre = ' text-amber-400';
+
+  const genreOptions = ['Question', 'Announcement', 'Event'];
 
   const handleSubmit = e => {
     e.preventDefault();
@@ -13,7 +15,7 @@ function CreatePost({ forumId, isOpen, onClose, addNewPost }) {
     const data = new FormData(form);
     const title = data.get('post-name');
     const content_text = data.get('post-description');
-    const genre = 'Event';
+    const genre = genreOptions[postGenre];
     addNewPost({ title, forumId, content_text, genre });
     setPostName('');
     setPostDescription('');
@@ -26,7 +28,7 @@ function CreatePost({ forumId, isOpen, onClose, addNewPost }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <form
-        className="create-post-form bg-layout-elements relative mx-4 w-full max-w-[900px] rounded-2xl bg-gray-900 p-12 shadow-2xl"
+        className="create-post-form bg-layout-elements relative mx-4 w-full max-w-[900px] rounded-2xl p-12 shadow-2xl"
         onSubmit={handleSubmit}
       >
         <div className="mb-8 flex items-center justify-between">
@@ -72,6 +74,26 @@ function CreatePost({ forumId, isOpen, onClose, addNewPost }) {
               className="min-h-[120px] w-full rounded-lg border border-gray-700 bg-gray-800 p-3 text-white placeholder-gray-400 focus:border-blue-600 focus:outline-none"
               required
             />
+          </div>
+          <div>
+            <label htmlFor="forum-genre" className="mb-2 block text-lg font-semibold text-white">
+              Select Genre
+            </label>
+            <div className="text-font flex gap-7 text-lg" id="forum-genre">
+              {genreOptions.map((item, index) => {
+                return (
+                  <div
+                    key={index}
+                    onClick={() => setPostGenre(index)}
+                    className={`cursor-pointer rounded-lg bg-gray-800 p-2 ${
+                      index === postGenre ? selectedGenre : ''
+                    }`}
+                  >
+                    <p>{item}</p>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
         <div className="mt-12 flex justify-end space-x-6">

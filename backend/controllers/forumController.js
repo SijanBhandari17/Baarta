@@ -103,6 +103,8 @@ const deleteForum = async (req,  res) =>{
     const session = await mongoose.startSession()
     try 
     { 
+        await session.startTransaction()        
+
         if(!req.body?.forumId) return res.status(400).json({"error" : "forumId missing in the request header"})
         if(!req.user) return res.status(400).json({"error" : "unaunthenticated user request "})
         
@@ -175,8 +177,61 @@ const deleteForum = async (req,  res) =>{
     {
         await session.endSession()     
     }
-
     
 }
 
-module.exports = {createForum , getForum , deleteForum}
+const updateForum = async (req, res)=>{
+    const session = await mongoose.startSession()
+    try{
+        await session.startTransaction()
+
+        if(!req.body?.forumId) return res.status(400).json({"error" : "the req header is missing forumId"})
+        if(!req.user?.email) return res.status(401).json({"error": 'the unauthenticated user signup'})
+        const {forumId , forumName, genre , descriptionText} = req.body 
+        const {email} = req.user
+        
+        const foundUser = await User.findOne({email}).session(session).exec()
+
+        if(!foundUser) 
+        { 
+            await session.abortTransaction()
+            return res.status(404).json({"error" : 'user name not registered'})
+        }
+
+        const foundForum = await Forum.findOne({_id : forumId}).session(session).exec()
+        
+        if(!foundForum) 
+        { 
+            await session.abortTransaction()
+            return res.status(404).json({"error" : " the forum is either deleted or removed"})
+        }
+        
+        if(foundUser._id.toString() !== foundForum.admin_id.toString()) 
+        { 
+            await session.abortTransaction()
+            return res.status(403).json({"error" : "unauthorized request sent"})
+        }
+
+        foundForum.forum_name = forumName || foundForum.forum_name
+        foundForum.description_text = descriptionText || foundForum.description_text
+        foundForum.genre = genre || foundForum.genre
+
+        const result = await foundForum.save({session})
+
+        await session.commitTransaction()
+
+        res.status(201).json({"message" : "the forum has been successfully updated" , "body" : result})
+        
+    }
+    catch(err)
+    {
+        await session.abortTransaction()
+        res.status(500).json({"error" : `${err.message}`})
+    }
+    finally
+    {
+        await session.endSession()
+    }
+}
+
+module.exports = {createForum , getForum , deleteForum , updateForum}

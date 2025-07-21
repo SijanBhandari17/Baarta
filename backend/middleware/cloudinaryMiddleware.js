@@ -25,4 +25,7 @@ const uploads = multer({
     }
     }
 })
-module.exports = uploads.single('profilePic')
+module.exports = uploads.fields([
+    {name : "profilePic" , maxCount : 1},
+    {name : "postImage" , maxCount : 1}
+])

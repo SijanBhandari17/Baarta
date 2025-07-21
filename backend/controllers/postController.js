@@ -29,9 +29,10 @@ const uploadPost  = async (req , res) =>{
         }
 
         let imgSrc= ''
-        if(req.file){
-            const publicId = `${Date.now()}-${req.file.originalname.replace(/\.[^/.]+$/, "")}`
-            const result = await uploadToCloudinary(req.file.buffer ,{
+        if(req.files?.postImage){
+            const file = req.files.postImage[0] 
+            const publicId = `${Date.now()}-${file.originalname.replace(/\.[^/.]+$/, "")}`
+            const result = await uploadToCloudinary(file.buffer ,{
                 public_id : publicId,
                 folder : 'uploads',
                 resource_type : 'auto'
@@ -90,9 +91,9 @@ const getPost = async (req, res)=>{
     { 
         await session.startTransaction()
 
-        if(!req.body?.forumId) return res.status(400).json({"error" : "forum id missing in the request header"})
+        if(!req.query?.forumId) return res.status(400).json({"error" : "forum id missing in the request header"})
         
-        const {forumId}  = req.body
+        const {forumId}  = req.query
 
         // const foundForum = await Forum.findOne({_id : forumId}).session(session).exec() 
         // if(!foundForum)

@@ -184,7 +184,7 @@ const deletePost = async (req , res)=>{
 
         const result = await Post.deleteOne({_id : foundPost._id}, {session})
 
-        if(!foundCommentArr)
+        if(foundCommentArr.length === 0)
         {
             await session.commitTransaction()
             return res.status(201).json({"message" : "the post has been successfully deleted" , "body" : result })
@@ -244,11 +244,5 @@ const getPost = async (req, res)=>{
         await session.endSession()
     }
 
-}
-function checkForMisses(req){
-    const title = req.body.title
-    const content_text = req.body.content_text
-    const genre = req.body.genre
-    return {title , content_text , genre}
 }
 module.exports = {uploadPost , getPost , updatePost , deletePost}

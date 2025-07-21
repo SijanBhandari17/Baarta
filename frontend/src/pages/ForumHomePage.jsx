@@ -3,7 +3,16 @@ import LeftAsideBar from '../components/common/LeftAsideBar';
 import { useParams } from 'react-router-dom';
 import { useForum } from '../context/ForumContext';
 import { useEffect, useMemo, useState } from 'react';
-import { User, Clock, MessageCircle, Eye, Bookmark } from 'lucide-react';
+import {
+  User,
+  Users,
+  Clock,
+  MessageSquare,
+  MessageCircle,
+  Calendar,
+  Eye,
+  Bookmark,
+} from 'lucide-react';
 import CreatePost from '../form/CreatePosts';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 
@@ -19,6 +28,7 @@ function ForumHomePage() {
     [forum, decodedTitle],
   );
 
+  console.log(forumToShow);
   const forumId = forumToShow?._id || '';
 
   useEffect(() => {
@@ -84,17 +94,19 @@ function ForumHomePage() {
         <LeftAsideBar />
         <section className="bg-main-elements flex flex-1 flex-col gap-6 p-6">
           {forum ? (
-            <>
+            <div>
               <ForumHeader forum={forumToShow} handleClick={handleClick} />
-              <ForumPosts forum={forumToShow} posts={posts} />
-              <ForumLeftBar forum={forumToShow} />
+              <div className="flex gap-4">
+                <ForumPosts forum={forumToShow} posts={posts} />
+                <ForumLeftBar forum={forumToShow} />
+              </div>
               <CreatePost
                 forumId={forumId}
                 isOpen={isDialogOpen}
                 addNewPost={addNewPost}
                 onClose={() => setIsDialogOpen(false)}
               />
-            </>
+            </div>
           ) : (
             <LoadingSpinner />
           )}
@@ -109,7 +121,7 @@ function ForumHeader({ forum, handleClick }) {
     <div className="flex items-center justify-between">
       <div>
         <p className="text-font text-hero my-2 font-semibold">{forum.forum_name}</p>
-        <p className="text-font text-body">{forum.description}</p>
+        <p className="text-font text-body">{forum.description_text}</p>
       </div>
       <div className="flex gap-2">
         <button
@@ -130,7 +142,7 @@ function ForumPosts({ posts }) {
   return (
     <>
       {posts && posts.length > 0 ? (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-1 flex-col gap-4">
           {posts.map((item, index) => (
             <div key={index} className="bg-layout-elements-focus rounded-button-round p-3">
               <div className="mb-2 flex items-start justify-between">
@@ -167,6 +179,66 @@ function ForumPosts({ posts }) {
   );
 }
 
-function ForumLeftBar() {}
+function ForumLeftBar({ forum }) {
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="bg-layout-elements-focus rounded-button-round p-8">
+        <h1 className="text-font text-title mb-4 font-semibold">Forum Statistics</h1>
+
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Users className="h-4 w-4 text-[#4169E1]" />
+              <p className="text-font-light/80 text-body">Members</p>
+            </div>
+            <p className="text-font text-body font-semibold">
+              {forum.member_id.length + forum.moderator_id.length + 1}
+            </p>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <MessageSquare className="h-4 w-4 text-[#4169E1]" />
+              <p className="text-font-light/80 text-body">Threads</p>
+            </div>
+            <p className="text-font text-body font-semibold">{forum.post_id.length}</p>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-[#4169E1]" />
+              <p className="text-font-light/80 text-body">Created</p>
+            </div>
+            <p className="text-font text-body font-semibold">{forum?.created_date}</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-layout-elements-focus rounded-button-round p-8">
+        <h1 className="text-font text-title mb-4 font-semibold">Moderators</h1>
+
+        <div className="flex flex-col gap-4">
+          {forum.moderator_id.length !== 0 ? (
+            <div>
+              {forum.moderator_id.map((item, index) => {
+                return (
+                  <div>
+                    <img
+                      src={item.info?.profilePic}
+                      className="h-25 w-25 cursor-pointer rounded-full object-cover object-center"
+                    />
+                    <p>{item.info?.name}</p>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="py-8 text-center text-lg text-gray-400">No Moderators yet </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default ForumHomePage;

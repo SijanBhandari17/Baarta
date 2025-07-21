@@ -1,6 +1,7 @@
 const Post = require('../models/postModel')
 const User = require('../models/userModel')
 const Forum = require('../models/forumModel')
+const Comment = require('../models/commentModel')
 const uploadToCloudinary = require('../config/uploadCloudinaryConfig')
 const mongoose = require('mongoose')
 const uploadPost  = async (req , res) =>{
@@ -149,6 +150,63 @@ const updatePost = async (req , res)=>{
     }
 }
 
+const deletePost = async (req , res)=>{
+    const session = await mongoose.startSession()
+    try{
+        await session.startTransaction()
+        if(!req.body?.postId) return res.status(400).json({"error" : "forumId is missing the request header"})
+        if(!req.user?.email) return res.status(401).json({"error" : "unaunthenticated user send the request"})
+            
+        const {postId} = req.body
+        const {email} = req.user
+            
+        const foundUser = await User.findOne({email}).session(session).exec()
+        if(!foundUser){
+            await session.abortTransaction()
+            return res.status(404).json({"error" : "the user has not been found"})
+        }
+
+        const foundPost = await Post.findOne({_id : postId}).session(session).exec()
+        if(!foundPost){
+            await session.abortTransaction()
+            return res.status(404).json({"error" : "the forum is either deleted or removed"})
+        }
+
+        if(foundUser._id.toString()  !== foundPost.author_id.toString()) 
+        {
+            await session.abortTransaction()
+            return res.status(403).json({"error" : "unauthorized request sent"})
+        }
+
+        await Forum.updateOne({_id : foundPost.parent_forum} , {$pull : {post_id : foundPost._id}} , {session})
+       
+        const foundCommentArr = await Comment.find({"parent.parent_id" : foundPost._id}).session(session).exec()
+
+        const result = await Post.deleteOne({_id : foundPost._id}, {session})
+
+        if(!foundCommentArr)
+        {
+            await session.commitTransaction()
+            return res.status(201).json({"message" : "the post has been successfully deleted" , "body" : result })
+        }
+
+        await Comment.deleteMany({"parent.parent_id" : foundPost._id} , {session})
+        
+        await session.commitTransaction()
+
+        res.status(201).json({"message" : "the post has been successfully deleted" ,"body" : result})
+
+    }
+    catch(err)
+    {
+        await session.abortTransaction()
+        res.status(500).json({"err" : `${err.message}`})
+    }
+    finally
+    {
+        await session.endSession()
+    }
+}
 
 const getPost = async (req, res)=>{
     const session = await mongoose.startSession()
@@ -193,4 +251,4 @@ function checkForMisses(req){
     const genre = req.body.genre
     return {title , content_text , genre}
 }
-module.exports = {uploadPost , getPost , updatePost}
+module.exports = {uploadPost , getPost , updatePost , deletePost}

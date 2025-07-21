@@ -74,6 +74,7 @@ const uploadPost  = async (req , res) =>{
     {
         await session.abortTransaction()
         return res.status(500).json({"error" : `${err.message}`})
+
     }
     finally{
         await session.endSession()
@@ -81,7 +82,71 @@ const uploadPost  = async (req , res) =>{
     
 }
 
-const deletePost = async (req , res)=>{
+const updatePost = async (req , res)=>{
+    const session = await mongoose.startSession()
+    try{
+        await session.startTransaction()
+        if(!req.body?.postId) return res.status(400).json({"error" : "forumId is missing the request header"})
+        if(!req.user?.email) return res.status(401).json({"error" : "unaunthenticated user send the request"})
+        
+        const {title , content_text , location , genre , postId} = req.body
+
+        const {email} = req.user
+
+        const foundUser = await User.findOne({email}).session(session).exec()
+        if(!foundUser){
+            await session.abortTransaction()
+            return res.status(404).json({"error" : "the user has not been found"})
+        }
+
+        const foundPost = await Post.findOne({_id : postId}).session(session).exec()
+        if(!foundPost){
+            await session.abortTransaction()
+            return res.status(404).json({"error" : "the forum is either deleted or removed"})
+        }
+
+        if(foundUser._id.toString()  !== foundPost.author_id.toString()) 
+        {
+            await session.abortTransaction()
+            return res.status(403).json({"error" : "unauthorized request sent"})
+        }
+        let imgSrc= ''
+        if(req.files?.postImage){
+            const file = req.files.postImage[0] 
+            const publicId = `${Date.now()}-${file.originalname.replace(/\.[^/.]+$/, "")}`
+            const result = await uploadToCloudinary(file.buffer ,{
+                public_id : publicId,
+                folder : 'uploads',
+                resource_type : 'auto'
+            })
+
+            imgSrc = result.secure_url
+        }
+
+
+        foundPost.title = title || foundPost.title
+        foundPost.content.text = content_text || foundPost.content.text
+        foundPost.content.location = location || foundPost.content.location 
+        foundPost.content.image = imgSrc || foundPost.content.image
+        foundPost.genre = genre || foundPost.genre
+        
+        const result = await foundPost.save({session})
+
+        await session.commitTransaction()
+
+        res.status(201).json({"message" : "the post has been updated" , body : result})
+        
+    }
+    catch(err)
+    {
+        await session.abortTransaction()
+        return res.status(500).json({"error"  : `${err.message}`})
+
+    }
+    finally
+    {
+        await session.endSession()
+    }
 }
 
 
@@ -110,6 +175,7 @@ const getPost = async (req, res)=>{
         
         res.status(200).json({"message" : "successfully recovered the comments from the given post"  , "body" : foundPostArr })
         
+        
     }
     catch(err)
     {
@@ -127,4 +193,4 @@ function checkForMisses(req){
     const genre = req.body.genre
     return {title , content_text , genre}
 }
-module.exports = {uploadPost , getPost}
+module.exports = {uploadPost , getPost , updatePost}

@@ -84,10 +84,10 @@ const removeCommentFromPost = async (req , res)=>{
         //     await session.abortTransaction()
         //     return res.status(404).json({"error" : "the post might have been deleted or cleared "})
         // }
-        await Comment.deleteOne({_id : parent.parent_id}, {session})
-        const result = await Post.updateOne({_id : foundPost._id} , {$pull :  { comment_id : foundComment._id }} , {session})
+        await Comment.deleteOne({_id : commentId}, {session})
+        const result = await Post.updateOne({_id : foundComment.parent.parent_id} , {$pull :  { comment_id : foundComment._id }} , {session})
         await session.commitTransaction()
-        return res.status(201).json({"message" : 'successfully added comment' , "body" : result})
+        return res.status(201).json({"message" : 'successfully removed comment from the post ' , "body" : result})
     }
     catch(err)
     {

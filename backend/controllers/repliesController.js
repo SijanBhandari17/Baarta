@@ -24,7 +24,7 @@ const addReplyToComment= async (req , res)=>{
         const foundComment = await Comment.findOne({_id: commentId}).session(session).exec()
         if(!foundComment) {
             await session.abortTransaction()
-            return res.status(404).json({"error" : "post either deleted or not found"})
+            return res.status(404).json({"error" : "comment either deleted or not found"})
         }
         
         const result = await Comment.create([{
@@ -48,14 +48,14 @@ const addReplyToComment= async (req , res)=>{
         await session.endSession()
     }
 }
-const removeCommentFromPost = async (req , res)=>{
+const removeReplyFromComment = async (req , res)=>{
     const session = await mongoose.startSession()
     try
     { 
         await session.startTransaction()
-        if(!req.body?.commentId) return res.status(400).json({"error" : "the comment Id header missing in the request object"})
+        if(!req.body?.replyId) return res.status(400).json({"error" : "the reply Id header missing in the request object"})
         if(!req.user?.email) return res.status(401).json({"error" : "the email is missing in the request header"}) 
-        const commentId = req.body.commentId
+        const replyId = req.body.replyId
         const email = req.user.email
         const foundUser = await User.findOne({email}).session(session).exec()
         if(!foundUser) 
@@ -63,17 +63,17 @@ const removeCommentFromPost = async (req , res)=>{
             await session.abortTransaction()
             return res.status(404).json({'error' : 'username not found error'})
         }
-        const foundComment = await Comment.findOne({_id : commentId}).session(session).exec()
-        if(!foundComment) {
+        const foundReply = await Comment.findOne({_id : replyId}).session(session).exec()
+        if(!foundReply) {
             await session.abortTransaction()
-            return res.status(404).json({"error" : "comment already deleted"})
+            return res.status(404).json({"error" : "reply already deleted or removed "})
         }
-        const commentAuthor = await User.findOne({_id : foundComment.author_id}).session(session).exec()
-        if(!commentAuthor){
+        const replyAuthor = await User.findOne({_id : foundReply.author_id}).session(session).exec()
+        if(!replyAuthor){
             await session.abortTransaction()
             return res.status(404).json({"error" : "the account might've been deleted"})
         }
-        if(commentAuthor._id.toString() !== foundUser._id.toString()) {
+        if(replyAuthor._id.toString() !== foundUser._id.toString()) {
            await session.abortTransaction()
            return res.status(403).json({"error": "unauthorized access to the comment"}) 
         }
@@ -84,8 +84,8 @@ const removeCommentFromPost = async (req , res)=>{
         //     await session.abortTransaction()
         //     return res.status(404).json({"error" : "the post might have been deleted or cleared "})
         // }
-        await Comment.deleteOne({_id : parent.parent_id}, {session})
-        const result = await Post.updateOne({_id : foundPost._id} , {$pull :  { comment_id : foundComment._id }} , {session})
+        await Comment.deleteOne({_id : replyId}, {session})
+        const result = await Comment.updateOne({_id : foundReply.parent.parent_id} , {$pull :  { replies_id : replyId }} , {session})
         await session.commitTransaction()
         return res.status(201).json({"message" : 'successfully added comment' , "body" : result})
     }
@@ -188,4 +188,4 @@ const getCommentOfPost = async (req ,res)=>{
     }
 }
 
-module.exports = {addReplyToComment}
+module.exports = {addReplyToComment , removeReplyFromComment}

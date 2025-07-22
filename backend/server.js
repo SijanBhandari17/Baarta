@@ -12,7 +12,7 @@ const profilepic = require('./routes/profilePic')
 const commentRoute = require('./routes/commentRoutes')
 const verifyJWT = require('./middleware/verifyJWT');
 const cors = require('cors')
-const cloudinaryMiddleware = require('./middleware/cloudinaryProfilePicMiddleware')
+const cloudinaryMiddleware = require('./middleware/cloudinaryMiddleware')
 const corsOptions = require('./config/corsOption')
 const mongoose = require('mongoose')
 const connectDB = require('./config/dbConfig')
@@ -21,6 +21,7 @@ connectDB()
 app.use(cookieParser());
 app.use(cors(corsOptions))
 app.use(express.json());
+
 // this is the part where we call in the routes with verification.
 app.use('/register',handleNewUser);
 app.use('/login',handleLogin);

@@ -1,4 +1,5 @@
 const Post = require("../models/postModel");
+const Profile = require("../models/profilePicModel");
 const Forum = require("../models/forumModel");
 const User = require("../models/userModel");
 const Comment = require("../models/commentModel");
@@ -79,7 +80,7 @@ const getForum = async (req, res) => {
 
     if (!foundUser) {
       await session.abortTransaction();
-      res.status(404).json({ message: "deleted or removed user" });
+      return res.status(404).json({ message: "deleted or removed user" });
     }
 
     const foundForums = await Forum.find({
@@ -91,18 +92,42 @@ const getForum = async (req, res) => {
     })
       .session(session)
       .exec();
-    if (!foundForums) {
+
+    if (foundForums.length === 0) {
       await session.abortTransaction();
-      res.status(404).json({ message: "no forums joined " });
+      return res.status(404).json({ message: "no forums joined " });
     }
+
+    const toSendForumBody = await Promise.all(
+      foundForums.map(async (item) => {
+        const userResult = await User.findOne({ _id: item.admin_id })
+          .session(session)
+          .exec();
+        const profilePicResult = await Profile.findOne({
+          userId: userResult?._id,
+        })
+          .session(session)
+          .exec();
+        const toReturnObject = {
+          ...item.toObject(),
+          adminName: userResult?.username || "[deleted account]",
+          adminEmail: userResult?.email || "[deleted account]",
+          adminProfile:
+            profilePicResult?.profilePicLink ||
+            "https://res.cloudinary.com/dlddcx3uw/image/upload/v1752323363/defaultUser_cfqyxq.svg",
+        };
+
+        return toReturnObject;
+      }),
+    );
 
     await session.commitTransaction();
     res
       .status(200)
-      .json({ message: "successful retrieval", body: foundForums });
+      .json({ message: "successful retrieval", body: toSendForumBody });
   } catch (err) {
     await session.abortTransaction();
-    res.status(500).json({ error: `${err.name}` });
+    res.status(500).json({ error: `${err.name} ${err.stack}}` });
   } finally {
     await session.endSession();
   }
@@ -111,6 +136,8 @@ const getForum = async (req, res) => {
 const deleteForum = async (req, res) => {
   const session = await mongoose.startSession();
   try {
+    await session.startTransaction();
+
     if (!req.body?.forumId)
       return res
         .status(400)
@@ -157,11 +184,13 @@ const deleteForum = async (req, res) => {
     }).session(session);
     const foundPostArrId = foundPostArr.map((item) => item._id);
 
-    if (!foundPostArr) {
+    if (foundPostArr.length === 0) {
       await session.commitTransaction();
-      return res
-        .status(201)
-        .json({ message: "successfull forum deletion ", body: result });
+      return res.status(201).json({
+        message:
+          "successfull forum deletion and there are not posts and comments ",
+        body: result,
+      });
     }
 
     const foundCommentArr = await Comment.find({
@@ -170,11 +199,13 @@ const deleteForum = async (req, res) => {
 
     await Post.deleteMany({ parent_forum: foundForum._id }, { session });
 
-    if (!foundCommentArr) {
+    if (foundCommentArr.flat().length === 0) {
       await session.commitTransaction();
-      return res
-        .status(201)
-        .json({ message: "successfull forum deletion ", body: result });
+      return res.status(201).json({
+        message:
+          "successfull forum deletion and there are not comments and replies ",
+        body: result,
+      });
     }
 
     const foundCommentArrId = foundCommentArr.map(
@@ -195,4 +226,62 @@ const deleteForum = async (req, res) => {
   }
 };
 
-module.exports = { createForum, getForum, deleteForum };
+const updateForum = async (req, res) => {
+  const session = await mongoose.startSession();
+  try {
+    await session.startTransaction();
+
+    if (!req.body?.forumId)
+      return res
+        .status(400)
+        .json({ error: "the req header is missing forumId" });
+    if (!req.user?.email)
+      return res.status(401).json({ error: "the unauthenticated user signup" });
+    const { forumId, forumName, genre, descriptionText } = req.body;
+    const { email } = req.user;
+
+    const foundUser = await User.findOne({ email }).session(session).exec();
+
+    if (!foundUser) {
+      await session.abortTransaction();
+      return res.status(404).json({ error: "user name not registered" });
+    }
+
+    const foundForum = await Forum.findOne({ _id: forumId })
+      .session(session)
+      .exec();
+
+    if (!foundForum) {
+      await session.abortTransaction();
+      return res
+        .status(404)
+        .json({ error: " the forum is either deleted or removed" });
+    }
+
+    if (foundUser._id.toString() !== foundForum.admin_id.toString()) {
+      await session.abortTransaction();
+      return res.status(403).json({ error: "unauthorized request sent" });
+    }
+
+    foundForum.forum_name = forumName || foundForum.forum_name;
+    foundForum.description_text =
+      descriptionText || foundForum.description_text;
+    foundForum.genre = genre || foundForum.genre;
+
+    const result = await foundForum.save({ session });
+
+    await session.commitTransaction();
+
+    res.status(201).json({
+      message: "the forum has been successfully updated",
+      body: result,
+    });
+  } catch (err) {
+    await session.abortTransaction();
+    res.status(500).json({ error: `${err.message}` });
+  } finally {
+    await session.endSession();
+  }
+};
+
+module.exports = { createForum, getForum, deleteForum, updateForum };

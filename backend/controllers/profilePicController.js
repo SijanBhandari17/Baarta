@@ -3,13 +3,15 @@ const User = require('../models/userModel')
 const uploadToCloudinary = require('../config/uploadCloudinaryConfig')
 const handleProfilePic = async (req, res)=>{
      try{
-        if(!req?.file){
+        if(!req?.files || !req?.files?.profilePic){
             return res.status(400).json({
                 error:'No file uploaded'
             })
         }
-        const publicId = `${Date.now()}-${req.file.originalname.replace(/\.[^/.]+$/, "")}`
-        const result = await uploadToCloudinary(req.file.buffer ,{
+        const file = req.files.profilePic[0]
+
+        const publicId = `${Date.now()}-${file.originalname.replace(/\.[^/.]+$/, "")}`
+        const result = await uploadToCloudinary(file.buffer ,{
             public_id : publicId,
             folder : 'uploads',
             resource_type : 'auto'
@@ -29,7 +31,7 @@ const handleProfilePic = async (req, res)=>{
         file: {
         public_id: result.public_id,
         url: result.secure_url,
-        original_filename: req.file.originalname,
+        original_filename: file.originalname,
         width: result.width,
         height: result.height,
         format: result.format,
@@ -48,7 +50,7 @@ const handleProfilePic = async (req, res)=>{
         file: {
         public_id: result.public_id,
         url: result.secure_url,
-        original_filename: req.file.originalname,
+        original_filename: file.originalname,
         width: result.width,
         height: result.height,
         format: result.format,

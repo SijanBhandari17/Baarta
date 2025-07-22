@@ -1,8 +1,8 @@
 const User = require('../models/userModel')
 const Post = require('../models/postModel')
 const Comment = require('../models/commentModel')
+const Profile = require('../models/profilePicModel')
 const mongoose = require('mongoose')
-const { text } = require('express')
 
 const addCommentToPost = async (req , res)=>{
     const session = await mongoose.startSession()
@@ -144,5 +144,48 @@ const updateCommentOfPost = async (req,  res)=>{
     }
 }
 
+const getCommentOfPost = async (req ,res)=>{
+    const session = await mongoose.startSession()
+    try{
+        await session.startTransaction()
 
-module.exports = {addCommentToPost , removeCommentFromPost , updateCommentOfPost}
+        if(!req.query?.postId) return res.status(400).json({"error" : `missing commentId in the request header`})
+        if(!req.user?.email) return res.status(401).json({"error" : 'the email is missing in the request header'})
+
+        const {postId} = req.query
+
+        const foundPost = await Post.findOne({_id : postId}).session(session).exec()
+        if(!foundPost){
+            await session.abortTransaction()
+            return res.status(404).json({"error" : 'the post is deleted or removed'})
+        }
+
+        const foundCommentArr = await Comment.find({"parent.parent_id" : postId}).session(session).exec()
+
+        const toSendCommentArr = await Promise.all(foundCommentArr.map(async (item)=>{
+
+            const foundAuthor = await User.findOne({_id : item.author_id}).session(session).exec()
+            const foundAuthorProfile = await Profile.findOne({userId : foundAuthor?._id}).session(session).exec()
+            
+            const toReturnArray = {...item.toObject() , authorName :foundAuthor?.username || '[deleted user]' , authorEmail : foundAuthor?.email || '[deleted user]' , authorProfilePicLink : foundAuthorProfile?.profilePicLink || 'https://res.cloudinary.com/dlddcx3uw/image/upload/v1752323363/defaultUser_cfqyxq.svg'}
+            
+            return toReturnArray
+        }))
+
+        await session.commitTransaction()
+
+        res.status(200).json({"message" : "successful retrieval of comments" , "body" : toSendCommentArr})
+
+    }
+    catch(err)
+    {
+        await session.abortTransaction()
+        res.status(500).json({"error" : `${err.stack}`})
+    }
+    finally
+    {
+        await session.endSession()
+    }
+}
+
+module.exports = {addCommentToPost , removeCommentFromPost , updateCommentOfPost,  getCommentOfPost}

@@ -99,14 +99,14 @@ const removeReplyFromComment = async (req , res)=>{
     }
 
 }
-const updateCommentOfPost = async (req,  res)=>{
+const updateReplyFromComment = async (req,  res)=>{
     const session = await mongoose.startSession()
     try{
         await session.startTransaction()
-        if(!req.body?.commentId) return res.status(400).json({"error" : `missing commentId in the request header`})
+        if(!req.body?.replyId) return res.status(400).json({"error" : `missing replyId in the request header`})
         if(!req.user) return res.status(401).json({"error" : 'the email is missing in the request header'})
         if (!req.body?.text) return res.status(400).json({"error" : 'the updated text is missing in the request header'})
-        const commentId = req.body.commentId
+        const replyId = req.body.replyId
         const email = req.user.email
         const text = req.body.text        
         const foundUser = await User.findOne({email}).session(session).exec()
@@ -115,20 +115,20 @@ const updateCommentOfPost = async (req,  res)=>{
             return res.status(404).json({"error" : 'username not found'})
         }
 
-        const foundComment = await Comment.findOne({_id : commentId}).session(session).exec()
-        if(!foundComment){
+        const foundReply = await Comment.findOne({_id : replyId}).session(session).exec()
+        if(!foundReply){
             await session.abortTransaction()
-            return res.status(404).json({"error" : 'the comment is deleted or removed'})
+            return res.status(404).json({"error" : 'the reply is deleted or removed'})
         }
 
-        if(foundUser._id.toString() !== foundComment.author_id.toString()){
+        if(foundUser._id.toString() !== foundReply.author_id.toString()){
             await session.abortTransaction()
             return res.status(403).json({"error" : "not authorized to do update others info"})
         }
 
-        foundComment.text = text
+        foundReply.text = text
 
-        const result = await foundComment.save({session})
+        const result = await foundReply.save({session})
 
         await session.commitTransaction()
         res.status(201).json({"message" : 'successfully changed the comment' , 'body': result})
@@ -188,4 +188,4 @@ const getReplyFromComment = async (req ,res)=>{
     }
 }
 
-module.exports = {addReplyToComment , removeReplyFromComment ,  getReplyFromComment}
+module.exports = {addReplyToComment , removeReplyFromComment ,  getReplyFromComment , updateReplyFromComment}

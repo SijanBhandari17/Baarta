@@ -144,25 +144,25 @@ const updateCommentOfPost = async (req,  res)=>{
     }
 }
 
-const getCommentOfPost = async (req ,res)=>{
+const getReplyFromComment = async (req ,res)=>{
     const session = await mongoose.startSession()
     try{
         await session.startTransaction()
 
-        if(!req.query?.postId) return res.status(400).json({"error" : `missing commentId in the request header`})
+        if(!req.query?.commentId) return res.status(400).json({"error" : `missing commentId in the request header`})
         if(!req.user?.email) return res.status(401).json({"error" : 'the email is missing in the request header'})
 
-        const {postId} = req.query
+        const {commentId} = req.query
 
-        const foundPost = await Post.findOne({_id : postId}).session(session).exec()
-        if(!foundPost){
+        const foundComment = await Comment.findOne({_id : commentId}).session(session).exec()
+        if(!foundComment){
             await session.abortTransaction()
-            return res.status(404).json({"error" : 'the post is deleted or removed'})
+            return res.status(404).json({"error" : 'the comment is deleted or removed'})
         }
 
-        const foundCommentArr = await Comment.find({"parent.parent_id" : postId}).session(session).exec()
+        const foundReplyArr = await Comment.find({"parent.parent_id" : commentId}).session(session).exec()
 
-        const toSendCommentArr = await Promise.all(foundCommentArr.map(async (item)=>{
+        const toSendReplyArr = await Promise.all(foundReplyArr.map(async (item)=>{
 
             const foundAuthor = await User.findOne({_id : item.author_id}).session(session).exec()
             const foundAuthorProfile = await Profile.findOne({userId : foundAuthor?._id}).session(session).exec()
@@ -174,7 +174,7 @@ const getCommentOfPost = async (req ,res)=>{
 
         await session.commitTransaction()
 
-        res.status(200).json({"message" : "successful retrieval of comments" , "body" : toSendCommentArr})
+        res.status(200).json({"message" : "successful retrieval of comments" , "body" : toSendReplyArr})
 
     }
     catch(err)
@@ -188,4 +188,4 @@ const getCommentOfPost = async (req ,res)=>{
     }
 }
 
-module.exports = {addReplyToComment , removeReplyFromComment}
+module.exports = {addReplyToComment , removeReplyFromComment ,  getReplyFromComment}

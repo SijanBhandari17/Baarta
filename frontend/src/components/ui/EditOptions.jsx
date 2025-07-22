@@ -3,6 +3,7 @@ import { Pencil, Trash2 } from 'lucide-react';
 import CreateForum from '../../form/CreateForum';
 import { useForum } from '../../context/ForumContext';
 import { useNavigate } from 'react-router-dom';
+import { Button, Dialog, DialogTitle, DialogActions } from '@mui/material';
 
 function EditForumModal({ onClose, forum }) {
   const { updateForumInContext } = useForum();
@@ -47,6 +48,7 @@ function EditForumModal({ onClose, forum }) {
 }
 function EditOptions({ isOpen, forum }) {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const options = [
     {
@@ -58,7 +60,7 @@ function EditOptions({ isOpen, forum }) {
     {
       label: 'Delete Forum',
       icon: Trash2,
-      onClick: () => {},
+      onClick: () => setIsDeleteModalOpen(true),
       className: 'text-red-500',
     },
   ];
@@ -83,7 +85,59 @@ function EditOptions({ isOpen, forum }) {
       {isEditModalOpen && (
         <EditForumModal forum={forum} onClose={() => setIsEditModalOpen(false)} />
       )}
+      {isDeleteModalOpen && (
+        <DeleteOptions forum={forum} onClose={() => setIsDeleteModalOpen(false)} />
+      )}
     </>
   );
 }
+
+function DeleteOptions({ onClose, forum }) {
+  const { deleteForumInContext } = useForum();
+  const navigate = useNavigate();
+  console.log(forum);
+
+  const onDelete = async () => {
+    console.log('hi');
+    if (forum) {
+      try {
+        const response = await fetch('http://localhost:5000/forum', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ forumId: forum._id }),
+          credentials: 'include',
+        });
+        const data = await response.json();
+        if (response.ok) {
+          console.log(data);
+          deleteForumInContext(forum._id);
+          navigate('/forum', { replace: true });
+        }
+      } catch (err) {
+        console.error('error:', err);
+      }
+    }
+  };
+
+  return (
+    <Dialog open={true} onClose={onClose}>
+      <DialogTitle>Are you sure you want to delete this forum?</DialogTitle>
+      <DialogActions>
+        <Button onClick={onClose}>Cancel</Button>
+        <Button
+          color="error"
+          onClick={async () => {
+            await onDelete();
+            onClose();
+          }}
+        >
+          Delete
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+}
+
 export default EditOptions;

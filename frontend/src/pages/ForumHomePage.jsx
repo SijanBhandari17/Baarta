@@ -143,6 +143,7 @@ function ForumHeader({ forum, handleClick }) {
 }
 
 function ForumPosts({ posts }) {
+  console.log(posts);
   return (
     <>
       {posts && posts.length > 0 ? (
@@ -156,7 +157,7 @@ function ForumPosts({ posts }) {
               <div className="flex gap-4">
                 <div className="flex items-center gap-1">
                   <User className="text-font-light/80 h-4 w-4" />
-                  <p className="text-font-light/80">{item.author}</p>
+                  <p className="text-font-light/80">{item.authorName}</p>
                 </div>
                 <div className="flex items-center gap-1">
                   <Clock className="text-font-light/80 h-4 w-4" />

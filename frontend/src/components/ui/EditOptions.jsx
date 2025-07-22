@@ -2,15 +2,17 @@ import { useState } from 'react';
 import { Pencil, Trash2 } from 'lucide-react';
 import CreateForum from '../../form/CreateForum';
 import { useForum } from '../../context/ForumContext';
+import { useNavigate } from 'react-router-dom';
 
 function EditForumModal({ onClose, forum }) {
-  const { addForum } = useForum();
+  const { updateForumInContext } = useForum();
+  const navigate = useNavigate();
 
-  const addNewForum = async forumData => {
+  const updateForum = async forumData => {
     if (forumData && Object.keys(forumData).length !== 0) {
       try {
         const response = await fetch('http://localhost:5000/forum', {
-          method: 'POST',
+          method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
           },
@@ -18,9 +20,11 @@ function EditForumModal({ onClose, forum }) {
           body: JSON.stringify(forumData),
         });
         const data = await response.json();
+        console.log(data);
 
         if (response.ok) {
-          addForum(data.body);
+          updateForumInContext(data.body);
+          navigate(`/b/${encodeURIComponent(data.body.forum_name)}`);
         }
       } catch (err) {
         console.error('error:', err);
@@ -36,12 +40,12 @@ function EditForumModal({ onClose, forum }) {
         value={forum}
         isOpen={true}
         onClose={onClose}
-        addNewForum={addNewForum}
+        updateForum={updateForum}
       />
     </>
   );
 }
-function EditOptions({ isOpen, onClose, forum }) {
+function EditOptions({ isOpen, forum }) {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const options = [

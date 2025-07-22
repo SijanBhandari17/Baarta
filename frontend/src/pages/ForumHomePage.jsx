@@ -22,13 +22,14 @@ function ForumHomePage() {
   const { forumTitle } = useParams();
   const decodedTitle = decodeURIComponent(forumTitle || '');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const { forum } = useForum();
+  const { forum, loading } = useForum();
   const [posts, setPosts] = useState([]);
 
   const forumToShow = useMemo(
     () => forum?.find(item => item.forum_name === decodedTitle),
     [forum, decodedTitle],
   );
+  console.log(forumToShow);
 
   const forumId = forumToShow?._id || '';
 

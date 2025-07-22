@@ -33,8 +33,14 @@ const ForumProvider = ({ children }) => {
     setForum(prev => [...prev, forumData]);
   };
 
+  const updateForumInContext = updatedForum => {
+    setForum(prev => prev.map(f => (f._id === updatedForum._id ? updatedForum : f)));
+  };
+
   return (
-    <ForumContext.Provider value={{ forum, loading, addForum }}>{children}</ForumContext.Provider>
+    <ForumContext.Provider value={{ forum, loading, addForum, updateForumInContext }}>
+      {children}
+    </ForumContext.Provider>
   );
 };
 

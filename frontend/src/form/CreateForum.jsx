@@ -4,20 +4,20 @@ import { useEffect } from 'react';
 
 const genreOptions = ['AI', 'EdTech', 'Research', 'Climate', 'Literature', 'Analysis', 'Quantum'];
 
-function CreateForum({ value, type, isOpen, onClose, addNewForum }) {
+function CreateForum({ updateForum, value, type, isOpen, onClose, addNewForum }) {
   const [forumName, setForumName] = useState('');
   const [forumDescription, setForumDescription] = useState('');
   const [forumGenre, setForumGenre] = useState(null);
+  const [forumId, setForumId] = useState(null);
   const selectedGenre = ' text-amber-400';
-  console.log(value);
 
   useEffect(() => {
     if (value) {
       setForumName(value.forum_name || '');
       setForumDescription(value.description_text || '');
       const selected = genreOptions.indexOf(value.genre);
-      console.log(selected);
       setForumGenre(selected || null);
+      setForumId(value._id);
     }
   }, [value]);
 
@@ -28,7 +28,12 @@ function CreateForum({ value, type, isOpen, onClose, addNewForum }) {
     const forumName = data.get('forum-name');
     const genre = genreOptions[forumGenre];
     const descriptionText = data.get('forum-description');
-    addNewForum({ forumName, genre, descriptionText });
+
+    if (addNewForum) {
+      addNewForum({ forumName, genre, descriptionText });
+    } else {
+      updateForum({ forumId, forumName, genre, descriptionText });
+    }
     setForumName('');
     setForumDescription('');
     form.reset();
@@ -91,7 +96,6 @@ function CreateForum({ value, type, isOpen, onClose, addNewForum }) {
             <label htmlFor="forum-genre" className="mb-2 block text-lg font-semibold text-white">
               Select Genre
             </label>
-            {console.log(forumGenre)}
             <div className="text-font flex gap-7 text-lg" id="forum-genre">
               {genreOptions.map((item, index) => {
                 return (

@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import CreateForum from '../../../../form/CreateForum';
 import { useForum } from '../../../../context/ForumContext';
 import LoadingSpinner from '../../LoadingSpinner';
-import { CiMenuKebab } from 'react-icons/ci';
+
 function ForumContent() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { forum, addForum, loading } = useForum();
@@ -57,6 +57,7 @@ function ForumContent() {
         })}
       </div>
       <CreateForum
+        type="Create"
         isOpen={isDialogOpen}
         addNewForum={addNewForum}
         onClose={() => setIsDialogOpen(false)}

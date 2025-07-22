@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { navbarInfo } from '../../utils/navLists';
 import { Navigate, NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -54,6 +54,20 @@ function DisplayUserInfo() {
 function DisplayNavButtons() {
   const [activeIcon, setActiveIcon] = useState(0);
   const activeStyle = 'bg-layout-elements-focus';
+
+  useEffect(() => {
+    const currentPath = location.pathname.slice(1);
+    const foundIndex = navbarInfo.findIndex(item => item.label.toLowerCase() === currentPath);
+    if (foundIndex !== -1) {
+      setActiveIcon(foundIndex);
+    } else if (currentPath.startsWith('b/')) {
+      setActiveIcon(1);
+    } else if (currentPath.startsWith('home')) {
+      setActiveIcon(0);
+    } else {
+      setActiveIcon(null);
+    }
+  }, [location.pathname]);
 
   return (
     <div className="my-8">

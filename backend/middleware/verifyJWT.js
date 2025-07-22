@@ -50,12 +50,14 @@ const verifyJWT = async (req , res , next) => {
     );
     res.cookie("refreshToken" , newRefreshToken , {
       httpOnly : true,
-      sameSite : 'lax',
+      // sameSite : 'None',
+      // secure : false,
       maxAge : 30*24*60*60*1000
     });
     res.cookie("accessToken" , newAccessToken , {
       httpOnly : true,
-      sameSite : 'lax',
+      // sameSite : 'None',
+      // secure : false,
       maxAge : 30*24*60*60*1000
     });
     foundUser.refreshToken = newRefreshToken;

@@ -1,30 +1,51 @@
 import { useState } from 'react';
 import upcomingEventsArray from '../../utils/fetchUpcommingEvents';
 import activePollArray from '../../utils/fetchActivePolls';
+<<<<<<< HEAD
 import CalenderIcon from '../../assets/icons/calendar.svg';
 import PollModal from './nav/asidebar/pollmodal';
+=======
+import { communityStatus } from '../../utils/fetchCommnityStatus';
+import { useNavigate } from 'react-router-dom';
+>>>>>>> 8c0ea434add433c069e70d0981c27b2a5a3ac0e3
 
 function RightAsideBar() {
   const [selectedPoll, setSelectedPoll] = useState(null);
 
   return (
+<<<<<<< HEAD
     <aside className="bg-layout-elements flex w-1/2 flex-col border border-l-white/10 p-6">
       <UpcomingEvents />
       <ActivePoll onPollClick={setSelectedPoll} />
       {selectedPoll && (
         <PollModal poll={selectedPoll} onClose={() => setSelectedPoll(null)} />
       )}
+=======
+    <aside className="bg-layout-elements top-20 flex h-[calc(100vh-5rem)] w-[15%] flex-col border border-l-white/10 p-6">
+      <UpcommingEvents />
+      <ActivePoll />
+>>>>>>> 8c0ea434add433c069e70d0981c27b2a5a3ac0e3
       {/* <CommunityStatus /> */}
     </aside>
   );
 }
 
+<<<<<<< HEAD
 function UpcomingEvents() {
   return (
     <div className="upcoming-events mb-8 w-full">
       <h1 className="text-title text-font mb-4 font-semibold uppercase">Upcoming Events</h1>
       {upcomingEventsArray.map((item, index) => (
         <SingleEvent event={item} key={index} />
+=======
+function UpcommingEvents() {
+  const navigate = useNavigate();
+  return (
+    <div onClick={() => navigate('/upcommingevents')} className="upcomming-events mb-8 w-full">
+      <h1 className="text-title text-font mb-4 font-semibold uppercase">Upcomming Events</h1>
+      {upcommingEventsArray.map((item, index) => (
+        <SingleEvents event={item} key={index} />
+>>>>>>> 8c0ea434add433c069e70d0981c27b2a5a3ac0e3
       ))}
     </div>
   );

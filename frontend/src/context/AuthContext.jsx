@@ -19,9 +19,7 @@ const AuthProvider = ({ children }) => {
 
       if (response.ok) {
         const userData = await response.json();
-        setUser(userData); // store full user object
-        console.log(userData);
-        console.trace();
+        setUser(userData);
       } else {
         setUser(null);
       }

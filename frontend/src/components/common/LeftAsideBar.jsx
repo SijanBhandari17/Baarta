@@ -22,7 +22,7 @@ function LeftAsideBar() {
     return <Navigate to="/landingpage" replace />;
   }
   return (
-    <aside className="bg-layout-elements w-[15%] border border-r-white/10 p-4">
+    <aside className="bg-layout-elements sticky top-20 h-[calc(100vh-5rem)] w-[15%] border border-r-white/10 p-4">
       <DisplayUserInfo />
       <DisplayNavButtons />
     </aside>
@@ -61,7 +61,7 @@ function DisplayNavButtons() {
         return (
           <NavLink
             key={index}
-            to={item.label.toLowerCase()}
+            to={'/' + item.label.toLowerCase()}
             onClick={() => setActiveIcon(index)}
             className={`${
               index === activeIcon ? activeStyle : ''

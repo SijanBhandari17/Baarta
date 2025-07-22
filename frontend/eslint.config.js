@@ -1,4 +1,3 @@
-// eslint.config.js
 import js from '@eslint/js';
 import reactPlugin from 'eslint-plugin-react';
 import reactHooksPlugin from 'eslint-plugin-react-hooks';
@@ -13,11 +12,21 @@ export default [
       ecmaVersion: 2022,
       sourceType: 'module',
       globals: {
+        // Existing globals
         document: 'readonly',
         navigator: 'readonly',
         window: 'readonly',
         console: 'readonly',
         process: 'readonly',
+        // Add these web API globals
+        FormData: 'readonly',
+        fetch: 'readonly',
+        Response: 'readonly',
+        Request: 'readonly',
+        Headers: 'readonly',
+        URL: 'readonly',
+        URLSearchParams: 'readonly',
+        // You may need more depending on what you're using
       },
       parserOptions: {
         ecmaFeatures: {

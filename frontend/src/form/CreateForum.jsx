@@ -1,13 +1,25 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
+import { useEffect } from 'react';
 
 const genreOptions = ['AI', 'EdTech', 'Research', 'Climate', 'Literature', 'Analysis', 'Quantum'];
 
-function CreateForum({ isOpen, onClose, addNewForum }) {
+function CreateForum({ value, type, isOpen, onClose, addNewForum }) {
   const [forumName, setForumName] = useState('');
   const [forumDescription, setForumDescription] = useState('');
   const [forumGenre, setForumGenre] = useState(null);
   const selectedGenre = ' text-amber-400';
+  console.log(value);
+
+  useEffect(() => {
+    if (value) {
+      setForumName(value.forum_name || '');
+      setForumDescription(value.description_text || '');
+      const selected = genreOptions.indexOf(value.genre);
+      console.log(selected);
+      setForumGenre(selected || null);
+    }
+  }, [value]);
 
   const handleSubmit = e => {
     e.preventDefault();
@@ -32,7 +44,7 @@ function CreateForum({ isOpen, onClose, addNewForum }) {
         onSubmit={handleSubmit}
       >
         <div className="mb-8 flex items-center justify-between">
-          <h2 className="text-3xl font-bold text-white">Create New Forum</h2>
+          <h2 className="text-3xl font-bold text-white">{type} Forum</h2>
           <button
             type="button"
             onClick={onClose}
@@ -79,6 +91,7 @@ function CreateForum({ isOpen, onClose, addNewForum }) {
             <label htmlFor="forum-genre" className="mb-2 block text-lg font-semibold text-white">
               Select Genre
             </label>
+            {console.log(forumGenre)}
             <div className="text-font flex gap-7 text-lg" id="forum-genre">
               {genreOptions.map((item, index) => {
                 return (
@@ -108,7 +121,7 @@ function CreateForum({ isOpen, onClose, addNewForum }) {
             type="submit"
             className="cursor-pointer rounded-lg bg-blue-600 px-8 py-3 text-lg font-semibold text-white transition-colors hover:bg-blue-700"
           >
-            Create Forum
+            {type} Forum
           </button>
         </div>
       </form>

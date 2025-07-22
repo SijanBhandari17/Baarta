@@ -1,5 +1,6 @@
 import Header from '../components/common/Header';
 import LeftAsideBar from '../components/common/LeftAsideBar';
+import { MoreVertical } from 'lucide-react';
 import { useParams } from 'react-router-dom';
 import { useForum } from '../context/ForumContext';
 import { useEffect, useMemo, useState } from 'react';
@@ -15,6 +16,7 @@ import {
 } from 'lucide-react';
 import CreatePost from '../form/CreatePosts';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import EditOptions from '../components/ui/EditOptions';
 
 function ForumHomePage() {
   const { forumTitle } = useParams();
@@ -28,7 +30,6 @@ function ForumHomePage() {
     [forum, decodedTitle],
   );
 
-  console.log(forumToShow);
   const forumId = forumToShow?._id || '';
 
   useEffect(() => {
@@ -36,42 +37,30 @@ function ForumHomePage() {
   }, [forumId]);
 
   const fetchPosts = async () => {
-    if (forumId) {
-      try {
-        const response = await fetch(`http://localhost:5000/post?forumId=${forumId}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-        });
+    try {
+      const response = await fetch(`http://localhost:5000/post?forumId=${forumId}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+      });
 
-        const data = await response.json();
-
-        if (response.ok) {
-          console.log(data);
-          setPosts(data.body);
-        }
-      } catch (err) {
-        console.log(`Err: ${err}`);
-      }
+      const data = await response.json();
+      if (response.ok) setPosts(data.body);
+    } catch (err) {
+      console.log(`Err: ${err}`);
     }
   };
 
   const addNewPost = async post => {
-    console.log(post);
     if (post && Object.keys(post).length !== 0) {
       try {
         const response = await fetch('http://localhost:5000/post', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
           body: JSON.stringify(post),
         });
         const data = await response.json();
-        console.log(data);
         if (response.ok) {
           setPosts(prev => [...prev, data.body[0]]);
         }
@@ -93,23 +82,21 @@ function ForumHomePage() {
       <main className="flex w-screen flex-1">
         <LeftAsideBar />
         <section className="bg-main-elements flex flex-1 flex-col gap-6 p-6">
-          {forum ? (
-            <div>
-              <ForumHeader forum={forumToShow} handleClick={handleClick} />
-              <div className="flex gap-4">
-                <ForumPosts forum={forumToShow} posts={posts} />
-                <ForumLeftBar forum={forumToShow} />
-              </div>
-              <CreatePost
-                forumId={forumId}
-                isOpen={isDialogOpen}
-                addNewPost={addNewPost}
-                onClose={() => setIsDialogOpen(false)}
-              />
+          <div className="flex flex-col gap-2">
+            <ForumHeader forum={forumToShow} handleClick={handleClick} />
+
+            <div className="flex gap-4">
+              <ForumPosts forum={forumToShow} posts={posts} />
+              <ForumLeftBar forum={forumToShow} />
             </div>
-          ) : (
-            <LoadingSpinner />
-          )}
+
+            <CreatePost
+              forumId={forumId}
+              isOpen={isDialogOpen}
+              addNewPost={addNewPost}
+              onClose={() => setIsDialogOpen(false)}
+            />
+          </div>
         </section>
       </main>
     </div>
@@ -117,13 +104,14 @@ function ForumHomePage() {
 }
 
 function ForumHeader({ forum, handleClick }) {
+  const [isEditOptionsOpen, setIsEditOptionsOpen] = useState(false);
   return (
     <div className="flex items-center justify-between">
       <div>
         <p className="text-font text-hero my-2 font-semibold">{forum.forum_name}</p>
         <p className="text-font text-body">{forum.description_text}</p>
       </div>
-      <div className="flex gap-2">
+      <div className="flex items-center gap-2">
         <button
           onClick={handleClick}
           className="text-font rounded-button-round text-body cursor-pointer bg-[#4169E1] px-3 py-2 text-2xl font-semibold hover:bg-[#255FCC]"
@@ -133,6 +121,21 @@ function ForumHeader({ forum, handleClick }) {
         <button className="rounded-button-round hover:text-font text-body cursor-pointer border border-[#255FCC] px-3 py-2 text-2xl font-semibold text-[#255FCC] transition-all duration-300 ease-in-out hover:bg-[#255FCC]">
           Join Forum
         </button>
+        <div className="flex justify-end">
+          <button
+            onClick={() => setIsEditOptionsOpen(prev => !prev)}
+            className="hover:bg-layout-elements-focus cursor-pointer rounded p-2 text-white"
+          >
+            <MoreVertical />
+          </button>
+          {isEditOptionsOpen && (
+            <EditOptions
+              isOpen={isEditOptionsOpen}
+              forum={forum}
+              onClose={() => setIsEditOptionsOpen(false)}
+            />
+          )}
+        </div>
       </div>
     </div>
   );
@@ -181,7 +184,7 @@ function ForumPosts({ posts }) {
 
 function ForumLeftBar({ forum }) {
   return (
-    <div className="flex flex-col gap-2">
+    <div className="ml-auto flex flex-col gap-2">
       <div className="bg-layout-elements-focus rounded-button-round p-8">
         <h1 className="text-font text-title mb-4 font-semibold">Forum Statistics</h1>
 

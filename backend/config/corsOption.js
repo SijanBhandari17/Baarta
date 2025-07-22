@@ -12,6 +12,6 @@ const options = {
    }
    ,
    credentials : true,
-   methods : ['POST','DELETE' , 'OPTIONS']
+   methods : ['PUT','DELETE' , 'OPTIONS']
 }
 module.exports = options

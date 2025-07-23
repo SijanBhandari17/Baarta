@@ -4,7 +4,7 @@ import upcomingEventsArray from '../../utils/fetchUpcommingEvents';
 import activePollArray from '../../utils/fetchActivePolls';
 import CalenderIcon from '../../assets/icons/calendar.svg';
 import PollModal from './nav/asidebar/pollmodal';
-// import { communityStatus } from '../../utils/fetchCommnityStatus';
+// import { commuityStatus } from '../../utils/fetchCommnityStatus';
 
 function RightAsideBar() {
   const [selectedPoll, setSelectedPoll] = useState(null);

@@ -65,7 +65,8 @@ const sendInvite = async (req ,res)=>{
             forum: foundForum._id,
             $or: [
             { toUser: userId, type: 'join_request' },
-            { fromUser: userId, type: 'join_request' }
+            { fromUser: userId, type: 'join_request' },
+            {toUser :userId , type:'promote_to_moderator'}
             ]
             }).session(session).exec();
         }
@@ -113,7 +114,7 @@ const sendInvite = async (req ,res)=>{
             }
             
 
-             result = await Notification.create([
+            result = await Notification.create([
                 {
                 toUser : userId,
                 fromUser : foundUser._id,

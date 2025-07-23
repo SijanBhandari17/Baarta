@@ -17,7 +17,7 @@ const handleProfilePic = async (req, res)=>{
             resource_type : 'auto'
         })
         const user = await User.findOne({email : req.user.email}).exec()
-        if(!user) return res.status(400).json({"error" : 'bad email recieved'}) 
+        if(!user) return res.status(401).json({"error" : 'bad email recieved'}) 
         const existingProfile = await Profile.findOne({userId : user._id})
         if(!existingProfile){
         const userId = user._id;

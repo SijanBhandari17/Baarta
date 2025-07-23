@@ -134,4 +134,66 @@ const getInvitation = async (req, res)=>{
     }
 }
 
-module.exports = {sendInvite , getInvitation}
+const acceptInvitation = async (req , res) =>{
+
+    const session = await mongoose.startSession()
+    try{
+
+        await session.startTransaction()
+
+        if(!req.body?.notificationId) return res.status(400).json({"error" : "missing notificationId in the request header"})
+        if(!req.user?.email) return res.status(401).json({"error" :"unauthenticated user sent the request"})
+
+        const {notificationId} = req.body
+        const {email} = req.user
+
+        const foundUser = await User.findOne({email}).session(session).exec()
+        if(!foundUser){
+            await session.abortTransaction()
+            return res.status(404).json({"error" : "the user was either deleted or removed"})
+        }
+        
+        const foundNotification = await Notification.findOne({_id : notificationId}).session(session).exec()
+        if(!foundNotification){
+            await session.abortTransaction()
+            return res.status(404).json({"error" : "the notification was either deleted or removed"})
+        }
+
+        if(foundNotification.toUser.toString() !== foundUser._id.toString())
+        {
+            await session.abortTransaction()
+            return res.status(403).json({"error" : "the request wasn't sent to you "})
+        }
+        
+        const forumId = foundNotification.forum
+
+        const foundForum = await Forum.findOne({_id : forumId}).session(session).exec()
+        if(!foundForum)
+        {
+            await session.abortTransaction()
+            return res.status(404).json({"error" : 'the forum was either deleted or removed after the request was sent'})
+        }
+
+        foundForum.member_id = [...foundForum.member_id , foundUser._id]
+        
+        const result = await foundForum.save({session})
+
+        await Notification.deleteOne({_id : foundNotification._id} , {session})
+
+        await session.commitTransaction()
+
+        res.status(201).json({"message" : "the invitation has been successfully accepted " , "body" : result})        
+
+    }
+    catch(err)
+    {
+        await session.abortTransaction()
+        return res.status(500).json({"error" : `${err.stack}`})
+    }
+    finally{
+        await session.endSession()
+    }
+
+}
+
+module.exports = {sendInvite , getInvitation , acceptInvitation}

@@ -1,9 +1,11 @@
 import { useParams, useOutletContext } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { Eye, MessageCircle, Users, Clock, SendHorizonal } from 'lucide-react';
+import { MoreVertical } from 'lucide-react';
 import { sidebarInfo, commentsBySlug, postsBySlug } from '../utils/threadExtras';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { format } from 'date-fns';
+import EditOptionsPost from '../components/ui/EditOptionsPosts';
 
 export default function PostContent() {
   const { forumTitle, postId } = useParams();
@@ -11,13 +13,13 @@ export default function PostContent() {
   const decodedForum = decodeURIComponent(forumTitle || '');
   const decodedPostId = decodeURIComponent(postId || '');
 
-  const { forumId, posts } = useOutletContext() || {};
+  const { forumId, posts, onPostChange } = useOutletContext() || {};
 
   const [post, setPost] = useState(null);
   const [comments, setComments] = useState([]);
-
+  const [isEditOptionsOpen, setIsEditOptionsOpen] = useState(false);
   const postToShow = posts.find(item => item._id === decodedPostId);
-  console.log(postToShow);
+  console.log([postToShow]);
 
   useEffect(() => {
     if (postToShow) {
@@ -76,19 +78,46 @@ export default function PostContent() {
               {postToShow.genre}
             </span>
           </div>
-          <h1 className="text-font mb-2 text-[26px] font-bold">{postToShow.title}</h1>
+          <div className="flex justify-between">
+            <h1 className="text-font mb-2 text-[26px] font-bold">{postToShow.title}</h1>
+            <div className="flex justify-end">
+              <button
+                onClick={() => setIsEditOptionsOpen(prev => !prev)}
+                className="hover:bg-layout-elements-focus cursor-pointer rounded p-2 text-white"
+              >
+                <MoreVertical />
+              </button>
+              {isEditOptionsOpen && (
+                <EditOptionsPost
+                  post={postToShow}
+                  isOpen={isEditOptionsOpen}
+                  onClose={() => setIsEditOptionsOpen(false)}
+                  onPostChange={onPostChange}
+                />
+              )}
+            </div>
+          </div>
           {/* Post Metadata */}
           <div className="text-font-light/80 mb-4 flex flex-wrap items-center gap-3 text-sm">
             <span>👤 {postToShow.authorName}</span>
             <span className="flex items-center gap-2">
-              <Clock size={14} className="inline-block" /> {console.log(postToShow?.post_date)}
+              <Clock size={14} className="inline-block" />
               {format(new Number(postToShow?.post_date), 'yyyy-MM-dd HH:mm:ss')}
             </span>
           </div>
 
           {/* Post Body */}
-          <div className="text-font text-body mb-6 leading-relaxed">{postToShow.content.text}</div>
+          <div className="text-font text-body mb-6">{postToShow.content.text}</div>
 
+          {postToShow.content.image && (
+            <div className="mb-6">
+              <img
+                src={postToShow.content.image}
+                alt={postToShow.title}
+                className="h-48 rounded-lg object-cover"
+              />
+            </div>
+          )}
           {/* Post Stats */}
           <div className="text-font-light/80 border-layout-elements-focus mt-6 flex flex-wrap items-center gap-4 border-t pt-4 text-sm">
             <span className="flex items-center gap-2">

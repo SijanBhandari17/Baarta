@@ -64,7 +64,6 @@ function ProfileSection() {
   const [showNotification, toggleNotification] = useDropdown('.notification-section');
   const auth = useAuth();
   const { user, logOut } = auth;
-  console.log(user);
   return (
     <div className="flex">
       <div className="notification-section relative flex items-center">

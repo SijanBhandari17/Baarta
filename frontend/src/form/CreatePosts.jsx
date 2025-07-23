@@ -3,7 +3,7 @@ import { X } from 'lucide-react';
 import { useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 
-function CreatePost({ type, value, updatePost, forumId, isOpen, onClose, addNewPost }) {
+function CreatePost({ type, post, updatePost, forumId, isOpen, onClose, addNewPost }) {
   const [postName, setPostName] = useState('');
   const [postDescription, setPostDescription] = useState('');
   const [postGenre, setPostGenre] = useState(null);
@@ -11,19 +11,18 @@ function CreatePost({ type, value, updatePost, forumId, isOpen, onClose, addNewP
   const [postId, setPostId] = useState(null);
   const selectedGenre = ' text-amber-400';
   const { user } = useAuth();
-  console.log(user);
 
   const genreOptions = ['Question', 'Announcement', 'Event'];
 
   useEffect(() => {
-    if (value) {
-      setPostName(value.forum_name || '');
-      setPostDescription(value.description_text || '');
-      const selected = genreOptions.indexOf(value.genre);
+    if (post) {
+      setPostName(post.title || '');
+      setPostDescription(post.content.text || '');
+      const selected = genreOptions.indexOf(post.genre);
       setPostGenre(selected || null);
-      setPostId(value._id);
+      setPostId(post._id);
     }
-  }, [value]);
+  }, [post]);
 
   const handleSubmit = e => {
     e.preventDefault();
@@ -33,9 +32,11 @@ function CreatePost({ type, value, updatePost, forumId, isOpen, onClose, addNewP
     const content_text = data.get('post-description');
     const genre = genreOptions[postGenre];
     const authorName = user.info?.username;
+    const postImage = data.getAll('post-image');
+    console.log(postImage);
 
     if (addNewPost) {
-      addNewPost({ title, forumId, authorName, content_text, genre });
+      addNewPost({ title, postImage, forumId, authorName, content_text, genre });
     } else {
       updatePost({ title, forumId, authorName, content_text, genre });
     }
@@ -161,7 +162,7 @@ function CreatePost({ type, value, updatePost, forumId, isOpen, onClose, addNewP
             type="submit"
             className="cursor-pointer rounded-lg bg-blue-600 px-8 py-3 text-lg font-semibold text-white transition-colors hover:bg-blue-700"
           >
-            Create post
+            {type} post
           </button>
         </div>
       </form>

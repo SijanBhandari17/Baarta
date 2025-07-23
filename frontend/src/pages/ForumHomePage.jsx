@@ -27,6 +27,9 @@ function ForumHomePage() {
   const { forum, loading } = useForum();
   const [posts, setPosts] = useState([]);
 
+  const updatePostInState = updatedPost => {
+    setPosts(prev => prev.map(post => (post._id === updatedPost._id ? updatedPost : post)));
+  };
   const forumToShow = useMemo(
     () => forum?.find(item => item.forum_name === decodedTitle),
     [forum, decodedTitle],
@@ -59,34 +62,28 @@ function ForumHomePage() {
   const addNewPost = async post => {
     if (post && Object.keys(post).length !== 0) {
       try {
+        const formData = new FormData();
+        formData.append('title', post.title);
+        formData.append('content_text', post.content_text);
+        formData.append('forumId', post.forumId);
+        formData.append('genre', post.genre);
+        formData.append('authorName', post.authorName);
+
+        if (post.postImage && post.postImage.length > 0) {
+          formData.append('postImage', post.postImage[0]);
+        }
+
         const response = await fetch('http://localhost:5000/post', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
-          body: JSON.stringify(post),
+          body: formData,
         });
+
         const data = await response.json();
         if (response.ok) {
           setPosts(prev => [data.body[0], ...prev]);
-        }
-      } catch (err) {
-        console.log(`Err: ${err}`);
-      }
-    }
-  };
-
-  const updatePost = async post => {
-    if (post && Object.keys(post).length !== 0) {
-      try {
-        const response = await fetch('http://localhost:5000/post', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify(post),
-        });
-        const data = await response.json();
-        if (response.ok) {
-          setPosts(prev => [...prev, data.body[0]]);
+        } else {
+          console.error('Upload failed:', data.error);
         }
       } catch (err) {
         console.log(`Err: ${err}`);
@@ -118,6 +115,7 @@ function ForumHomePage() {
                   addNewPost,
                   isDialogOpen,
                   setIsDialogOpen,
+                  onPostChange: updatePostInState,
                 }}
               />
             </div>
@@ -187,10 +185,8 @@ function ForumHeader({ forum, handleClick }) {
 
 function ForumPosts({ posts }) {
   const navigate = useNavigate();
-  console.log(posts);
 
   const handlePostClick = item => {
-    console.log(item);
     navigate(`${item._id}`);
   };
   return (

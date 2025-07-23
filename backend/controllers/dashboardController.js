@@ -16,6 +16,7 @@ const handleDashBoard = async (req, res) => {
         profilePic:
           profile?.profilePicLink ||
           "https://res.cloudinary.com/dlddcx3uw/image/upload/v1752323363/defaultUser_cfqyxq.svg",
+          userId : result._id
       },
     });
   } catch (err) {

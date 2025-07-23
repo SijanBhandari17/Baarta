@@ -232,7 +232,7 @@ const acceptInvitation = async (req , res) =>{
             return res.status(404).json({"error" : "the user was either deleted or removed"})
         }
         
-        const foundNotification = await Notification.findOne({_id : notificationId}).session(session).exec()
+        const foundNotification = await Notification.findOne({_id : notificationId , $or : [{type : 'forum_invite'} , {type : 'promote_to_moderator'}]}).session(session).exec()
         if(!foundNotification){
             await session.abortTransaction()
             return res.status(404).json({"error" : "the notification was either deleted or removed"})
@@ -245,6 +245,7 @@ const acceptInvitation = async (req , res) =>{
         }
         
         const forumId = foundNotification.forum
+        const type = foundNotification.type
 
         const foundForum = await Forum.findOne({_id : forumId}).session(session).exec()
         if(!foundForum)
@@ -252,11 +253,24 @@ const acceptInvitation = async (req , res) =>{
             await session.abortTransaction()
             return res.status(404).json({"error" : 'the forum was either deleted or removed after the request was sent'})
         }
+        
+        let result
 
+        if(type === 'forum_invite')
+        {
         foundForum.member_id = [...foundForum.member_id , foundUser._id]
         
-        const result = await foundForum.save({session})
+        result = await foundForum.save({session})
+        }
+        else if (type === 'promote_to_moderator')
+        {
+            await Forum.updateOne({_id : foundForum._id} , {$pull : {member_id : foundUser._id}} , {session})
 
+            foundForum.moderator_id = [...foundForum.moderator_id , foundUser._id]
+
+            result = await foundForum.save({session})
+        }
+    
         await Notification.deleteOne({_id : foundNotification._id} , {session})
 
         await session.commitTransaction()
@@ -274,5 +288,59 @@ const acceptInvitation = async (req , res) =>{
     }
 
 }
+const getJoinRequest = async(req ,res)=>{
 
-module.exports = {sendInvite , getInvitation , acceptInvitation}
+    const session = await mongoose.startSession()
+
+    try{
+        await session.startTransaction()
+
+        if(!req.query?.forumId) return res.status(400).json({"error" : "forumId is missing in the query parameter"})
+        if(!req.user?.email) return res.status(401).json({"error" : 'unauthenticated user request sent'})
+        
+        const {forumId} = req.query
+        const {email} = req.user
+
+        const foundUser = await User.findOne({email}).session(session).exec()
+        if(!foundUser){
+            await session.abortTransaction()
+            return res.status(404).json({"error" : "user with such id not found"})
+        }
+
+        const foundForum = await Forum.findOne({_id : forumId}).session(session).exec()
+        if(!foundForum){
+            await session.abortTransaction()
+            return res.status(404).json({"error" : "the forum is either deleted or removed"})
+        }
+        
+        if(foundForum.admin_id.toString() !== foundUser._id.toString() && !foundForum.moderator_id.includes(foundUser._id) ){
+            await session.abortTransaction()
+            return res.status(403).json({"error" : "you aren't authorized to view that information"})
+        }
+
+        const requestNotifactionArr = await Notification.find({forum : foundForum._id , type : 'join_request'}).session(session).exec()
+        
+        const toSendNotificationArr = await Promise.all(requestNotifactionArr.map(async (item) =>{
+            const sentByUser = await User.findOne({_id : item.fromUser}).session(session).exec()
+            const sentByUserProfilePic = await Profile.findOne({userId : sentByUser?._id}).session(session).exec()
+            
+            const toReturnObj = {...item.toObject() , senderEmail : sentByUser?.email || '[deleted user]' , senderName : sentByUser?.username || '[deleted user]' , senderProfilePicLink : sentByUserProfilePic?.profilePicLink || 'https://res.cloudinary.com/dlddcx3uw/image/upload/v1752323363/defaultUser_cfqyxq.svg' }
+
+            return toReturnObj
+        }))
+
+        await session.commitTransaction()
+        res.status(200).json({"message" : "the join request received successfully" , "body" : toSendNotificationArr})
+
+    }
+    catch(err)
+    {
+        await session.abortTransaction()
+        return res.status(500).json({"error" : `${err.stack}`})
+    }
+    finally{
+        await session.endSession()
+    }
+
+}
+module.exports = {sendInvite , getInvitation , acceptInvitation , getJoinRequest}

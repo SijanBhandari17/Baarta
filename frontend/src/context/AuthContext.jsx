@@ -53,6 +53,15 @@ const AuthProvider = ({ children }) => {
       setUser(null);
     }
   };
+  const handleProfilePicChange = profileData => {
+    setUser(prev => ({
+      ...prev,
+      info: {
+        ...prev.info,
+        profilePic: profileData,
+      },
+    }));
+  };
 
   return (
     <AuthContext.Provider
@@ -62,6 +71,7 @@ const AuthProvider = ({ children }) => {
         loginAction,
         logOut,
         checkAuthStatus,
+        handleProfilePicChange,
       }}
     >
       {children}

@@ -1,13 +1,18 @@
 import { useState, createContext, useEffect, useContext } from 'react';
+import { useAuth } from './AuthContext';
 const ForumContext = createContext();
 
 const ForumProvider = ({ children }) => {
   const [forum, setForum] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+  console.log(user);
 
   useEffect(() => {
-    fetchForums();
-  }, []);
+    if (user) {
+      fetchForums();
+    }
+  }, [user]);
 
   const fetchForums = async () => {
     try {
@@ -19,6 +24,7 @@ const ForumProvider = ({ children }) => {
 
       if (response.ok) {
         setForum(data.body);
+        console.log(data);
       } else {
         console.log(data);
       }

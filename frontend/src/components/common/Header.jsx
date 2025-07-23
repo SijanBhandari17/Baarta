@@ -64,6 +64,9 @@ function ProfileSection() {
   const [showProfile, toggleProfile] = useDropdown('.profile-section');
   const [showNotification, toggleNotification] = useDropdown('.notification-section');
 
+  const auth = useAuth();
+  const { user } = auth;
+  console.log(user);
   return (
     <div className="flex">
       <div className="notification-section relative flex items-center">
@@ -83,8 +86,8 @@ function ProfileSection() {
       </div>
       <div className="profile-section flex size-[56px] items-center justify-center rounded-full">
         <img
-          src={DefaultProfile}
-          className="hover:bg-layout-elements-focus h-15 w-16 cursor-pointer rounded-full p-2"
+          src={user.info?.profilePic}
+          className="hover:bg-layout-elements-focus h-15 w-16 cursor-pointer rounded-full object-cover object-center p-2"
           onClick={toggleProfile}
         />
       </div>

@@ -15,11 +15,14 @@ const sendInvite = async (req ,res)=>{
         await session.startTransaction()
 
         if(!req.body?.forumId) return res.status(400).json({"error" : "forumId missing in the request header"})
-        if(!req.body?.userId) return res.status(400).json({"error" : "userId missing in the request header"})
+        if(!req.body?.type) return res.status(400).json({"error" : "type missing in the request header"})
         if(!req.user?.email) return res.status(401).json({"error" : "unauthenticated user request sent"})
-        const {forumId , userId } = req.body
+        
+        const {forumId , userId , type} = req.body
         const {email} = req.user
 
+        if(!req.body?.userId && type !== 'join_request') return res.status(400).json({"error" : " userId missing in the request header"})
+    
         const foundUser = await User.findOne({email}).session(session).exec() 
         if(!foundUser){
             await session.abortTransaction()
@@ -31,41 +34,117 @@ const sendInvite = async (req ,res)=>{
             await session.abortTransaction()
             return res.status(404).json({"error" : "the forum is either deleted or removed"}) // the forum could be deleted after the request is sent
         }
-        const foundReciepent = await User.findOne({_id : userId}).session(session).exec()
-        if(!foundReciepent)
-        {
-            await session.abortTransaction()
-            return res.status(404).json({"error" : "no such reciepent"})
+        let foundReciepent;
+        if(type !== 'join_request')
+        { 
+            foundReciepent = await User.findOne({_id : userId}).session(session).exec()
+            if(!foundReciepent )
+            {
+                await session.abortTransaction()
+                return res.status(404).json({"error" : "no such reciepent"})
+            }
         }
 
-        if(foundForum.admin_id.toString() === foundReciepent._id.toString() || foundForum.moderator_id.includes(foundReciepent._id) || foundForum.member_id.includes(foundReciepent._id))
-        {
-            await session.abortTransaction()
-            return res.status(409).json({"error" : "the user is already a part of this forum"})
-        }
+        if(foundUser._id.toString() !== foundForum.admin_id.toString() && !foundForum.moderator_id.includes(foundUser._id) && type !== 'join_request')
+            {
+                await session.abortTransaction()
+                return res.status(403).json({"error" : "unauthorized request sent"})
+            }
 
-        if(foundUser._id.toString() !== foundForum.admin_id.toString() && !foundForum.moderator_id.includes(foundUser._id))
-        {
-            await session.abortTransaction()
-            return res.status(403).json({"error" : "unauthorized request sent"})
+        let duplicateRequest;
+        
+        if (type === 'join_request') {
+            duplicateRequest = await Notification.findOne({
+            forum: foundForum._id,
+            fromUser: foundUser._id, // current user sending the join request
+            type: 'join_request'
+            }).session(session).exec();
+        } 
+        else {
+            duplicateRequest = await Notification.findOne({
+            forum: foundForum._id,
+            $or: [
+            { toUser: userId, type: 'join_request' },
+            { fromUser: userId, type: 'join_request' }
+            ]
+            }).session(session).exec();
         }
-
-        const duplicateRequest = await Notification.findOne({forum : foundForum._id , $or : [{toUser : userId} , {fromUser : userId}]}).session(session).exec()
-        console.log(duplicateRequest) 
+            
         if(duplicateRequest)
         {
             await session.abortTransaction()
-            return res.status(409).json({"error" : "Here the user has either already sent the request to join the forum or the request has already been sent to the user to join the forum"})
-
+            return res.status(409).json({"error" : " the user has already request or the user has been request by the forum already"})
         }
-        const result = await Notification.create([
+
+        let result;
+
+        if(type === 'promote_to_moderator')
+        {
+            if(!foundForum.member_id.includes(foundReciepent._id))            
             {
-               toUser : userId,
-               fromUser : foundUser._id,
-               forum : forumId,
-               type : 'forum_invite' 
+                await session.abortTransaction()
+                return res.status(404).json({"error" : "couldn't find such memeber to promote inside of the forum"})
             }
-        ] , {session})
+
+            if(foundForum.moderator_id.includes(foundReciepent._id) || foundForum.admin_id === foundReciepent._id) 
+            {
+                await session.abortTransaction()
+                return res.status(409).json({"error" : "The user is already either an admin or a moderator"})
+            }
+            
+            result = await Notification.create([
+                {
+                toUser : userId,
+                fromUser : foundUser._id,
+                forum : forumId,
+                type : 'promote_to_moderator' 
+                }
+            ] , {session})
+            
+                
+        }
+            
+        else if(type === 'forum_invite')
+        { 
+            if(foundForum.admin_id.toString() === foundReciepent._id.toString() || foundForum.moderator_id.includes(foundReciepent._id) || foundForum.member_id.includes(foundReciepent._id))
+            {
+                await session.abortTransaction()
+                return res.status(409).json({"error" : "the user is already a part of this forum"})
+            }
+            
+
+             result = await Notification.create([
+                {
+                toUser : userId,
+                fromUser : foundUser._id,
+                forum : forumId,
+                type : 'forum_invite' 
+                }
+            ] , {session})
+        }
+
+        else if(type === 'join_request')
+        {
+            if(foundForum.admin_id.toString() === foundUser._id.toString() || foundForum.moderator_id.includes(foundUser._id) || foundForum.member_id.includes(foundUser._id))
+            {
+                await session.abortTransaction()
+                return res.status(409).json({"error" : "the user is already part of this forum"})
+            }
+            
+            result = await Notification.create([
+            { 
+                toUser : null, 
+                fromUser : foundUser._id,
+                forum : forumId,
+                type : 'join_request'        
+            }
+            ] , {session})
+        }
+        else
+        {
+            await session.abortTransaction()
+            return res.status(400).json({"error" : "no such types for invitation or request"})
+        }
 
 
         await session.commitTransaction()

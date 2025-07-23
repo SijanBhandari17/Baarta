@@ -4,8 +4,7 @@ const Schema =  mongoose.Schema
 const notificationSchema = new Schema({
   toUser: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
+    ref: 'User'
   },
 
   fromUser: {
@@ -22,7 +21,7 @@ const notificationSchema = new Schema({
 
   type: {
     type: String,
-    enum: ['join_request', 'forum_invite'], // join_request = user → admin/mod, forum_invite = admin/mod → user
+    enum: ['join_request', 'forum_invite' , 'promote_to_moderator'], // join_request = user → admin/mod, forum_invite = admin/mod → user
     required: true
   },
 

@@ -17,8 +17,7 @@ const sendInvite = async (req ,res)=>{
         if(!req.body?.forumId) return res.status(400).json({"error" : "forumId missing in the request header"})
         if(!req.body?.userId) return res.status(400).json({"error" : "userId missing in the request header"})
         if(!req.user?.email) return res.status(401).json({"error" : "unauthenticated user request sent"})
-        
-        const {forumId , userId} = req.body
+        const {forumId , userId } = req.body
         const {email} = req.user
 
         const foundUser = await User.findOne({email}).session(session).exec() 
@@ -31,6 +30,18 @@ const sendInvite = async (req ,res)=>{
         if(!foundForum){
             await session.abortTransaction()
             return res.status(404).json({"error" : "the forum is either deleted or removed"})
+        }
+        const foundReciepent = await User.findOne({_id : userId}).session(session).exec()
+        if(!foundReciepent)
+        {
+            await session.abortTransaction()
+            return res.status(404).json({"error" : "no such reciepent"})
+        }
+
+        if(foundForum.admin_id.toString() === foundReciepent._id.toString() || foundForum.moderator_id.includes(foundReciepent._id) || foundForum.member_id.includes(foundReciepent._id))
+        {
+            await session.abortTransaction()
+            return res.status(409).json({"error" : "the user is already a part of this forum"})
         }
 
         if(foundUser._id.toString() !== foundForum.admin_id.toString() && !foundForum.moderator_id.includes(foundUser._id))

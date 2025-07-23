@@ -1,7 +1,7 @@
 import Header from '../components/common/Header';
 import LeftAsideBar from '../components/common/LeftAsideBar';
 import { MoreVertical } from 'lucide-react';
-import { useParams } from 'react-router-dom';
+import { useParams, useOutletContext, Outlet, useNavigate } from 'react-router-dom';
 import { useForum } from '../context/ForumContext';
 import { useEffect, useMemo, useState } from 'react';
 import {
@@ -88,10 +88,17 @@ function ForumHomePage() {
             <ForumHeader forum={forumToShow} handleClick={handleClick} />
 
             <div className="flex gap-4">
-              <ForumPosts forum={forumToShow} posts={posts} />
-              <ForumLeftBar forum={forumToShow} />
+              <Outlet
+                context={{
+                  forum: forumToShow,
+                  posts,
+                  forumId,
+                  addNewPost,
+                  isDialogOpen,
+                  setIsDialogOpen,
+                }}
+              />
             </div>
-
             <CreatePost
               forumId={forumId}
               isOpen={isDialogOpen}
@@ -102,6 +109,15 @@ function ForumHomePage() {
         </section>
       </main>
     </div>
+  );
+}
+function ForumDefault() {
+  const { forum, posts } = useOutletContext();
+  return (
+    <>
+      <ForumPosts forum={forum} posts={posts} />
+      <ForumLeftBar forum={forum} />
+    </>
   );
 }
 
@@ -144,14 +160,21 @@ function ForumHeader({ forum, handleClick }) {
 }
 
 function ForumPosts({ posts }) {
-  console.log(posts);
+  const navigate = useNavigate();
+
+  const handlePostClick = item => {
+    navigate(`${item.title}`);
+  };
   return (
     <>
       {posts && posts.length > 0 ? (
         <div className="flex flex-1 flex-col gap-4">
           {posts.map((item, index) => (
             <div key={index} className="bg-layout-elements-focus rounded-button-round p-3">
-              <div className="mb-2 flex items-start justify-between">
+              <div
+                onClick={() => handlePostClick(item)}
+                className="mb-2 flex cursor-pointer items-start justify-between"
+              >
                 <p className="text-title text-font font-semibold">{item.title}</p>
                 <Bookmark className="ml-2 flex-shrink-0 cursor-pointer text-white" />
               </div>
@@ -163,7 +186,6 @@ function ForumPosts({ posts }) {
                 <div className="flex items-center gap-1">
                   <Clock className="text-font-light/80 h-4 w-4" />
                   <p className="text-font-light/80">
-                    {console.log(item.post_date)}
                     {formatDistanceToNow(Number(item.post_date), { addSuffix: true })}
                   </p>
                 </div>
@@ -250,4 +272,4 @@ function ForumLeftBar({ forum }) {
   );
 }
 
-export default ForumHomePage;
+export { ForumDefault, ForumHomePage };

@@ -30,12 +30,6 @@ const homeContentNavbar = [
     label: 'My Threads',
   },
   {
-    label: 'Following',
-  },
-  {
-    label: 'Enrolled Forums',
-  },
-  {
     label: 'Trending',
   },
 ];

@@ -2,16 +2,8 @@ import Header from '../components/common/Header';
 import RightAsideBar from '../components/common/RightAsideBar';
 import { totalCommunityStatus } from '../utils/fetchCommnityStatus';
 import LiveDiscussions from '../components/common/nav/home/LiveDiscussions';
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { Navigate } from 'react-router-dom';
 
 function LandingPage() {
-  const { user, loading } = useAuth();
-  if (user) {
-    return <Navigate to="/home" replace />;
-  }
   return (
     <div className="flex h-screen flex-col">
       <Header />

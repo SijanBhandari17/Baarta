@@ -5,7 +5,6 @@ const AuthContext = createContext();
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [token, setToken] = useState(localStorage.getItem('site') || '');
 
   useEffect(() => {
     checkAuthStatus();
@@ -20,7 +19,6 @@ const AuthProvider = ({ children }) => {
 
       if (response.ok) {
         const userData = await response.json();
-        console.log(userData)
         setUser(userData);
       } else {
         setUser(null);
@@ -39,23 +37,26 @@ const AuthProvider = ({ children }) => {
 
   const logOut = async () => {
     try {
-      await fetch('http://localhost:5000/logout', {
-        method: 'POST',
+      const response = await fetch('http://localhost:5000/logout', {
+        method: 'GET',
         credentials: 'include',
       });
+
+      if (response.ok) {
+        console.log('Logout successful');
+      } else {
+        console.error('Logout failed on server:', response.status);
+      }
     } catch (error) {
       console.error('Logout error:', error);
+    } finally {
+      setUser(null);
     }
-
-    setUser(null);
-    setToken('');
-    localStorage.removeItem('site');
   };
 
   return (
     <AuthContext.Provider
       value={{
-        token,
         user,
         loading,
         loginAction,

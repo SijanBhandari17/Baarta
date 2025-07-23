@@ -344,4 +344,73 @@ const getJoinRequest = async(req ,res)=>{
     }
 
 }
-module.exports = {sendInvite , getInvitation , acceptInvitation , getJoinRequest}
+
+const acceptJoinRequest = async (req, res)=>{
+    const session = await mongoose.startSession()
+    try{
+        await session.startTransaction()
+       
+        if(!req.body?.notificationId) return res.status(400).json({"error" : "notification Id missing the req header "})
+        if(!req.user?.email) return res.status(401).json({"error" : "unaunthenticated request sent by the user"})
+        
+        const {notificationId} = req.body
+        const {email} = req.user
+
+        const foundUser = await User.findOne({email}).session(session).exec()
+        if(!foundUser){
+            await session.abortTransaction()
+            return res.status(404).json({"error" : "the user was either deleted or removed"})
+        }
+        
+        const foundNotification = await Notification.findOne({_id : notificationId , type : 'join_request'}).session(session).exec()
+        if(!foundNotification){
+            await session.abortTransaction()
+            return res.status(404).json({"error" : "the notification was either deleted or removed"})
+        }
+
+        const forumId = foundNotification.forum
+
+        const foundForum = await Forum.findOne({_id : forumId}).session(session).exec()
+
+        if(!foundForum)
+        {
+            await session.abortTransaction()
+            return res.status(404).json({"error" : "the forum was either deleted or removed"})
+        }
+
+        if(foundForum.admin_id.toString() !== foundUser._id.toString() && !foundForum.moderator_id.includes(foundUser._id))
+        {
+            await session.abortTransaction()
+            return res.status(403).json({"error" : "unauthorized request sent"})
+        }
+
+        const requestedUser = foundNotification.fromUser
+
+        const foundRequestedUser = await User.findOne({_id : requestedUser}).session(session).exec()
+        if(!foundRequestedUser) 
+        {
+            await session.abortTransaction()
+            return res.status(404).json({"error" : "the user who sent request is either deleted or removed"})
+        }
+
+        foundForum.member_id = [...foundForum.member_id , foundRequestedUser._id]
+        
+        await Notification.deleteOne({_id : foundNotification._id} , {session})
+
+        const result = await foundForum.save({session})
+
+        await session.commitTransaction()
+        res.status(201).json({"message" : "the user has successfully been entered into the forum" , "body" : result})
+
+    }
+    catch(err)
+    {
+        await session.abortTransaction()
+        return res.status(500).json({"error" : `${err.stack}`})
+    }
+    finally{
+        await session.endSession()
+    }
+}
+
+module.exports = {sendInvite , getInvitation , acceptInvitation , getJoinRequest , acceptJoinRequest}

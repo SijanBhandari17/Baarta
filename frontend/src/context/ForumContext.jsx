@@ -6,7 +6,6 @@ const ForumProvider = ({ children }) => {
   const [forum, setForum] = useState([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
-  console.log(user);
 
   useEffect(() => {
     if (user) {
@@ -24,9 +23,6 @@ const ForumProvider = ({ children }) => {
 
       if (response.ok) {
         setForum(data.body);
-        console.log(data);
-      } else {
-        console.log(data);
       }
     } catch (err) {
       console.log(`error:${err} `);

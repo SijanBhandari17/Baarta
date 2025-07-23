@@ -18,6 +18,7 @@ import CreatePost from '../form/CreatePosts';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import EditOptions from '../components/ui/EditOptions';
 import { formatDistanceToNow } from 'date-fns';
+import { useAuth } from '../context/AuthContext';
 
 function ForumHomePage() {
   const { forumTitle } = useParams();
@@ -30,7 +31,6 @@ function ForumHomePage() {
     () => forum?.find(item => item.forum_name === decodedTitle),
     [forum, decodedTitle],
   );
-  console.log(forumToShow);
 
   const forumId = forumToShow?._id || '';
 
@@ -47,9 +47,12 @@ function ForumHomePage() {
       });
 
       const data = await response.json();
-      if (response.ok) setPosts(data.body);
+      if (response.ok) {
+        console.log(data.body);
+        setPosts(data.body);
+      }
     } catch (err) {
-      console.log(`Err: ${err}`);
+      console.error(`Err: ${err.message}`);
     }
   };
 
@@ -58,6 +61,25 @@ function ForumHomePage() {
       try {
         const response = await fetch('http://localhost:5000/post', {
           method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(post),
+        });
+        const data = await response.json();
+        if (response.ok) {
+          setPosts(prev => [data.body[0], ...prev]);
+        }
+      } catch (err) {
+        console.log(`Err: ${err}`);
+      }
+    }
+  };
+
+  const updatePost = async post => {
+    if (post && Object.keys(post).length !== 0) {
+      try {
+        const response = await fetch('http://localhost:5000/post', {
+          method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
           body: JSON.stringify(post),
@@ -100,6 +122,8 @@ function ForumHomePage() {
               />
             </div>
             <CreatePost
+              type="Create"
+              posts={posts}
               forumId={forumId}
               isOpen={isDialogOpen}
               addNewPost={addNewPost}
@@ -116,13 +140,15 @@ function ForumDefault() {
   return (
     <>
       <ForumPosts forum={forum} posts={posts} />
-      <ForumLeftBar forum={forum} />
+      <ForumLeftBar forum={forum} posts={posts} />
     </>
   );
 }
 
 function ForumHeader({ forum, handleClick }) {
   const [isEditOptionsOpen, setIsEditOptionsOpen] = useState(false);
+  const { user } = useAuth();
+
   return (
     <div className="flex items-center justify-between">
       <div>
@@ -161,9 +187,11 @@ function ForumHeader({ forum, handleClick }) {
 
 function ForumPosts({ posts }) {
   const navigate = useNavigate();
+  console.log(posts);
 
   const handlePostClick = item => {
-    navigate(`${item.title}`);
+    console.log(item);
+    navigate(`${item._id}`);
   };
   return (
     <>
@@ -210,7 +238,7 @@ function ForumPosts({ posts }) {
   );
 }
 
-function ForumLeftBar({ forum }) {
+function ForumLeftBar({ forum, posts }) {
   return (
     <div className="ml-auto flex flex-col gap-2">
       <div className="bg-layout-elements-focus rounded-button-round p-8">
@@ -232,7 +260,7 @@ function ForumLeftBar({ forum }) {
               <MessageSquare className="h-4 w-4 text-[#4169E1]" />
               <p className="text-font-light/80 text-body">Threads</p>
             </div>
-            <p className="text-font text-body font-semibold">{forum.post_id.length}</p>
+            <p className="text-font text-body font-semibold">{posts.length}</p>
           </div>
 
           <div className="flex items-center justify-between">
@@ -253,7 +281,7 @@ function ForumLeftBar({ forum }) {
             <div>
               {forum.moderator_id.map((item, index) => {
                 return (
-                  <div>
+                  <div key={index}>
                     <img
                       src={item.info?.profilePic}
                       className="h-25 w-25 cursor-pointer rounded-full object-cover object-center"

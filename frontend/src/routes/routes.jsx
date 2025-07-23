@@ -39,7 +39,7 @@ const router = createBrowserRouter(
       <Route path="upcommingevents" element={<UpcommingEventInfo />} />
       <Route path="/b/:forumTitle" element={<ForumHomePage />}>
         <Route index element={<ForumDefault />} />
-        <Route path=":postTitle" element={<PostContent />} />
+        <Route path=":postId" element={<PostContent />} />
       </Route>
       <Route
         path="/landingpage"
@@ -54,3 +54,4 @@ const router = createBrowserRouter(
 );
 
 export default router;
+

@@ -9,7 +9,6 @@ import LoginPopUp from '../ui/LoginPopUp';
 import SignInPopUp from '../ui/SignUpPopUp';
 import { useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import DefaultProfile from '../../assets/images/defaultUser.svg';
 import { useNavigate } from 'react-router-dom';
 const notificationCount = 1;
 
@@ -66,7 +65,6 @@ function ProfileSection() {
 
   const auth = useAuth();
   const { user } = auth;
-  console.log(user);
   return (
     <div className="flex">
       <div className="notification-section relative flex items-center">

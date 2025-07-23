@@ -10,7 +10,7 @@ function RightAsideBar() {
   const [selectedPoll, setSelectedPoll] = useState(null);
 
   return (
-    <aside className="bg-layout-elements top-20 flex w-[15%] flex-1 flex-col border border-l-white/10 p-6">
+    <aside className="bg-layout-elements top-20 flex h-[calc(100vh-5rem)] w-[15%] flex-col border border-l-white/10 p-6">
       <UpcommingEvents />
       <ActivePoll onPollClick={setSelectedPoll} />
       {selectedPoll && <PollModal poll={selectedPoll} onClose={() => setSelectedPoll(null)} />}

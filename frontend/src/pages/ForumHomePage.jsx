@@ -17,6 +17,7 @@ import {
 import CreatePost from '../form/CreatePosts';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import EditOptions from '../components/ui/EditOptions';
+import { formatDistanceToNow } from 'date-fns';
 
 function ForumHomePage() {
   const { forumTitle } = useParams();
@@ -161,7 +162,10 @@ function ForumPosts({ posts }) {
                 </div>
                 <div className="flex items-center gap-1">
                   <Clock className="text-font-light/80 h-4 w-4" />
-                  <p className="text-font-light/80">{item.timePosted || 0}</p>
+                  <p className="text-font-light/80">
+                    {console.log(item.post_date)}
+                    {formatDistanceToNow(Number(item.post_date), { addSuffix: true })}
+                  </p>
                 </div>
               </div>
               <div className="flex gap-4">

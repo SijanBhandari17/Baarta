@@ -35,7 +35,7 @@ const PostProvider = ({ children }) => {
 
       const data = await response.json();
       if (response.ok) {
-        console.log(data.body);
+        console.log('Comments for the post', data.body);
         setPosts(data.body);
       } else {
         console.error('Failed to fetch posts:', data.error);

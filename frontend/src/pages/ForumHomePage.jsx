@@ -19,7 +19,7 @@ import LoadingSpinner from '../components/common/LoadingSpinner';
 import EditOptions from '../components/ui/EditOptions';
 import { formatDistanceToNow } from 'date-fns';
 import { useAuth } from '../context/AuthContext';
-import { usePost } from '../context/PostCOntext';
+import { usePost } from '../context/PostContext';
 
 function ForumHomePage() {
   const { forumTitle } = useParams();

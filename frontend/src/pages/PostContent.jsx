@@ -1,41 +1,105 @@
 import { useParams, useOutletContext } from 'react-router-dom';
+import CreateComment from '../form/CreateComment';
 import { useState, useEffect, useMemo } from 'react';
-import { Eye, MessageCircle, Users, Clock, SendHorizonal } from 'lucide-react';
+import { Eye, MessageCircle, Users, Clock, SendHorizonal, MoreHorizontal } from 'lucide-react';
 import { MoreVertical } from 'lucide-react';
 import { sidebarInfo, commentsBySlug, postsBySlug } from '../utils/threadExtras';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { format } from 'date-fns';
 import EditOptionsPost from '../components/ui/EditOptionsPosts';
-import { usePost } from '../context/PostCOntext';
+import EditOptionsComment from '../components/ui/EditOptionsComments';
+import { usePost } from '../context/PostContext';
+import { useComment } from '../context/CommnentContext';
+import { formatDistanceToNow } from 'date-fns';
 
 export default function PostContent() {
   const { postId } = useParams();
   const decodedPostId = decodeURIComponent(postId || '');
-
   const { posts } = usePost();
-  console.log(posts);
-
-  const [comments, setComments] = useState([]);
+  const { addCommentInContext, updateCommentInContext, comments } = useComment();
   const [isEditOptionsOpen, setIsEditOptionsOpen] = useState(false);
+  const [textArea, setTextArea] = useState('');
+  const { deleteCommentInContext } = useComment();
+  const [editing, setEditing] = useState(false);
+  const [activeCommentId, setActiveCommentId] = useState(null);
+  const toggleEditOptionsForComment = commentId => {
+    setActiveCommentId(prevId => (prevId === commentId ? null : commentId));
+  };
+
+  const handleEditComment = (comment, commentId) => {
+    setEditing(commentId);
+    deleteCommentInContext(commentId);
+    setTextArea(comment);
+    setActiveCommentId(null);
+    console.log(comment);
+  };
   const postToShow = useMemo(() => posts.find(item => item._id === decodedPostId));
-  console.log(postToShow);
 
-  const handleAddComment = e => {
+  const handleUpdateComment = async e => {
+    const formData = new FormData(e.target);
+    const comment = formData.get('comment');
+    const commentId = editing;
+
+    try {
+      const response = await fetch('http://localhost:5000/comment', {
+        method: 'PUT',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ commentId: editing, text: comment }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        console.log(data);
+        addCommentInContext(data.body);
+        setEditing(null);
+        setTextArea('');
+      } else {
+        console.error('Upload failed:', data.error);
+      }
+    } catch (err) {
+      console.log(`Err: ${err}`);
+    }
+  };
+
+  const handleSubmit = e => {
     e.preventDefault();
-    const body = e.target.elements.comment.value.trim();
-    if (!body) return;
+    if (editing) {
+      handleUpdateComment(e);
+    } else {
+      handleAddComment(e);
+    }
+  };
 
-    const roles = ['Student', 'Professor'];
-    const newComment = {
-      id: crypto.randomUUID(),
-      authorName: 'Anonymous',
-      role: roles[Math.floor(Math.random() * roles.length)],
-      avatarUrl: `https://i.pravatar.cc/40?img=${Math.floor(Math.random() * 70) + 1}`,
-      body,
-      createdAt: new Date().toISOString(),
-    };
+  const handleAddComment = async e => {
+    const formData = new FormData(e.target);
+    const comment = formData.get('comment');
+    console.log(comment);
 
-    setComments(prev => [newComment, ...prev]);
+    try {
+      const response = await fetch('http://localhost:5000/comment', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ postId, comment }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        console.log(data);
+        addCommentInContext(data.body[0]);
+        setTextArea('');
+      } else {
+        console.error('Upload failed:', data.error);
+      }
+    } catch (err) {
+      console.log(`Err: ${err}`);
+    }
+
     e.target.reset();
   };
 
@@ -106,57 +170,56 @@ export default function PostContent() {
         <section className="space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-font text-xl font-semibold">Comments ({comments.length})</h2>
-            {/* <div className="text-font-light/80 text-sm">Best ▾</div> */}
           </div>
-
-          <form
-            onSubmit={handleAddComment}
-            className="bg-layout-elements-focus rounded-button-round border-layout-elements-focus border p-4"
-          >
-            <textarea
-              name="comment"
-              rows="4"
-              placeholder="Share your thoughts..."
-              className="bg-main-elements rounded-button-round border-layout-elements-focus w-full border p-4 text-white focus:ring-2 focus:ring-[#4169E1]"
-              required
-            />
-            <div className="mt-3 flex justify-end">
-              <button
-                type="submit"
-                className="rounded-button-round flex items-center gap-2 bg-[#4169E1] px-5 py-2 text-white hover:bg-[#255FCC]"
-              >
-                <SendHorizonal size={16} /> Comment
-              </button>
-            </div>
-          </form>
-
+          <CreateComment
+            setTextArea={setTextArea}
+            isEditing={editing}
+            textArea={textArea}
+            handleSubmit={handleSubmit}
+          />
           <ul className="space-y-4">
             {comments.length > 0 ? (
               comments.map(c => (
                 <li
-                  key={c.id}
+                  key={c._id}
                   className="bg-layout-elements-focus border-layout-elements-focus rounded-button-round border p-4"
                 >
                   <div className="mb-2 flex items-start gap-4">
                     <img
-                      src={c.avatarUrl}
-                      alt={c.authorName}
+                      src={c?.authorProfilePicLink}
+                      alt={c?.authorName}
                       className="h-10 w-10 rounded-full object-cover"
                     />
                     <div className="flex-1">
                       <div className="mb-1 flex items-center justify-between">
-                        <div>
+                        <div className="flex items-center gap-2">
                           <span className="text-font font-semibold">{c.authorName}</span>
                           {c.role && (
-                            <span className="ml-2 rounded-full bg-[#4169E1] px-2 py-0.5 text-xs tracking-wide text-white uppercase">
+                            <span className="rounded-full bg-[#4169E1] px-2 py-0.5 text-xs tracking-wide text-white uppercase">
                               {c.role}
                             </span>
                           )}
                         </div>
-                        <span className="text-font-light/80 text-xs">{}</span>
+                        <span className="text-font-light/80 text-xs">
+                          {formatDistanceToNow(Number(c.date), { addSuffix: true })}
+                        </span>
                       </div>
-                      <p className="text-font-light/80 text-base">{c.body}</p>
+                      <p className="text-font-light/80 text-base">{c.text}</p>
                     </div>
+                    <button
+                      onClick={() => toggleEditOptionsForComment(c._id)}
+                      className="hover:bg-layout-elements-focus cursor-pointer rounded p-2 text-white"
+                    >
+                      <MoreVertical />
+                    </button>
+                    {c._id === activeCommentId && (
+                      <EditOptionsComment
+                        isOpen={true}
+                        comment={c.text}
+                        commentId={c._id}
+                        onClick={() => handleEditComment(c.text, c._id)}
+                      />
+                    )}
                   </div>
                 </li>
               ))

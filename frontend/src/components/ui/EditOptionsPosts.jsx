@@ -4,7 +4,7 @@ import { useForum } from '../../context/ForumContext';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button, Dialog, DialogTitle, DialogActions } from '@mui/material';
 import CreatePost from '../../form/CreatePosts';
-import { usePost } from '../../context/PostCOntext';
+import { usePost } from '../../context/PostContext';
 
 function EditPostModal({ onClose, post }) {
   const { updatePostInContext } = usePost();

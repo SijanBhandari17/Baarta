@@ -32,12 +32,15 @@ const addReplyToComment= async (req , res)=>{
             author_id : foundUser._id,
             text : reply,
         }] , {session}) 
-        
+    
+        const profilePic = await Profile.findOne({userId : foundUser._id}).session(session).exec()
+
+        const toSendResult = {...result , authorName : foundUser.username , authorEmail : foundUser.email , authorProfilePicLink : profilePic?.profilePicLink} 
 
         foundComment.replies_id = [...foundComment.replies_id , result[0]._id]
         await foundComment.save({session})
         await session.commitTransaction()
-        return res.status(201).json({"message" : 'successfully added reply' , "body" : result})
+        return res.status(201).json({"message" : 'successfully added reply' , "body" : toSendResult})
     }
     catch(err)
     {

@@ -316,4 +316,6 @@ const getPost = async (req, res) => {
     await session.endSession();
   }
 };
+
+
 module.exports = { uploadPost, getPost, updatePost, deletePost };

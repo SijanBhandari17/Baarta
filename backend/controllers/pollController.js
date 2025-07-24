@@ -313,5 +313,73 @@ const votePollOption = async (req , res)=>{
     }
 }
 
-module.exports = {postPoll , updatePoll , deletePollOption , deletePoll, votePollOption}
+const getPollsByForumId = async (req, res) => {
+    const session = await mongoose.startSession();
+    try {
+        await session.startTransaction();
+
+        const { forumId } = req.query;
+        if (!forumId) {
+            await session.abortTransaction();
+            return res.status(400).json({ error: "forumId is missing in the request" });
+        }
+
+        const polls = await Poll.find({ forumId })
+            .session(session)
+            .populate({
+                path: 'option.voter_Id',
+                select: '_id username', 
+                model: 'User',
+                options: { session },
+            })
+            .lean(); 
+
+        const allUserIds = new Set();
+        polls.forEach(poll => {
+            poll.option.forEach(opt => {
+                opt.voter_Id.forEach(user => {
+                    if (user && user._id) allUserIds.add(user._id.toString());
+                });
+            });
+        });
+
+        const profilePics = await Profile.find({
+            userId: { $in: Array.from(allUserIds) }
+        })
+        .session(session)
+        .lean();
+
+        const profileMap = {};
+        profilePics.forEach(profile => {
+            profileMap[profile.userId.toString()] = profile.profilePicLink;
+        });
+
+        const enrichedPolls = polls.map(poll => {
+            poll.option = poll.option.map(opt => {
+                opt.voter_Id = opt.voter_Id.map(user => {
+                    const profilePic = profileMap[user._id.toString()] || "https://res.cloudinary.com/dlddcx3uw/image/upload/v1752323363/defaultUser_cfqyxq.svg"
+                    return {
+                        _id: user._id,
+                        username: user.username,
+                        profilePicLink: profilePic
+                    };
+                });
+                return opt;
+            });
+            return poll;
+        });
+
+        await session.commitTransaction();
+        return res.status(200).json({ message: "Polls fetched successfully", body: enrichedPolls });
+
+    } catch (err) {
+        await session.abortTransaction();
+        return res.status(500).json({ error: `${err.stack}` });
+    } finally {
+        await session.endSession();
+    }
+};
+
+
+module.exports = {postPoll , updatePoll , deletePollOption , deletePoll, votePollOption, getPollsByForumId}
  

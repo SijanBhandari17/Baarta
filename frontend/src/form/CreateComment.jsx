@@ -12,7 +12,7 @@ function CreateComment({ isEditing, handleSubmit, textArea, setTextArea }) {
         placeholder="Share your thoughts..."
         value={textArea}
         onChange={e => setTextArea(e.target.value)}
-        className="bg-main-elements rounded-button-round border-layout-elements-focus w-full border p-4 text-white focus:ring-2 focus:ring-[#4169E1]"
+        className="bg-main-elements rounded-button-round border-layout-elements-focus w-full resize-none border p-4 text-white focus:ring-2 focus:ring-[#4169E1]"
         required
       />
       <div className="mt-3 flex justify-end">

@@ -5,7 +5,6 @@ const Comment = require('../models/commentModel')
 const Profile = require('../models/profilePicModel')
 const Forum = require('../models/forumModel')
 const mongoose = require('mongoose')
-const { rmSync } = require('fs')
 
 const sendInvite = async (req ,res)=>{
     const session = await mongoose.startSession()
@@ -413,4 +412,103 @@ const acceptJoinRequest = async (req, res)=>{
     }
 }
 
-module.exports = {sendInvite , getInvitation , acceptInvitation , getJoinRequest , acceptJoinRequest}
+const removeForumInvite = async (req, res)=>{ // this is to remove the invitation sent by either the moderator or the admin to remove the user 
+    // since the invitation can only be veiwed by teh reciepient it is just not possible for the moderator or admin to delete it so it's cool
+    // this not only removes the invitation but also removes the promotion to moderator as well
+    const session = await mongoose.startSession()
+    try
+    {
+        await session.startTransaction()
+        if(!req.body?.notificationId) return res.status(400).json({"error" : "notificationId missing in the "})
+        if(!req.user?.email) return res.status(401).json({"error" : "unauthenticated user sent the request"})
+
+        const {notificationId} = req.body
+        const {email} = req.user
+
+        const foundUser = await User.findOne({email}).session(session).exec()
+        if(!foundUser){
+            await session.abortTransaction()
+            return res.status(404).json({"error" : "the user was either deleted or removed"})
+        }
+        
+        const foundNotification = await Notification.findOne({_id : notificationId}).session(session).exec()
+        if(!foundNotification){
+            await session.abortTransaction()
+            return res.status(404).json({"error" : "the notification was either deleted or removed"})
+        }
+
+        if(foundUser._id.toString() !== foundNotification.toUser.toString())
+        {
+            await session.abortTransaction()
+            return res.status(403).json({"error" : "you don't have the permission to remove that message"})
+        }
+
+        const result = await Notification.deleteOne({_id : foundNotification._id} , {session})
+
+        await session.commitTransaction()
+        res.status(201).json({"message" : "Successfull deletion of the notificationID" , "body" : result})
+    }
+    catch(err)
+    {
+        await session.abortTransaction()
+        return res.status(500).json({"error" : `${err}`})
+    }
+    finally
+    {
+        await session.endSession()
+    }
+}
+
+const removeForumRequest = async (req ,res)=>{
+    const session = await mongoose.startSession()
+    try
+    {
+        await session.startTransaction()
+
+        if(!req.body?.notificationId) return res.status(400).json({"error" : "notificationId is missing in the request header"})
+        if(!req.user?.email) return res.status(401).json({"error" : "unauthenticated user sent the request which is bad"})
+        
+        const {notificationId} = req.body
+        const {email} = req.user
+
+        const foundUser = await User.findOne({email}).session(session).exec()
+        if(!foundUser)
+        {
+            await session.abortTransaction()
+            return res.status(404).json({"error" : "the user account is just deleted or removed "})
+        }
+
+        const foundNotification = await Notification.findOne({_id : notificationId}).session(session).exec()
+        if(!foundNotification){
+            await session.abortTransaction()
+            return res.status(404).json({"error" : "the notification is either deleted or removed"})
+        }
+
+        const foundForum = await Forum.findOne({_id : foundNotification.forum}).session(session).exec()
+        if(!foundForum){
+            await session.abortTransaction()
+            return res.status(404).json({"error" : "the forum for which the request was sent is either removed or deleted"})
+        }
+
+        if(foundForum.admin_id.toString() !== foundUser._id.toString() && !foundForum.moderator_id.includes(foundUser._id))
+        {
+            await session.abortTransaction()
+            return res.status(403).json({"error" : "unauthorized deletion requested"})
+        }
+
+        const result = await Notification.deleteOne({_id : foundNotification._id} , {session})
+        
+        await session.commitTransaction()
+        res.status(201).json({"message" : "successfull deletion of the request" , "body" : result})
+    }
+    catch(err)
+    {
+        await session.abortTransaction()
+        return res.status(500).json({"error" : `${err.stack}`})
+    }
+    finally{
+        await session.endSession()
+    }
+}
+
+module.exports = {sendInvite , getInvitation , acceptInvitation , getJoinRequest , acceptJoinRequest , removeForumInvite , removeForumRequest}

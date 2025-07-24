@@ -86,6 +86,10 @@ const uploadPost = async (req, res) => {
         .json({ error: "the forum does not exist or is deleted " });
     }
 
+    const profilePic = await Profile.findOne({userId : foundUser._id}).session(session).exec()
+
+    const toSendResult = {...result , authorEmail : foundUser.email  , authorName : foundUser.username , authorProfilePicLink : profilePic?.profilePicLink ||  "https://res.cloudinary.com/dlddcx3uw/image/upload/v1752323363/defaultUser_cfqyxq.svg"}
+
     foundForum.post_id = [...foundForum.post_id, result[0]._id];
     await foundForum.save({ session });
 
@@ -93,7 +97,7 @@ const uploadPost = async (req, res) => {
 
     res.status(201).json({
       message: "success post insetion",
-      body: result,
+      body: toSendResult,
     });
   } catch (err) {
     await session.abortTransaction();
@@ -291,7 +295,7 @@ const getPost = async (req, res) => {
           ...item.toObject(),
           authorName: postUploader?.username || "[deleted user]",
           authorEmail: postUploader?.email || "[deleted user]",
-          authorProfilePic:
+          authorProfilePicLink:
             postUploaderProfilePic?.profilePicLink ||
             "https://res.cloudinary.com/dlddcx3uw/image/upload/v1752323363/defaultUser_cfqyxq.svg",
         };

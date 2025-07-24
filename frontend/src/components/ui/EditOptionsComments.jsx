@@ -4,35 +4,6 @@ import { Button, Dialog, DialogTitle, DialogActions } from '@mui/material';
 import { useComment } from '../../context/CommnentContext';
 import { useParams, useNavigate } from 'react-router-dom';
 
-function EditCommentModal({ commentId, comment }) {
-  const { updateCommentInContext } = useComment();
-
-  const updateComment = async () => {
-    if (comment) {
-      try {
-        const response = await fetch('http://localhost:5000/comment', {
-          method: 'PUT',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ commentId, text: comment }),
-        });
-
-        const data = await response.json();
-        if (response.ok) {
-          updateCommentInContext(data.body);
-          console.log(data);
-        } else {
-          console.error('Update failed:', data.error);
-        }
-      } catch (err) {
-        console.error(`Err: ${err}`);
-      }
-    }
-  };
-}
-
 function EditOptionsComment({ onClick, comment, commentId }) {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -73,17 +44,17 @@ function EditOptionsComment({ onClick, comment, commentId }) {
         />
       )}
       {isDeleteModalOpen && (
-        <DeleteCommentDialog post={post} onClose={() => setIsDeleteModalOpen(false)} />
+        <DeleteCommentDialog onClose={() => setIsDeleteModalOpen(false)} commentId={commentId} />
       )}
     </>
   );
 }
 
-function DeleteCommentDialog({ onClose, comment }) {
+function DeleteCommentDialog({ onClose, commentId }) {
   const { deleteCommentInContext } = useComment();
 
   const onDelete = async () => {
-    if (comment) {
+    if (commentId) {
       try {
         const response = await fetch('http://localhost:5000/comment', {
           method: 'DELETE',
@@ -91,12 +62,13 @@ function DeleteCommentDialog({ onClose, comment }) {
             'Content-Type': 'application/json',
           },
           credentials: 'include',
-          body: JSON.stringify({ commentId: comment._id }),
+          body: JSON.stringify({ commentId }),
         });
 
         const data = await response.json();
         if (response.ok) {
-          deleteCommentInContext(comment._id);
+          deleteCommentInContext(commentId);
+          console.log(data);
         } else {
           console.error('Delete failed:', data.error);
         }

@@ -75,6 +75,7 @@ function CreatePost({ type, post, updatePost, forumId, isOpen, onClose, addNewPo
               id="post-name"
               name="post-name"
               type="text"
+              autoComplete="off"
               value={postName}
               onChange={e => setPostName(e.target.value)}
               placeholder="Enter post name"
@@ -104,6 +105,7 @@ function CreatePost({ type, post, updatePost, forumId, isOpen, onClose, addNewPo
               Upload Images (if any)
             </label>
             <input
+              autoComplete="off"
               id="post-image"
               name="post-image"
               type="file"

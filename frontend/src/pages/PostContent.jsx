@@ -1,50 +1,24 @@
 import { useParams, useOutletContext } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Eye, MessageCircle, Users, Clock, SendHorizonal } from 'lucide-react';
 import { MoreVertical } from 'lucide-react';
 import { sidebarInfo, commentsBySlug, postsBySlug } from '../utils/threadExtras';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { format } from 'date-fns';
 import EditOptionsPost from '../components/ui/EditOptionsPosts';
+import { usePost } from '../context/PostCOntext';
 
 export default function PostContent() {
-  const { forumTitle, postId } = useParams();
-
-  const decodedForum = decodeURIComponent(forumTitle || '');
+  const { postId } = useParams();
   const decodedPostId = decodeURIComponent(postId || '');
 
-  const { forumId, posts, onPostChange } = useOutletContext() || {};
+  const { posts } = usePost();
+  console.log(posts);
 
-  const [post, setPost] = useState(null);
   const [comments, setComments] = useState([]);
   const [isEditOptionsOpen, setIsEditOptionsOpen] = useState(false);
-  const postToShow = posts.find(item => item._id === decodedPostId);
-  console.log([postToShow]);
-
-  useEffect(() => {
-    if (postToShow) {
-      setPost(postToShow);
-      // setComments(commentData || []);
-    } else {
-      setPost({
-        id: '0',
-        title: 'Post Not Found',
-        authorName: 'System',
-        createdAt: new Date().toISOString(),
-        body: '<p>This post could not be found.</p>',
-        views: 0,
-      });
-
-      setComments([]);
-    }
-  }, [decodedPostId]);
-
-  const extraForum = sidebarInfo[decodedForum] || {
-    memberCount: 0,
-    onlineCount: 0,
-    rules: [],
-    tags: [],
-  };
+  const postToShow = useMemo(() => posts.find(item => item._id === decodedPostId));
+  console.log(postToShow);
 
   const handleAddComment = e => {
     e.preventDefault();
@@ -92,7 +66,6 @@ export default function PostContent() {
                   post={postToShow}
                   isOpen={isEditOptionsOpen}
                   onClose={() => setIsEditOptionsOpen(false)}
-                  onPostChange={onPostChange}
                 />
               )}
             </div>

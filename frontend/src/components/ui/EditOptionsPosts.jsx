@@ -4,8 +4,11 @@ import { useForum } from '../../context/ForumContext';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button, Dialog, DialogTitle, DialogActions } from '@mui/material';
 import CreatePost from '../../form/CreatePosts';
+import { usePost } from '../../context/PostCOntext';
 
 function EditPostModal({ onClose, post }) {
+  const { updatePostInContext } = usePost();
+
   const updatePost = async postData => {
     if (post && Object.keys(post).length !== 0) {
       try {
@@ -30,6 +33,7 @@ function EditPostModal({ onClose, post }) {
 
         const data = await response.json();
         if (response.ok) {
+          updatePostInContext(data.body);
           console.log(data);
         } else {
           console.error('Upload failed:', data.error);
@@ -101,6 +105,7 @@ function EditOptionsPost({ isOpen, post }) {
 
 function DeleteOptions({ onClose, post }) {
   const { deleteForumInContext } = useForum();
+  const { deletePostInContext } = usePost();
   const { forumTitle } = useParams();
   const navigate = useNavigate();
 
@@ -117,7 +122,7 @@ function DeleteOptions({ onClose, post }) {
         });
         const data = await response.json();
         if (response.ok) {
-          console.log(data);
+          deletePostInContext(post._id);
           navigate(`/b/${forumTitle}`);
         }
       } catch (err) {

@@ -19,45 +19,16 @@ import LoadingSpinner from '../components/common/LoadingSpinner';
 import EditOptions from '../components/ui/EditOptions';
 import { formatDistanceToNow } from 'date-fns';
 import { useAuth } from '../context/AuthContext';
+import { usePost } from '../context/PostCOntext';
 
 function ForumHomePage() {
   const { forumTitle } = useParams();
   const decodedTitle = decodeURIComponent(forumTitle || '');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { forum, loading } = useForum();
-  const [posts, setPosts] = useState([]);
-
-  const updatePostInState = updatedPost => {
-    setPosts(prev => prev.map(post => (post._id === updatedPost._id ? updatedPost : post)));
-  };
-  const forumToShow = useMemo(
-    () => forum?.find(item => item.forum_name === decodedTitle),
-    [forum, decodedTitle],
-  );
+  const { posts, forumToShow, addPostInContext } = usePost();
 
   const forumId = forumToShow?._id || '';
-
-  useEffect(() => {
-    if (forumId) fetchPosts();
-  }, [forumId]);
-
-  const fetchPosts = async () => {
-    try {
-      const response = await fetch(`http://localhost:5000/post?forumId=${forumId}`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-        console.log(data.body);
-        setPosts(data.body);
-      }
-    } catch (err) {
-      console.error(`Err: ${err.message}`);
-    }
-  };
 
   const addNewPost = async post => {
     if (post && Object.keys(post).length !== 0) {
@@ -68,6 +39,7 @@ function ForumHomePage() {
         formData.append('forumId', post.forumId);
         formData.append('genre', post.genre);
         formData.append('authorName', post.authorName);
+        console.log(post.authorName);
 
         if (post.postImage && post.postImage.length > 0) {
           formData.append('postImage', post.postImage[0]);
@@ -81,7 +53,8 @@ function ForumHomePage() {
 
         const data = await response.json();
         if (response.ok) {
-          setPosts(prev => [data.body[0], ...prev]);
+          console.log(data);
+          addPostInContext(data.body[0]);
         } else {
           console.error('Upload failed:', data.error);
         }
@@ -115,7 +88,6 @@ function ForumHomePage() {
                   addNewPost,
                   isDialogOpen,
                   setIsDialogOpen,
-                  onPostChange: updatePostInState,
                 }}
               />
             </div>

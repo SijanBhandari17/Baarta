@@ -13,6 +13,7 @@ import Trending from '../components/common/nav/home/Trending';
 import UpcommingEventInfo from '../pages/UpcommingEvents';
 import { ForumHomePage, ForumDefault } from '../pages/ForumHomePage';
 import PostContent from '../pages/PostContent';
+import { PostProvider } from '../context/PostCOntext';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -37,7 +38,15 @@ const router = createBrowserRouter(
         <Route path="draft" element={<Drafts />} />
       </Route>
       <Route path="upcommingevents" element={<UpcommingEventInfo />} />
-      <Route path="/b/:forumTitle" element={<ForumHomePage />}>
+      <Route
+        path="/b/:forumTitle"
+        element={
+          <PostProvider>
+            {' '}
+            <ForumHomePage />{' '}
+          </PostProvider>
+        }
+      >
         <Route index element={<ForumDefault />} />
         <Route path=":postId" element={<PostContent />} />
       </Route>
@@ -54,4 +63,3 @@ const router = createBrowserRouter(
 );
 
 export default router;
-

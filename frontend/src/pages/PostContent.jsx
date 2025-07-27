@@ -10,7 +10,13 @@ import EditOptionsComment from '../components/ui/EditOptionsComments';
 import { usePost } from '../context/PostContext';
 import { useComment } from '../context/CommnentContext';
 import { formatDistanceToNow } from 'date-fns';
-import { addReplyComment, addRootComment } from '../utils/handleComments';
+import {
+  addReplyComment,
+  addRootComment,
+  deleteComment,
+  deleteReply,
+  updateComment,
+} from '../utils/handleComments';
 
 export default function PostContent() {
   const { postId } = useParams();
@@ -140,7 +146,7 @@ function Comment({
   const [showReplyInput, setShowReplyInput] = useState(false);
   const [editMode, setEditMode] = useState(false); //false == view mode
   const [editText, setEditText] = useState(comment.text);
-  const { addCommentInContext } = useComment();
+  const { addCommentInContext, updateCommentInContext, deleteCommentInContext } = useComment();
 
   const showEditOptions = activeCommentId === comment._id;
 
@@ -155,11 +161,29 @@ function Comment({
     const replyResponse = await addReplyComment({ commentId: comment._id, reply: replyText });
     setShowReplyInput(false);
     addCommentInContext({ commentId: comment._id, replyResponse });
-
     console.log(replyResponse);
   };
 
-  const handleEditReply = () => {};
+  const handleEditReply = async e => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const updatedText = formData.get('comment');
+    console.log(updatedText);
+    const updateResponse = await updateComment({ commentId: comment._id, text: updatedText });
+    setEditMode(false);
+    updateCommentInContext({ commentId: comment._id, updatedComment: updatedText });
+    console.log(updateResponse);
+  };
+  const handleDeleteComment = async () => {
+    if (comment.parent.kind === 'POST') {
+      const deleteResponse = await deleteComment({ commentId: comment._id });
+      console.log(deleteResponse);
+    } else {
+      const deleteResponse = await deleteReply({ replyId: comment._id });
+      console.log(deleteResponse);
+    }
+    deleteCommentInContext(comment._id);
+  };
 
   const startEdit = () => {
     setEditMode(true);
@@ -219,7 +243,7 @@ function Comment({
               <CreateComment
                 onShowCancelClick={() => setEditMode(false)}
                 editText={editText}
-                onEditReply={handleEditReply}
+                handleSubmit={handleEditReply}
                 setEditText={setEditText}
               />
             </div>
@@ -242,10 +266,8 @@ function Comment({
           <EditOptionsComment
             isOpen={true}
             comment={comment.text}
-            commentId={comment._id}
             onClick={startEdit}
-            onReply={() => setShowReplyInput(!showReplyInput)}
-            onDelete={() => {}}
+            onDelete={handleDeleteComment}
           />
         )}
       </div>

@@ -62,6 +62,34 @@ const CommentProvider = ({ children }) => {
     });
   };
 
+  const updateReply = (comments, updatedText, commentId) => {
+    return comments.map(comment => {
+      if (comment._id === commentId) {
+        return {
+          ...comment,
+          text: updatedText,
+        };
+      } else if (comment.replies && comment.replies.length > 0) {
+        return {
+          ...comment,
+          replies: updateReply(comment.replies, updatedText, commentId),
+        };
+      } else {
+        return comment;
+      }
+    });
+  };
+  const deleteReply = (comments, commentId) => {
+    return comments
+      .filter(comment => comment._id !== commentId)
+      .map(comment => {
+        return {
+          ...comment,
+          replies: comment.replies ? deleteReply(comment.replies, commentId) : [],
+        };
+      });
+  };
+
   const addCommentInContext = ({ commentId, replyResponse }) => {
     setComments(prev => addReply(prev, commentId, replyResponse));
   };
@@ -70,12 +98,13 @@ const CommentProvider = ({ children }) => {
     setComments(prev => [commentData, ...prev]);
   };
 
-  const updateCommentInContext = updatedComment => {
-    console.log(updatedComment);
-    setComments(prev => prev.map(c => (c._id === updatedComment._id ? updatedComment : c)));
+  const updateCommentInContext = ({ updatedComment, commentId }) => {
+    setComments(prev => updateReply(prev, updatedComment, commentId));
   };
 
-  const deleteCommentInContext = commentIdToDelete => {};
+  const deleteCommentInContext = commentIdToDelete => {
+    setComments(prev => deleteReply(prev, commentIdToDelete));
+  };
 
   return (
     <CommentContext.Provider

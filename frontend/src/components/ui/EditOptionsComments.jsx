@@ -4,9 +4,8 @@ import { Button, Dialog, DialogTitle, DialogActions } from '@mui/material';
 import { useComment } from '../../context/CommnentContext';
 import { useParams, useNavigate } from 'react-router-dom';
 
-function EditOptionsComment({ onClick, comment, commentId }) {
+function EditOptionsComment({ onClick, onDelete }) {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const options = [
     {
       label: 'Edit Comment',
@@ -36,47 +35,15 @@ function EditOptionsComment({ onClick, comment, commentId }) {
           </div>
         ))}
       </div>
-      {isEditModalOpen && (
-        <EditCommentModal
-          comment={comment}
-          commentId={commentId}
-          onClose={() => setIsEditModalOpen(false)}
-        />
-      )}
       {isDeleteModalOpen && (
-        <DeleteCommentDialog onClose={() => setIsDeleteModalOpen(false)} commentId={commentId} />
+        <DeleteCommentDialog onDelete={onDelete} onClose={() => setIsDeleteModalOpen(false)} />
       )}
     </>
   );
 }
 
-function DeleteCommentDialog({ onClose, commentId }) {
+function DeleteCommentDialog({ onClose, onDelete, commentId }) {
   const { deleteCommentInContext } = useComment();
-
-  const onDelete = async () => {
-    if (commentId) {
-      try {
-        const response = await fetch('http://localhost:5000/comment', {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-          body: JSON.stringify({ commentId }),
-        });
-
-        const data = await response.json();
-        if (response.ok) {
-          deleteCommentInContext(commentId);
-          console.log(data);
-        } else {
-          console.error('Delete failed:', data.error);
-        }
-      } catch (err) {
-        console.error('error:', err);
-      }
-    }
-  };
 
   return (
     <Dialog open={true} onClose={onClose}>

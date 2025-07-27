@@ -2,6 +2,7 @@ import { useState, useMemo, createContext, useEffect, useContext } from 'react';
 import { useAuth } from './AuthContext';
 import { useParams } from 'react-router-dom';
 import { usePost } from './PostContext';
+import buildTree from '../utils/buildCommentTree';
 
 const CommentContext = createContext();
 
@@ -9,12 +10,22 @@ const CommentProvider = ({ children }) => {
   const { postId } = useParams();
 
   const [comments, setComments] = useState([]);
-  const { posts } = usePost();
-
-  const postToShow = useMemo(() => posts?.find(item => item._id === postId), [posts, postId]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (postId) fetchComments();
+    const getAndBuildComments = async () => {
+      if (!postId) return;
+
+      const comments = await fetchComments(postId);
+      if (comments) {
+        const nestedComments = await buildTree(comments.body);
+        setComments(nestedComments);
+        setLoading(false);
+        console.log(comments);
+      }
+    };
+
+    getAndBuildComments();
   }, [postId]);
 
   const fetchComments = async () => {
@@ -28,6 +39,7 @@ const CommentProvider = ({ children }) => {
       const data = await response.json();
       if (response.ok) {
         setComments(data.body);
+        return data;
       } else {
         console.error('Failed to fetch comments:', data.error);
       }
@@ -53,7 +65,7 @@ const CommentProvider = ({ children }) => {
     <CommentContext.Provider
       value={{
         comments,
-        postToShow,
+        loading,
         addCommentInContext,
         updateCommentInContext,
         deleteCommentInContext,

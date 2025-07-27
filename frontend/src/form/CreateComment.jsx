@@ -5,9 +5,10 @@ function CreateComment({
   handleSubmit,
   showCancel,
   onShowCancelClick,
-  textArea,
-  setTextArea,
+  editText,
+  setEditText,
 }) {
+  console.log(editText);
   return (
     <form
       onSubmit={handleSubmit}
@@ -17,8 +18,8 @@ function CreateComment({
         name="comment"
         rows="3"
         placeholder="Share your thoughts..."
-        value={textArea}
-        onChange={e => setTextArea(e.target.value)}
+        value={editText}
+        onChange={e => setEditText(e.target.value)}
         className="bg-main-elements rounded-button-round border-layout-elements-focus w-full resize-none border p-4 text-white focus:ring-2 focus:ring-[#4169E1]"
         required
       />

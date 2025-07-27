@@ -18,8 +18,6 @@ export default function PostContent() {
   const { posts } = usePost();
   const { addCommentInContext, comments, loading } = useComment();
   const [isEditOptionsOpen, setIsEditOptionsOpen] = useState(false);
-  const [textArea, setTextArea] = useState('');
-  const { deleteCommentInContext } = useComment();
   const [editing, setEditing] = useState(false);
   const [activeCommentId, setActiveCommentId] = useState(null);
 
@@ -29,8 +27,6 @@ export default function PostContent() {
 
   const handleEditComment = (comment, commentId) => {
     setEditing(commentId);
-    deleteCommentInContext(commentId);
-    setTextArea(comment);
     setActiveCommentId(null);
   };
   const postToShow = useMemo(() => posts.find(item => item._id === decodedPostId));
@@ -54,7 +50,6 @@ export default function PostContent() {
         console.log(data);
         addCommentInContext(data.body);
         setEditing(null);
-        setTextArea('');
       } else {
         console.error('Upload failed:', data.error);
       }
@@ -91,7 +86,6 @@ export default function PostContent() {
       if (response.ok) {
         console.log(data);
         addCommentInContext(data.body[0]);
-        setTextArea('');
       } else {
         console.error('Upload failed:', data.error);
       }
@@ -170,13 +164,7 @@ export default function PostContent() {
           <div className="flex items-center justify-between">
             <h2 className="text-font text-xl font-semibold">Comments ({comments.length})</h2>
           </div>
-          <CreateComment
-            showCancel={true}
-            setTextArea={setTextArea}
-            isEditing={editing}
-            textArea={textArea}
-            handleSubmit={handleSubmit}
-          />
+          <CreateComment showCancel={true} isEditing={editing} handleSubmit={handleSubmit} />
           {loading ? (
             <p>No comments yet.</p>
           ) : (
@@ -187,6 +175,7 @@ export default function PostContent() {
                     key={c._id}
                     activeCommentId={activeCommentId}
                     handleEditComment={handleEditComment}
+                    setShowRepl
                     comment={c}
                     toggleEditOptionsForComment={toggleEditOptionsForComment}
                   />
@@ -203,8 +192,11 @@ export default function PostContent() {
 }
 function Comment({ comment, handleEditComment, activeCommentId, toggleEditOptionsForComment }) {
   const [replyText, setReplyText] = useState('');
-  const [showReplyInput, setShowReplyInput] = useState(false);
   const [showReplies, setShowReplies] = useState(false);
+  const [showReplyInput, setShowReplyInput] = useState(false);
+  const [editMode, setEditMode] = useState(false); //false == view mode
+  const [editText, setEditText] = useState(comment.text);
+  const showEditOptions = activeCommentId === comment._id;
 
   const handleReplySubmit = async () => {
     if (replyText.trim()) {
@@ -243,6 +235,24 @@ function Comment({ comment, handleEditComment, activeCommentId, toggleEditOption
     setShowReplyInput(false);
   };
 
+  const handleEditSave = async () => {
+    if (editText.trim()) {
+      // Call your edit API here
+      await handleEditComment(editText, comment._id);
+      setEditMode(false);
+    }
+  };
+
+  const handleEditCancel = () => {
+    setEditText(comment.text); // Reset to original text
+    setEditMode(false);
+  };
+
+  const startEdit = () => {
+    setEditMode(true);
+    toggleEditOptionsForComment(null); // Close edit options
+  };
+
   return (
     <div className="bg-layout-elements-focus border-layout-elements-focus rounded-button-round border p-4">
       <div className="mb-2 flex items-start gap-4">
@@ -265,30 +275,44 @@ function Comment({ comment, handleEditComment, activeCommentId, toggleEditOption
               {formatDistanceToNow(Number(comment.date), { addSuffix: true })}
             </span>
           </div>
-          <p className="text-font-light/80 text-base">{comment.text}</p>
 
-          <div className="mt-2 flex gap-4">
-            {console.log(comment.replies)}
-            {comment.replies && comment.replies.length > 0 && (
-              <button
-                onClick={() => setShowReplies(!showReplies)}
-                className="text-font-light/60 hover:text-font-light cursor-pointer text-sm font-medium transition-colors"
-              >
-                {showReplies
-                  ? `Hide ${comment.replies?.length === 1 ? 'Reply' : 'Replies'} (${comment.replies?.length})`
-                  : `Show ${comment.replies?.length === 1 ? 'Reply' : 'Replies'} (${comment.replies?.length})`}
-              </button>
-            )}
-            <button
-              onClick={() => setShowReplyInput(!showReplyInput)}
-              className="text-font-light/60 hover:text-font-light cursor-pointer text-sm font-medium transition-colors"
-            >
-              Reply
-            </button>
-          </div>
-
-          {showReplyInput && (
-            <CreateComment onShowCancelClick={() => setShowReplyInput(!showReplyInput)} />
+          {!editMode ? (
+            // View Mode
+            <>
+              <p className="text-font-light/80 text-base">{comment.text}</p>
+              <div className="mt-2 flex gap-4">
+                {comment.replies && comment.replies.length > 0 && (
+                  <button
+                    onClick={() => setShowReplies(!showReplies)}
+                    className="text-font-light/60 hover:text-font-light cursor-pointer text-sm font-medium transition-colors"
+                  >
+                    {showReplies
+                      ? `Hide ${comment.replies?.length === 1 ? 'Reply' : 'Replies'} (${comment.replies?.length})`
+                      : `Show ${comment.replies?.length === 1 ? 'Reply' : 'Replies'} (${comment.replies?.length})`}
+                  </button>
+                )}
+                <button
+                  onClick={() => setShowReplyInput(!showReplyInput)}
+                  className="text-font-light/60 hover:text-font-light cursor-pointer text-sm font-medium transition-colors"
+                >
+                  Reply
+                </button>
+              </div>
+            </>
+          ) : (
+            // Edit Mode
+            <div className="space-y-2">
+              <CreateComment
+                onShowCancelClick={() => setEditMode(false)}
+                editText={editText}
+                setEditText={setEditText}
+              />
+            </div>
+          )}
+          {showReplyInput && !editMode && (
+            <div className="mt-3">
+              <CreateComment onShowCancelClick={handleReplyCancel} />
+            </div>
           )}
         </div>
 
@@ -299,12 +323,14 @@ function Comment({ comment, handleEditComment, activeCommentId, toggleEditOption
           <MoreVertical />
         </button>
 
-        {comment._id === activeCommentId && (
+        {showEditOptions && (
           <EditOptionsComment
             isOpen={true}
             comment={comment.text}
             commentId={comment._id}
-            onClick={() => handleEditComment(comment.text, comment._id)}
+            onClick={startEdit}
+            onReply={() => setShowReplyInput(!showReplyInput)}
+            onDelete={() => {}}
           />
         )}
       </div>

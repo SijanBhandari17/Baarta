@@ -10,7 +10,7 @@ import EditOptionsComment from '../components/ui/EditOptionsComments';
 import { usePost } from '../context/PostContext';
 import { useComment } from '../context/CommnentContext';
 import { formatDistanceToNow } from 'date-fns';
-import { addRootComment } from '../utils/handleComments';
+import { addReplyComment, addRootComment } from '../utils/handleComments';
 
 export default function PostContent() {
   const { postId } = useParams();
@@ -136,19 +136,28 @@ function Comment({
   activeCommentId,
   toggleEditOptionsForComment,
 }) {
-  const [replyText, setReplyText] = useState('');
   const [showReplies, setShowReplies] = useState(false);
   const [showReplyInput, setShowReplyInput] = useState(false);
   const [editMode, setEditMode] = useState(false); //false == view mode
   const [editText, setEditText] = useState(comment.text);
+  const { addCommentInContext } = useComment();
+
   const showEditOptions = activeCommentId === comment._id;
 
   const handleReplyCancel = () => {
-    setReplyText('');
     setShowReplyInput(false);
   };
 
-  const handleAddReply = () => {};
+  const handleAddReply = async e => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const replyText = formData.get('comment');
+    const replyResponse = await addReplyComment({ commentId: comment._id, reply: replyText });
+    setShowReplyInput(false);
+    addCommentInContext({ commentId: comment._id, replyResponse });
+
+    console.log(replyResponse);
+  };
 
   const handleEditReply = () => {};
 
@@ -217,7 +226,7 @@ function Comment({
           )}
           {showReplyInput && !editMode && (
             <div className="mt-3">
-              <CreateComment onAddReply={handleAddReply} onShowCancelClick={handleReplyCancel} />
+              <CreateComment handleSubmit={handleAddReply} onShowCancelClick={handleReplyCancel} />
             </div>
           )}
         </div>

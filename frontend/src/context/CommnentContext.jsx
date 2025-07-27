@@ -46,8 +46,24 @@ const CommentProvider = ({ children }) => {
     }
   };
 
-  const addCommentInContext = commentData => {
-    setComments(prev => [commentData, ...prev]);
+  const addReply = (comments, commentId, replyResponse) => {
+    return comments.map(comment => {
+      if (comment._id === commentId) {
+        return {
+          ...comment,
+          replies: [...(comment.replies || []), replyResponse],
+        };
+      } else {
+        return {
+          ...comment,
+          replies: [...addReply(comment.replies, commentId, replyResponse)],
+        };
+      }
+    });
+  };
+
+  const addCommentInContext = ({ commentId, replyResponse }) => {
+    setComments(prev => addReply(prev, commentId, replyResponse));
   };
 
   const addRootCommentInContext = commentData => {
@@ -59,9 +75,7 @@ const CommentProvider = ({ children }) => {
     setComments(prev => prev.map(c => (c._id === updatedComment._id ? updatedComment : c)));
   };
 
-  const deleteCommentInContext = commentIdToDelete => {
-    setComments(prev => prev.filter(c => c._id !== commentIdToDelete));
-  };
+  const deleteCommentInContext = commentIdToDelete => {};
 
   return (
     <CommentContext.Provider

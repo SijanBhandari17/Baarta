@@ -191,4 +191,55 @@ const getCommentOfPost = async (req ,res)=>{
     }
 }
 
-module.exports = {addCommentToPost , removeCommentFromPost , updateCommentOfPost,  getCommentOfPost}
+const likeComment = async (req, res)=>{
+  const session = await mongoose.startSession()
+  try {
+
+    await session.startTransaction()
+
+    if(!req.body?.commentId) return res.status(400).json({"error" : "commentId missing in the request header"})    
+    if(!req.user?.email) return res.status(401).json({"error" : "unauthenticated user sent the request"})
+
+    const {commentId} = req.body
+
+    const {email} = req.user
+
+    const foundUser = await User.findOne({email}).session(session).exec() 
+    if(!foundUser)
+    {
+      await session.abortTransaction()
+      return res.status(404).json({"error" : "the user account wasn't found at all"})
+    }
+
+    const foundComment = await Comment.findOne({_id : commentId}).session(session).exec()
+    if(!foundComment)
+    {
+      await session.abortTransaction()
+      return res.status(404).json({"error" : "the post wasn't found at all"})
+    }
+
+    if(foundComment.no_of_likes.includes(foundUser._id))
+    {
+      const index = foundComment.no_of_likes.indexOf(foundUser._id)
+      foundComment.no_of_likes.splice(index , 1)
+    }
+    else
+    {
+      foundComment.no_of_likes = [...foundComment.no_of_likes , foundUser._id]
+    }
+
+    const result = await foundComment.save({session})
+
+    await session.commitTransaction()
+
+    res.status(201).json({"message" : "successfully liked the comment " , "body" : result})
+
+
+  } catch (err) {
+    await session.abortTransaction();
+    return res.status(500).json({ error: `${err.message}` });
+  } finally {
+    await session.endSession();
+  }
+}
+module.exports = {addCommentToPost , removeCommentFromPost , updateCommentOfPost,  getCommentOfPost, likeComment}

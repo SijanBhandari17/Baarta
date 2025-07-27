@@ -316,4 +316,58 @@ const getPost = async (req, res) => {
     await session.endSession();
   }
 };
-module.exports = { uploadPost, getPost, updatePost, deletePost };
+
+const upVotePost = async (req, res)=>{
+  const session = await mongoose.startSession()
+  try {
+
+    await session.startTransaction()
+
+    if(!req.body?.postId) return res.status(400).json({"error" : "postId missing in the request header"})    
+    if(!req.user?.email) return res.status(401).json({"error" : "unauthenticated user sent the request"})
+
+    const {postId} = req.body
+
+    const {email} = req.user
+
+    const foundUser = await User.findOne({email}).session(session).exec() 
+    if(!foundUser)
+    {
+      await session.abortTransaction()
+      return res.status(404).json({"error" : "the user account wasn't found at all"})
+    }
+
+    const foundPost = await Post.findOne({_id : postId}).session(session).exec()
+    if(!foundPost)
+    {
+      await session.abortTransaction()
+      return res.status(404).json({"error" : "the post wasn't found at all"})
+    }
+
+    if(foundPost.upvote_id.includes(foundUser._id))
+    {
+      const index = foundPost.upvote_id.indexOf(foundUser._id)
+      foundPost.upvote_id.splice(index , 1)
+    }
+    else
+    {
+      foundPost.upvote_id = [...foundPost.upvote_id , foundUser._id]
+    }
+
+    const result = await foundPost.save({session})
+
+    await session.commitTransaction()
+
+    res.status(201).json({"message" : "successfully upvoted the post" , "body" : result})
+
+
+  } catch (err) {
+    await session.abortTransaction();
+    return res.status(500).json({ error: `${err.message}` });
+  } finally {
+    await session.endSession();
+  }
+}
+
+
+module.exports = { uploadPost, getPost, updatePost, deletePost , upVotePost};

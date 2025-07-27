@@ -1,9 +1,8 @@
 import { useParams } from 'react-router-dom';
 import CreateComment from '../form/CreateComment';
-import { useState, useEffect, useMemo } from 'react';
-import { Eye, MessageCircle, Users, Clock, SendHorizonal, MoreHorizontal } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { Eye, MessageCircle, Users, Clock, SendHorizonal } from 'lucide-react';
 import { MoreVertical } from 'lucide-react';
-import { sidebarInfo, commentsBySlug, postsBySlug } from '../utils/threadExtras';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { format } from 'date-fns';
 import EditOptionsPost from '../components/ui/EditOptionsPosts';
@@ -11,87 +10,28 @@ import EditOptionsComment from '../components/ui/EditOptionsComments';
 import { usePost } from '../context/PostContext';
 import { useComment } from '../context/CommnentContext';
 import { formatDistanceToNow } from 'date-fns';
+import { addRootComment } from '../utils/handleComments';
 
 export default function PostContent() {
   const { postId } = useParams();
   const decodedPostId = decodeURIComponent(postId || '');
   const { posts } = usePost();
-  const { addCommentInContext, comments, loading } = useComment();
   const [isEditOptionsOpen, setIsEditOptionsOpen] = useState(false);
-  const [editing, setEditing] = useState(false);
   const [activeCommentId, setActiveCommentId] = useState(null);
+  const { addRootCommentInContext, addCommentInContext, comments, loading } = useComment();
+  console.log(comments);
 
   const toggleEditOptionsForComment = commentId => {
     setActiveCommentId(prevId => (prevId === commentId ? null : commentId));
   };
-
-  const handleEditComment = (comment, commentId) => {
-    setEditing(commentId);
-    setActiveCommentId(null);
-  };
   const postToShow = useMemo(() => posts.find(item => item._id === decodedPostId));
 
-  const handleUpdateComment = async e => {
-    const formData = new FormData(e.target);
-    const comment = formData.get('comment');
-
-    try {
-      const response = await fetch('http://localhost:5000/comment', {
-        method: 'PUT',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ commentId: editing, text: comment }),
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-        console.log(data);
-        addCommentInContext(data.body);
-        setEditing(null);
-      } else {
-        console.error('Upload failed:', data.error);
-      }
-    } catch (err) {
-      console.log(`Err: ${err}`);
-    }
-  };
-
-  const handleSubmit = e => {
+  const handleSubmit = async e => {
     e.preventDefault();
-    if (editing) {
-      handleUpdateComment(e);
-    } else {
-      handleAddComment(e);
-    }
-  };
-
-  const handleAddComment = async e => {
     const formData = new FormData(e.target);
     const comment = formData.get('comment');
-    console.log(comment);
-
-    try {
-      const response = await fetch('http://localhost:5000/comment', {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ postId, comment }),
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-        console.log(data);
-        addCommentInContext(data.body[0]);
-      } else {
-        console.error('Upload failed:', data.error);
-      }
-    } catch (err) {
-      console.log(`Err: ${err}`);
-    }
+    const rootData = await addRootComment({ comment, postId });
+    addRootCommentInContext(rootData);
 
     e.target.reset();
   };
@@ -154,7 +94,7 @@ export default function PostContent() {
               <Eye size={16} /> {postToShow.views} views
             </span>
             <span className="flex items-center gap-2">
-              <MessageCircle size={16} /> {comments.length} comments
+              <MessageCircle size={16} /> {comments?.length} comments
             </span>
           </div>
         </article>
@@ -162,9 +102,9 @@ export default function PostContent() {
         {/* Comments Section */}
         <section className="space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-font text-xl font-semibold">Comments ({comments.length})</h2>
+            <h2 className="text-font text-xl font-semibold">Comments ({comments?.length})</h2>
           </div>
-          <CreateComment showCancel={true} isEditing={editing} handleSubmit={handleSubmit} />
+          <CreateComment showCancel={true} handleSubmit={handleSubmit} />
           {loading ? (
             <p>No comments yet.</p>
           ) : (
@@ -174,8 +114,7 @@ export default function PostContent() {
                   <Comment
                     key={c._id}
                     activeCommentId={activeCommentId}
-                    handleEditComment={handleEditComment}
-                    setShowRepl
+                    // handleEditComment={handleEditComment}
                     comment={c}
                     toggleEditOptionsForComment={toggleEditOptionsForComment}
                   />
@@ -190,7 +129,13 @@ export default function PostContent() {
     </div>
   );
 }
-function Comment({ comment, handleEditComment, activeCommentId, toggleEditOptionsForComment }) {
+function Comment({
+  comment,
+  handleEditComment,
+  commentText,
+  activeCommentId,
+  toggleEditOptionsForComment,
+}) {
   const [replyText, setReplyText] = useState('');
   const [showReplies, setShowReplies] = useState(false);
   const [showReplyInput, setShowReplyInput] = useState(false);
@@ -198,60 +143,20 @@ function Comment({ comment, handleEditComment, activeCommentId, toggleEditOption
   const [editText, setEditText] = useState(comment.text);
   const showEditOptions = activeCommentId === comment._id;
 
-  const handleReplySubmit = async () => {
-    if (replyText.trim()) {
-      console.log('Reply text:', replyText);
-      console.log('Parent comment ID:', comment._id);
-
-      try {
-        const response = await fetch('http://localhost:5000/reply', {
-          method: 'POST',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ reply: replyText, commentId: comment._id }),
-        });
-
-        const data = await response.json();
-        console.log('Response status:', response.status);
-        console.log('Response data:', data);
-
-        if (response.ok) {
-          console.log(data);
-        } else {
-          console.error('Upload failed:', data.error);
-        }
-      } catch (err) {
-        console.log(`Err: ${err}`);
-      }
-      setReplyText('');
-      setShowReplyInput(false);
-    }
-  };
-
   const handleReplyCancel = () => {
     setReplyText('');
     setShowReplyInput(false);
   };
 
-  const handleEditSave = async () => {
-    if (editText.trim()) {
-      // Call your edit API here
-      await handleEditComment(editText, comment._id);
-      setEditMode(false);
-    }
-  };
+  const handleAddReply = () => {};
 
-  const handleEditCancel = () => {
-    setEditText(comment.text); // Reset to original text
-    setEditMode(false);
-  };
+  const handleEditReply = () => {};
 
   const startEdit = () => {
     setEditMode(true);
-    toggleEditOptionsForComment(null); // Close edit options
+    toggleEditOptionsForComment(null);
   };
+  console.log(comment.authorName);
 
   return (
     <div className="bg-layout-elements-focus border-layout-elements-focus rounded-button-round border p-4">
@@ -272,7 +177,7 @@ function Comment({ comment, handleEditComment, activeCommentId, toggleEditOption
               )}
             </div>
             <span className="text-font-light/80 text-xs">
-              {formatDistanceToNow(Number(comment.date), { addSuffix: true })}
+              {/* {formatDistanceToNow(Number(comment?.date), { addSuffix: true })} */}
             </span>
           </div>
 
@@ -305,13 +210,14 @@ function Comment({ comment, handleEditComment, activeCommentId, toggleEditOption
               <CreateComment
                 onShowCancelClick={() => setEditMode(false)}
                 editText={editText}
+                onEditReply={handleEditReply}
                 setEditText={setEditText}
               />
             </div>
           )}
           {showReplyInput && !editMode && (
             <div className="mt-3">
-              <CreateComment onShowCancelClick={handleReplyCancel} />
+              <CreateComment onAddReply={handleAddReply} onShowCancelClick={handleReplyCancel} />
             </div>
           )}
         </div>

@@ -21,7 +21,6 @@ const CommentProvider = ({ children }) => {
         const nestedComments = await buildTree(comments.body);
         setComments(nestedComments);
         setLoading(false);
-        console.log(comments);
       }
     };
 
@@ -38,7 +37,6 @@ const CommentProvider = ({ children }) => {
 
       const data = await response.json();
       if (response.ok) {
-        setComments(data.body);
         return data;
       } else {
         console.error('Failed to fetch comments:', data.error);
@@ -49,6 +47,10 @@ const CommentProvider = ({ children }) => {
   };
 
   const addCommentInContext = commentData => {
+    setComments(prev => [commentData, ...prev]);
+  };
+
+  const addRootCommentInContext = commentData => {
     setComments(prev => [commentData, ...prev]);
   };
 
@@ -66,6 +68,7 @@ const CommentProvider = ({ children }) => {
       value={{
         comments,
         loading,
+        addRootCommentInContext,
         addCommentInContext,
         updateCommentInContext,
         deleteCommentInContext,

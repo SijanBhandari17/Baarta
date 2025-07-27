@@ -1,14 +1,10 @@
 import { SendHorizonal, X } from 'lucide-react';
+import { useState } from 'react';
 
-function CreateComment({
-  isEditing,
-  handleSubmit,
-  showCancel,
-  onShowCancelClick,
-  editText,
-  setEditText,
-}) {
-  console.log(editText);
+function CreateComment({ isEditing, handleSubmit, showCancel, onShowCancelClick }) {
+  const [commentText, setCommentText] = useState('');
+  console.log(commentText);
+
   return (
     <form
       onSubmit={handleSubmit}
@@ -18,8 +14,8 @@ function CreateComment({
         name="comment"
         rows="3"
         placeholder="Share your thoughts..."
-        value={editText}
-        onChange={e => setEditText(e.target.value)}
+        value={commentText}
+        onChange={e => setCommentText(e.target.value)}
         className="bg-main-elements rounded-button-round border-layout-elements-focus w-full resize-none border p-4 text-white focus:ring-2 focus:ring-[#4169E1]"
         required
       />

@@ -39,8 +39,8 @@ const ForumProvider = ({ children }) => {
     setForum(prev => prev.map(f => (f._id === updatedForum._id ? updatedForum : f)));
   };
 
-  const deleteForumInContext = forumIdToDelete => {
-    setForum(prev => prev.filter(f => f._id !== forumIdToDelete));
+  const deleteForumInContext = formIdToDelete => {
+    setForum(prev => prev.filter(f => f._id !== formIdToDelete));
   };
 
   return (

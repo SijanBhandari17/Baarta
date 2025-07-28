@@ -12,6 +12,7 @@ const CommentProvider = ({ children }) => {
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  console.log(comments);
   useEffect(() => {
     const getAndBuildComments = async () => {
       if (!postId) return;

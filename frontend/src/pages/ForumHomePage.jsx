@@ -1,6 +1,6 @@
 import Header from '../components/common/Header';
 import LeftAsideBar from '../components/common/LeftAsideBar';
-import { MoreVertical } from 'lucide-react';
+import { MoreVertical, UserPlus } from 'lucide-react';
 import { useParams, useOutletContext, Outlet, useNavigate } from 'react-router-dom';
 import { useForum } from '../context/ForumContext';
 import { useEffect, useMemo, useState } from 'react';
@@ -20,6 +20,7 @@ import EditOptions from '../components/ui/EditOptions';
 import { formatDistanceToNow } from 'date-fns';
 import { useAuth } from '../context/AuthContext';
 import { usePost } from '../context/PostContext';
+import InvitePeople from '../components/ui/InvitePeople';
 
 function ForumHomePage() {
   const { forumTitle } = useParams();
@@ -117,6 +118,7 @@ function ForumDefault() {
 
 function ForumHeader({ forum, handleClick }) {
   const [isEditOptionsOpen, setIsEditOptionsOpen] = useState(false);
+  const [isInvitePeopleOpen, setIsInvitePeopleOpen] = useState(false);
   const { user } = useAuth();
 
   return (
@@ -135,6 +137,12 @@ function ForumHeader({ forum, handleClick }) {
         <button className="rounded-button-round hover:text-font text-body cursor-pointer border border-[#255FCC] px-3 py-2 text-2xl font-semibold text-[#255FCC] transition-all duration-300 ease-in-out hover:bg-[#255FCC]">
           Join Forum
         </button>
+        <button
+          className="hover:bg-layout-elements-focus cursor-pointer rounded p-2 text-white"
+          onClick={() => setIsInvitePeopleOpen(prev => !prev)}
+        >
+          <UserPlus />
+        </button>
         <div className="flex justify-end">
           <button
             onClick={() => setIsEditOptionsOpen(prev => !prev)}
@@ -149,6 +157,7 @@ function ForumHeader({ forum, handleClick }) {
               onClose={() => setIsEditOptionsOpen(false)}
             />
           )}
+          {isInvitePeopleOpen && <InvitePeople onClose={() => setIsInvitePeopleOpen(false)} />}
         </div>
       </div>
     </div>

@@ -1,8 +1,7 @@
 import { useParams } from 'react-router-dom';
 import CreateComment from '../form/CreateComment';
-import { useState, useMemo } from 'react';
-import { Eye, MessageCircle, Users, Clock, SendHorizonal } from 'lucide-react';
-import { MoreVertical } from 'lucide-react';
+import { useState, useMemo, useRef } from 'react';
+import { ChevronUp, MoreVertical, Eye, MessageCircle, Clock } from 'lucide-react';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { format } from 'date-fns';
 import EditOptionsPost from '../components/ui/EditOptionsPosts';
@@ -25,7 +24,6 @@ export default function PostContent() {
   const [isEditOptionsOpen, setIsEditOptionsOpen] = useState(false);
   const [activeCommentId, setActiveCommentId] = useState(null);
   const { addRootCommentInContext, addCommentInContext, comments, loading } = useComment();
-  console.log(comments);
 
   const toggleEditOptionsForComment = commentId => {
     setActiveCommentId(prevId => (prevId === commentId ? null : commentId));
@@ -135,19 +133,14 @@ export default function PostContent() {
     </div>
   );
 }
-function Comment({
-  comment,
-  handleEditComment,
-  commentText,
-  activeCommentId,
-  toggleEditOptionsForComment,
-}) {
+function Comment({ comment, handleEditComment, activeCommentId, toggleEditOptionsForComment }) {
   const [showReplies, setShowReplies] = useState(false);
   const [showReplyInput, setShowReplyInput] = useState(false);
   const [editMode, setEditMode] = useState(false); //false == view mode
   const [editText, setEditText] = useState(comment.text);
+  const [like, setLike] = useState(0);
   const { addCommentInContext, updateCommentInContext, deleteCommentInContext } = useComment();
-
+  const likedByMe = useRef(false);
   const showEditOptions = activeCommentId === comment._id;
 
   const handleReplyCancel = () => {
@@ -161,26 +154,21 @@ function Comment({
     const replyResponse = await addReplyComment({ commentId: comment._id, reply: replyText });
     setShowReplyInput(false);
     addCommentInContext({ commentId: comment._id, replyResponse });
-    console.log(replyResponse);
   };
 
   const handleEditReply = async e => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const updatedText = formData.get('comment');
-    console.log(updatedText);
     const updateResponse = await updateComment({ commentId: comment._id, text: updatedText });
     setEditMode(false);
     updateCommentInContext({ commentId: comment._id, updatedComment: updatedText });
-    console.log(updateResponse);
   };
   const handleDeleteComment = async () => {
     if (comment.parent.kind === 'POST') {
       const deleteResponse = await deleteComment({ commentId: comment._id });
-      console.log(deleteResponse);
     } else {
       const deleteResponse = await deleteReply({ replyId: comment._id });
-      console.log(deleteResponse);
     }
     deleteCommentInContext(comment._id);
   };
@@ -189,11 +177,34 @@ function Comment({
     setEditMode(true);
     toggleEditOptionsForComment(null);
   };
-  console.log(comment.authorName);
 
+  const handleLikeComment = commentId => {
+    likedByMe.current = true;
+
+    if (!likedByMe.current) setLike(like + 1);
+  };
   return (
     <div className="bg-layout-elements-focus border-layout-elements-focus rounded-button-round border p-4">
+      {console.log(comment)}
       <div className="mb-2 flex items-start gap-4">
+        <div className="flex flex-col items-center gap-1 pt-1">
+          <button
+            disabled={likedByMe}
+            onClick={() => handleLikeComment(comment._id)}
+            className={`flex h-8 w-8 items-center justify-center rounded-full transition-all duration-200 ${
+              likedByMe.current
+                ? 'bg-[#4169E1] text-white hover:bg-[#3A5FD8]'
+                : 'bg-layout-elements-focus border-layout-elements-focus hover:bg-layout-elements-focus/80 text-font-light/60 hover:text-font-light border'
+            }`}
+          >
+            <ChevronUp className="cursor-pointer" size={16} />
+          </button>
+          {/* {comment.no_of_likes.length > 0 && ( */}
+          {/*   <span className="text-font-light/60 text-xs font-medium"> */}
+          {/*     {comment.no_of_likes.length} */}
+          {/*   </span> */}
+          {/* )} */}
+        </div>
         <img
           src={comment?.authorProfilePicLink}
           alt={comment?.authorName}

@@ -82,4 +82,108 @@ const postDiscussion = async (req, res)=>{
     }
 }
 
-module.exports = {postDiscussion}
+const deleteDiscussion = async (req ,res )=>{
+    const session = await mongoose.startSession()
+    try
+    {
+
+        await session.startTransaction()
+
+        if(!req.body?.discussionId) return res.status(400).json({"error" : "missing discussionId in the request header"})
+
+        const {discussionId} = req.body
+
+        if(!req.user?.email) return res.status(400).json({"error" : "unauthenticated user sent the request"})
+
+        const {email} =  req.user
+
+        const foundUser = await User.findOne({email}).session(session).exec()
+        if(!foundUser)
+        {
+            await session.abortTransaction()
+            return res.status(404).json({"error" : "user not found"})
+        }
+
+        const foundDiscussion = await Discussion.findOne({_id : discussionId}).session(session).exec()
+        if(!foundDiscussion) 
+        {
+            await session.abortTransaction()
+            return res.status(404).json({"error" : "the forum is either deleted or removed"})
+        }
+
+       if(foundDiscussion.author_id.toString() !== foundUser._id.toString())
+        {
+            await session.abortTransaction()
+            return res.status(403).json({"error" : "only the author can deleted the forum"})
+        }
+
+        const result = await Discussion.deleteOne({_id : foundDiscussion._id} , {session})
+
+        await session.commitTransaction()
+
+        return res.status(201).json({"message" : 'successful deletion of the discussion' , "body" : result})
+         
+    }
+
+    catch(err)
+    {
+        await session.abortTransaction()
+        res.status(500).json({"error" : `${err.stack}`})
+    }
+    finally{
+        await session.endSession()
+    }
+}
+
+const getDiscussion = async (req ,res )=>{
+    const session = await mongoose.startSession()
+    try
+    {
+
+        await session.startTransaction()
+
+        if(!req.body?.forumId) return res.status(400).json({"error" : "missing forumId in the request header"})
+
+        const {forumId} = req.body
+
+        if(!req.user?.email) return res.status(400).json({"error" : "unauthenticated user sent the request"})
+
+        const {email} =  req.user
+
+        const foundUser = await User.findOne({email}).session(session).exec()
+        if(!foundUser)
+        {
+            await session.abortTransaction()
+            return res.status(404).json({"error" : "user not found"})
+        }
+
+        const foundForum = await Forum.findOne({_id : forumId}).session(session).exec()
+        if(!foundForum) 
+        {
+            await session.abortTransaction()
+            return res.status(404).json({"error" : "the forum is either deleted or removed"})
+        }
+
+
+        const discussionArr = foundForum.discussion_id
+
+        const foundDiscussionArr = await Discussion.find({_id : {$in : discussionArr}}).session(session).exec()
+
+        
+
+        await session.commitTransaction()
+
+        return res.status(201).json({"message" : 'successful deletion of the discussion' , "body" : result})
+         
+    }
+
+    catch(err)
+    {
+        await session.abortTransaction()
+        res.status(500).json({"error" : `${err.stack}`})
+    }
+    finally{
+        await session.endSession()
+    }
+}
+module.exports = {postDiscussion , deleteDiscussion}

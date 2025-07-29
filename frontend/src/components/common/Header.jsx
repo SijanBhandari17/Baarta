@@ -9,7 +9,6 @@ import LoginPopUp from '../ui/LoginPopUp';
 import SignInPopUp from '../ui/SignUpPopUp';
 import { useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import DefaultProfile from '../../assets/images/defaultUser.svg';
 import { useNavigate } from 'react-router-dom';
 const notificationCount = 1;
 
@@ -65,7 +64,6 @@ function ProfileSection() {
   const [showNotification, toggleNotification] = useDropdown('.notification-section');
   const auth = useAuth();
   const { user, logOut } = auth;
-  console.log(user)
   return (
     <div className="flex">
       <div className="notification-section relative flex items-center">
@@ -85,9 +83,8 @@ function ProfileSection() {
       </div>
       <div className="profile-section flex size-[56px] items-center justify-center rounded-full">
         <img
-
           src={user.info?.profilePic}
-          className="hover:bg-layout-elements-focus h-15 w-16 cursor-pointer rounded-full p-2 object-cover object-center"
+          className="hover:bg-layout-elements-focus h-15 w-16 cursor-pointer rounded-full object-cover object-center p-2"
           onClick={toggleProfile}
         />
       </div>

@@ -55,7 +55,7 @@ export default [
       'react/jsx-uses-react': 'error',
       'react/jsx-uses-vars': 'error',
       'react/react-in-jsx-scope': 'off', // Not needed in React 17+
-      'react/prop-types': 'warn',
+      'react/prop-types': 'off',
       'react/jsx-closing-bracket-location': ['warn', 'line-aligned'],
 
       // React Hooks

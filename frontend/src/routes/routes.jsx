@@ -11,7 +11,10 @@ import LiveDiscussions from '../components/common/nav/home/LiveDiscussions';
 import Threads from '../components/common/nav/home/Threads';
 import Trending from '../components/common/nav/home/Trending';
 import UpcommingEventInfo from '../pages/UpcommingEvents';
-import ForumHomePage from '../pages/ForumHomePage';
+import { ForumHomePage, ForumDefault } from '../pages/ForumHomePage';
+import PostContent from '../pages/PostContent';
+import { PostProvider } from '../context/PostContext';
+import { CommentProvider } from '../context/CommnentContext';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -36,7 +39,25 @@ const router = createBrowserRouter(
         <Route path="draft" element={<Drafts />} />
       </Route>
       <Route path="upcommingevents" element={<UpcommingEventInfo />} />
-      <Route path="/b/:forumTitle" element={<ForumHomePage />} />
+      <Route
+        path="/b/:forumTitle"
+        element={
+          <PostProvider>
+            {' '}
+            <ForumHomePage />{' '}
+          </PostProvider>
+        }
+      >
+        <Route index element={<ForumDefault />} />
+        <Route
+          path=":postId"
+          element={
+            <CommentProvider>
+              <PostContent />{' '}
+            </CommentProvider>
+          }
+        />
+      </Route>
       <Route
         path="/landingpage"
         element={

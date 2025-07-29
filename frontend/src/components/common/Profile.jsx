@@ -1,30 +1,42 @@
 import { useState, useRef } from 'react';
 import { Navigate } from 'react-router-dom';
 import { User, Sun, Moon, LogOut } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext'; // Adjust path as needed
+import { useAuth } from '../../context/AuthContext';
 
 function Profile() {
   const [darkMode, setDarkMode] = useState(true);
-  const [profileImage, setProfileImage] = useState('/default-avatar.png'); // Default image
+  const [profileImage, setProfileImage] = useState('/default-avatar.png');
   const fileInputRef = useRef(null);
   const auth = useAuth();
-  const { user, logOut } = auth;
+  const { user, logOut, handleProfilePicChange } = auth;
 
-  // Default class for icons
   const defaultClass = 'w-6 h-6';
 
   const handleChangeProfile = () => {
     fileInputRef.current.click();
   };
 
-  const handleFileChange = event => {
+  const handleFileChange = async event => {
     const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = e => {
-        setProfileImage(e.target.result);
-      };
-      reader.readAsDataURL(file);
+    const formData = new FormData();
+    formData.append('profilePic', file);
+
+    try {
+      const response = await fetch('http://localhost:5000/uploads/profilePic', {
+        method: 'POST',
+        credentials: 'include',
+        body: formData,
+      });
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log('Upload successful:', data);
+        handleProfilePicChange(data.file.url);
+      } else {
+        console.error('Upload failed:', data);
+      }
+    } catch (err) {
+      console.error('Error:', err);
     }
   };
 
@@ -52,11 +64,10 @@ function Profile() {
 
   return (
     <div className="rounded-button-round profile-section absolute top-20 right-5 z-50 flex flex-col bg-gray-600 p-4">
-      {/* {/* Hidden file input /} */}
       <input
         type="file"
         ref={fileInputRef}
-        accept="image/"
+        accept="multipart/form-data"
         style={{ display: 'none' }}
         onChange={handleFileChange}
       />

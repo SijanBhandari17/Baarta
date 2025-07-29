@@ -1,7 +1,7 @@
 import Header from '../components/common/Header';
 import LeftAsideBar from '../components/common/LeftAsideBar';
-import { MoreVertical } from 'lucide-react';
-import { useParams } from 'react-router-dom';
+import { MoreVertical, UserPlus } from 'lucide-react';
+import { useParams, useOutletContext, Outlet, useNavigate } from 'react-router-dom';
 import { useForum } from '../context/ForumContext';
 import { useEffect, useMemo, useState } from 'react';
 import {
@@ -18,53 +18,46 @@ import CreatePost from '../form/CreatePosts';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import EditOptions from '../components/ui/EditOptions';
 import { formatDistanceToNow } from 'date-fns';
+import { useAuth } from '../context/AuthContext';
+import { usePost } from '../context/PostContext';
+import InvitePeople from '../components/ui/InvitePeople';
 
 function ForumHomePage() {
   const { forumTitle } = useParams();
   const decodedTitle = decodeURIComponent(forumTitle || '');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { forum, loading } = useForum();
-  const [posts, setPosts] = useState([]);
-
-  const forumToShow = useMemo(
-    () => forum?.find(item => item.forum_name === decodedTitle),
-    [forum, decodedTitle],
-  );
-  console.log(forumToShow);
+  const { posts, forumToShow, addPostInContext } = usePost();
 
   const forumId = forumToShow?._id || '';
-
-  useEffect(() => {
-    if (forumId) fetchPosts();
-  }, [forumId]);
-
-  const fetchPosts = async () => {
-    try {
-      const response = await fetch(`http://localhost:5000/post?forumId=${forumId}`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-      });
-
-      const data = await response.json();
-      if (response.ok) setPosts(data.body);
-    } catch (err) {
-      console.log(`Err: ${err}`);
-    }
-  };
 
   const addNewPost = async post => {
     if (post && Object.keys(post).length !== 0) {
       try {
+        const formData = new FormData();
+        formData.append('title', post.title);
+        formData.append('content_text', post.content_text);
+        formData.append('forumId', post.forumId);
+        formData.append('genre', post.genre);
+        formData.append('authorName', post.authorName);
+        console.log(post.authorName);
+
+        if (post.postImage && post.postImage.length > 0) {
+          formData.append('postImage', post.postImage[0]);
+        }
+
         const response = await fetch('http://localhost:5000/post', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
-          body: JSON.stringify(post),
+          body: formData,
         });
+
         const data = await response.json();
         if (response.ok) {
-          setPosts(prev => [...prev, data.body[0]]);
+          console.log(data);
+          addPostInContext(data.body[0]);
+        } else {
+          console.error('Upload failed:', data.error);
         }
       } catch (err) {
         console.log(`Err: ${err}`);
@@ -88,11 +81,20 @@ function ForumHomePage() {
             <ForumHeader forum={forumToShow} handleClick={handleClick} />
 
             <div className="flex gap-4">
-              <ForumPosts forum={forumToShow} posts={posts} />
-              <ForumLeftBar forum={forumToShow} />
+              <Outlet
+                context={{
+                  forum: forumToShow,
+                  posts,
+                  forumId,
+                  addNewPost,
+                  isDialogOpen,
+                  setIsDialogOpen,
+                }}
+              />
             </div>
-
             <CreatePost
+              type="Create"
+              posts={posts}
               forumId={forumId}
               isOpen={isDialogOpen}
               addNewPost={addNewPost}
@@ -104,9 +106,21 @@ function ForumHomePage() {
     </div>
   );
 }
+function ForumDefault() {
+  const { forum, posts } = useOutletContext();
+  return (
+    <>
+      <ForumPosts forum={forum} posts={posts} />
+      <ForumLeftBar forum={forum} posts={posts} />
+    </>
+  );
+}
 
 function ForumHeader({ forum, handleClick }) {
   const [isEditOptionsOpen, setIsEditOptionsOpen] = useState(false);
+  const [isInvitePeopleOpen, setIsInvitePeopleOpen] = useState(false);
+  const { user } = useAuth();
+
   return (
     <div className="flex items-center justify-between">
       <div>
@@ -123,6 +137,12 @@ function ForumHeader({ forum, handleClick }) {
         <button className="rounded-button-round hover:text-font text-body cursor-pointer border border-[#255FCC] px-3 py-2 text-2xl font-semibold text-[#255FCC] transition-all duration-300 ease-in-out hover:bg-[#255FCC]">
           Join Forum
         </button>
+        <button
+          className="hover:bg-layout-elements-focus cursor-pointer rounded p-2 text-white"
+          onClick={() => setIsInvitePeopleOpen(prev => !prev)}
+        >
+          <UserPlus />
+        </button>
         <div className="flex justify-end">
           <button
             onClick={() => setIsEditOptionsOpen(prev => !prev)}
@@ -137,6 +157,7 @@ function ForumHeader({ forum, handleClick }) {
               onClose={() => setIsEditOptionsOpen(false)}
             />
           )}
+          {isInvitePeopleOpen && <InvitePeople onClose={() => setIsInvitePeopleOpen(false)} />}
         </div>
       </div>
     </div>
@@ -144,14 +165,21 @@ function ForumHeader({ forum, handleClick }) {
 }
 
 function ForumPosts({ posts }) {
-  console.log(posts);
+  const navigate = useNavigate();
+
+  const handlePostClick = item => {
+    navigate(`${item._id}`);
+  };
   return (
     <>
       {posts && posts.length > 0 ? (
         <div className="flex flex-1 flex-col gap-4">
           {posts.map((item, index) => (
             <div key={index} className="bg-layout-elements-focus rounded-button-round p-3">
-              <div className="mb-2 flex items-start justify-between">
+              <div
+                onClick={() => handlePostClick(item)}
+                className="mb-2 flex cursor-pointer items-start justify-between"
+              >
                 <p className="text-title text-font font-semibold">{item.title}</p>
                 <Bookmark className="ml-2 flex-shrink-0 cursor-pointer text-white" />
               </div>
@@ -163,7 +191,6 @@ function ForumPosts({ posts }) {
                 <div className="flex items-center gap-1">
                   <Clock className="text-font-light/80 h-4 w-4" />
                   <p className="text-font-light/80">
-                    {console.log(item.post_date)}
                     {formatDistanceToNow(Number(item.post_date), { addSuffix: true })}
                   </p>
                 </div>
@@ -188,7 +215,7 @@ function ForumPosts({ posts }) {
   );
 }
 
-function ForumLeftBar({ forum }) {
+function ForumLeftBar({ forum, posts }) {
   return (
     <div className="ml-auto flex flex-col gap-2">
       <div className="bg-layout-elements-focus rounded-button-round p-8">
@@ -210,7 +237,7 @@ function ForumLeftBar({ forum }) {
               <MessageSquare className="h-4 w-4 text-[#4169E1]" />
               <p className="text-font-light/80 text-body">Threads</p>
             </div>
-            <p className="text-font text-body font-semibold">{forum.post_id.length}</p>
+            <p className="text-font text-body font-semibold">{posts.length}</p>
           </div>
 
           <div className="flex items-center justify-between">
@@ -231,7 +258,7 @@ function ForumLeftBar({ forum }) {
             <div>
               {forum.moderator_id.map((item, index) => {
                 return (
-                  <div>
+                  <div key={index}>
                     <img
                       src={item.info?.profilePic}
                       className="h-25 w-25 cursor-pointer rounded-full object-cover object-center"
@@ -250,4 +277,4 @@ function ForumLeftBar({ forum }) {
   );
 }
 
-export default ForumHomePage;
+export { ForumDefault, ForumHomePage };

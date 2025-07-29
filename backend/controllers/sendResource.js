@@ -14,10 +14,11 @@ const sendAllUser = async (req ,res)=>{
     {
 
         await session.startTransaction()
-        if(!req.body?.forumId) return res.status(400).json({"error" : "missing forumId in the request header"})
+        if(!req.query?.forumId) return res.status(400).json({"error" : "missing forumId in the request header"})
         if(!req.user?.email) return res.status(401).json({"error" : 'unauthenticated user request sent'})
         
         const {email}  = req.user
+        const {forumId} = req.query
 
         const foundUser = await User.findOne({email}).session(session).exec() 
         if(!foundUser){

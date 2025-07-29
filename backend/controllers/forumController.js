@@ -329,7 +329,7 @@ const leaveForum = async (req ,res)=>{
     const result = await Forum.updateOne({_id : foundForum._id } ,{$pull : {moderator_id : foundUser._id , member_id : foundUser._id}}, {session})
 
     await session.commitTransaction()
-    res.status(201).json({"message" : "successfully leaved the "})
+    res.status(201).json({"message" : "successfully left the forum" , "body" : result})
 
   } catch (err) {
     await session.abortTransaction();
@@ -339,4 +339,4 @@ const leaveForum = async (req ,res)=>{
   }
 }
 
-module.exports = { createForum, getForum, deleteForum, updateForum };
+module.exports = { createForum, getForum, deleteForum, updateForum , leaveForum};

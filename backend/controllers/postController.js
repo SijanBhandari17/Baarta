@@ -88,7 +88,7 @@ const uploadPost = async (req, res) => {
 
     const profilePic = await Profile.findOne({userId : foundUser._id}).session(session).exec()
 
-    const toSendResult = {...result , authorEmail : foundUser.email  , authorName : foundUser.username , authorProfilePicLink : profilePic?.profilePicLink ||  "https://res.cloudinary.com/dlddcx3uw/image/upload/v1752323363/defaultUser_cfqyxq.svg"}
+    const toSendResult = {...result[0].toObject() , authorEmail : foundUser.email  , authorName : foundUser.username , authorProfilePicLink : profilePic?.profilePicLink ||  "https://res.cloudinary.com/dlddcx3uw/image/upload/v1752323363/defaultUser_cfqyxq.svg"}
 
     foundForum.post_id = [...foundForum.post_id, result[0]._id];
     await foundForum.save({ session });

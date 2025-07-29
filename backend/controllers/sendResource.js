@@ -14,7 +14,7 @@ const sendAllUser = async (req ,res)=>{
     {
 
         await session.startTransaction()
-
+        if(!req.body?.forumId) return res.status(400).json({"error" : "missing forumId in the request header"})
         if(!req.user?.email) return res.status(401).json({"error" : 'unauthenticated user request sent'})
         
         const {email}  = req.user
@@ -25,6 +25,13 @@ const sendAllUser = async (req ,res)=>{
             return res.status(404).json({"error" : "the user account is either deleted or removed"})
         }
 
+        const foundForum = await Forum.findOne({_id : forumId}).session(session).exec()
+        if(!foundForum)
+        {
+            await session.abortTransaction()
+            return res.status(404).json({"error" : "the forum was already deleted or removed"})
+        }
+
         const foundUserAcc = await User.find().session(session).exec()
 
         if(foundUserAcc.length <= 1){ // 1 because your account ofcourse exists otherwise the server doesn't process up to this part 
@@ -33,7 +40,9 @@ const sendAllUser = async (req ,res)=>{
         }
 
         const filteredUserAcc = foundUserAcc.filter((item)=>{
-            return item._id.toString() !== foundUser._id.toString()
+            // return item._id.toString() !== foundUser._id.toString()
+            if((item._id.toString() !==  foundUser._id.toString()) &&  foundForum.admin_id.toString() !== item._id.toString() && !foundForum.member_id.includes(item._id) && !foundForum.moderator_id.includes(item._id)) return true
+            else return false
         })
 
 

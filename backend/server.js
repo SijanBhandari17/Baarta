@@ -14,12 +14,15 @@ const replyHandler = require('./routes/replyRoutes')
 const notificationHandler = require('./routes/requestRoutes')
 const pollHandler = require('./routes/pollRoutes')
 const allResource = require('./routes/sendAllRoutes')
+const discussionHandler = require('./routes/discussionRoutes')
+const miscallenuousHandler =  require('./routes/miscallenuousRoutes')
 const verifyJWT = require('./middleware/verifyJWT');
 const cors = require('cors')
 const cloudinaryMiddleware = require('./middleware/cloudinaryMiddleware')
 const corsOptions = require('./config/corsOption')
 const mongoose = require('mongoose')
-const connectDB = require('./config/dbConfig')
+const connectDB = require('./config/dbConfig');
+const { verify } = require('jsonwebtoken');
 const PORT = process.env.PORT || 5500;
 connectDB()
 app.use(cookieParser());
@@ -48,6 +51,10 @@ app.use('/poll' ,  verifyJWT)
 app.use('/poll' , pollHandler)
 app.use('/all',  verifyJWT)
 app.use('/all', allResource)
+app.use('/discussion', verifyJWT)
+app.use('/discussion' , discussionHandler)
+app.use('/miscallenuous' , verifyJWT)
+app.use('/miscallenuous' , miscallenuousHandler)
 
 mongoose.connection.once('open' , ()=>{
   console.log('connected to MongoDB atlas')

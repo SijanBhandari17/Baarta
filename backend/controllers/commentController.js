@@ -35,7 +35,7 @@ const addCommentToPost = async (req , res)=>{
       
         const profilePic = await Profile.findOne({userId : foundUser._id}).session(session).exec()
 
-        const toSendResult = {...result , authorName : foundUser.username , authorEmail : foundUser.email , authorProfilePicLink : profilePic?.profilePicLink} 
+        const toSendResult = {...result[0].toObject(), authorName : foundUser.username , authorEmail : foundUser.email , authorProfilePicLink : profilePic?.profilePicLink} 
 
         foundPost.comment_id = [...foundPost.comment_id , result[0]._id]
         await foundPost.save({session})

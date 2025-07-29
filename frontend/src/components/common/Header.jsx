@@ -10,7 +10,7 @@ import SignInPopUp from '../ui/SignUpPopUp';
 import { useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-const notificationCount = 1;
+import { useNotification } from '../../context/NotificationContext';
 
 function Header() {
   const { user } = useAuth();
@@ -63,6 +63,7 @@ function ProfileSection() {
   const [showProfile, toggleProfile] = useDropdown('.profile-section');
   const [showNotification, toggleNotification] = useDropdown('.notification-section');
   const auth = useAuth();
+  const { notifications } = useNotification();
   const { user, logOut } = auth;
   return (
     <div className="flex">
@@ -72,9 +73,9 @@ function ProfileSection() {
           title="Notifications"
           onClick={toggleNotification}
         />
-        {notificationCount > 0 ? (
+        {notifications.length > 0 ? (
           <span className="absolute top-1 right-2 flex min-h-[1.5rem] min-w-[1.5rem] cursor-pointer items-center justify-center rounded-full bg-red-600 text-[1rem] text-white">
-            {notificationCount}
+            {notifications.length}
           </span>
         ) : (
           ' '

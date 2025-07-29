@@ -94,9 +94,6 @@ export default function PostContent() {
           {/* Post Stats */}
           <div className="text-font-light/80 border-layout-elements-focus mt-6 flex flex-wrap items-center gap-4 border-t pt-4 text-sm">
             <span className="flex items-center gap-2">
-              <Eye size={16} /> {postToShow.views} views
-            </span>
-            <span className="flex items-center gap-2">
               <MessageCircle size={16} /> {comments?.length} comments
             </span>
           </div>

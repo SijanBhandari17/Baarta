@@ -54,7 +54,7 @@ function ForumHomePage() {
         const data = await response.json();
         if (response.ok) {
           console.log(data);
-          addPostInContext(data.body[0]);
+          addPostInContext(data.body);
         } else {
           console.error('Upload failed:', data.error);
         }
@@ -117,13 +117,11 @@ function ForumHeader({ forum, handleClick }) {
   const [isEditOptionsOpen, setIsEditOptionsOpen] = useState(false);
   const [isInvitePeopleOpen, setIsInvitePeopleOpen] = useState(false);
   const { user } = useAuth();
-  console.log(forum);
-  console.log(user);
 
   const isJoined =
-    forum.member_id.some(item => item._id === user.info.userId) ||
+    forum.member_id.includes(user.info.userId) ||
     forum.admin_id === user.info.userId ||
-    forum.moderator_id.some(item => item._id === user.info.userId);
+    forum.moderator_id.includes(user.info.userId);
 
   const hasAdminPrivilage =
     forum.admin_id === user.info.userId ||
@@ -211,11 +209,7 @@ function ForumPosts({ posts }) {
               <div className="flex gap-4">
                 <div className="flex items-center gap-1">
                   <MessageCircle className="text-font-light/80 h-4 w-4" />
-                  <p className="text-font-light/80">{item.replies || 0} replies</p>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Eye className="text-font-light/80 h-4 w-4" />
-                  <p className="text-font-light/80">{item.views || 0} views</p>
+                  <p className="text-font-light/80">{item.comment_id.length || 0} comments</p>
                 </div>
               </div>
             </div>

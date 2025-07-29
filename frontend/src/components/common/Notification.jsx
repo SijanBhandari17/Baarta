@@ -1,51 +1,69 @@
-import { useEffect } from 'react';
-import Notifications from '../../utils/fetchNotifications';
+import { useEffect, useState } from 'react';
+import { formatDistanceToNow } from 'date-fns';
+import ShowNotificationPopUp from '../ui/ShowNotificationPopUp';
+import { useNotification } from '../../context/NotificationContext';
 
 function Notification() {
-  useEffect(() => {
-    const fetchNotifications = async () => {
-      try {
-        const response = await fetch('http://localhost:5000/notification/getInvite', {
-          method: 'GET',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-        const data = await response.json();
-        if (response.ok) {
-          console.log(data);
-        } else {
-          console.error('Upload failed:', data.error);
-        }
-      } catch (err) {
-        console.log(`Err: ${err}`);
-      }
-    };
-    fetchNotifications();
-  }, []);
-  const baseClass =
-    'hover:bg-layout-elements-focus rounded-button-round cursor-pointer mb-2 px-2 py-4';
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [showPopUp, setShowPopUp] = useState(false);
+  const { notifications } = useNotification();
+  console.log(notifications);
+
+  const handleNotificationClick = item => {
+    setSelectedItem(item);
+    setShowPopUp(true);
+  };
+
+  const handleClosePopUp = () => {
+    setShowPopUp(false);
+    setSelectedItem(null);
+  };
+
   return (
-    <div className="rounded-button-round notification-section absolute top-20 right-5 z-10 flex max-h-[50vh] w-[500px] flex-col overflow-y-auto bg-[#636363] p-4">
-      <h1 className="text-font text-title border-b border-b-white/40 font-bold uppercase">
-        Notifications
-      </h1>
-      <div className="my-2">
-        {Notifications.map((item, index) => {
-          return (
-            <div
-              className={`${baseClass} ${item.seen === 'false' ? 'bg-layout-elements-focus' : ''}`}
-              key={index}
-            >
-              <p className="text-font text-title">{item.label}</p>
-              <p className="text-font-light text-body before:mr-2 before:content-['🕛']">
-                {item.durationAfterIncident}
-              </p>
-            </div>
-          );
-        })}
+    <div className="rounded-button-round notification-section absolute top-20 right-5 z-10 flex max-h-[50vh] w-[500px] flex-col bg-gray-600 p-4">
+      <div className="border-b border-b-white/10 px-4 py-2">
+        <h1 className="text-font text-title font-bold uppercase">Notifications</h1>
       </div>
+      <div className="flex flex-col justify-evenly overflow-y-auto">
+        {notifications.length !== 0 &&
+          notifications.map(item => {
+            if (item.type === 'forum_invite') {
+              return (
+                <div
+                  key={item._id}
+                  onClick={() => handleNotificationClick(item)}
+                  className="rounded-button-round my-2 flex cursor-pointer flex-col gap-2 px-4 py-2 hover:bg-gray-500"
+                >
+                  <p className="text-font text-title">
+                    {item.senderName} has requested you to join {item.forumName}
+                  </p>
+                  <p className="text-font-light/80 text-body">
+                    {formatDistanceToNow(Number(item.date), { addSuffix: true })}
+                  </p>
+                </div>
+              );
+            } else if (item.type === 'promotion_to_moderator') {
+              return (
+                <div
+                  key={item._id}
+                  onClick={() => handleNotificationClick(item)}
+                  className="rounded-button-round my-2 flex cursor-pointer flex-col gap-2 px-4 py-2 hover:bg-gray-500"
+                >
+                  <p className="text-font text-title">
+                    {item.senderName} has requested you to become moderator for {item.forumName}
+                  </p>
+                  <p className="text-font-light/80 text-body">
+                    {formatDistanceToNow(Number(item.date), { addSuffix: true })}
+                  </p>
+                </div>
+              );
+            }
+            return null;
+          })}
+      </div>
+      {showPopUp && selectedItem && (
+        <ShowNotificationPopUp item={selectedItem} onClose={handleClosePopUp} />
+      )}
     </div>
   );
 }

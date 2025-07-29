@@ -27,8 +27,20 @@ const getForumWithRequest = async (req ,res)=>{
 
         const foundForumsWithJoinRequest = await Notification.find({forum : {$in : foundForumId}, type : 'join_request'}).session(session).exec()
 
+        const toSendArr = await Promise.all(foundForumsWithJoinRequest.map(async(item) => {
+            const {forum , fromUser} = item
+            const thisForum = await Forum.findOne({_id : forum}).session(session).exec()
+            const thisUser = await User.findOne({_id : fromUser._id}).session(session).exec()
+            const thisUserProfile = await Profile.findOne({userId : thisUser._id}).session(session).exec() 
+
+            const toReturnObj = {...item.toObject() , fromUserName : thisUser.username , forumName : thisForum.forum_name , fromUserProfilePicLink : thisUserProfile?.profilePicLink || "https://res.cloudinary.com/dlddcx3uw/image/upload/v1752323363/defaultUser_cfqyxq.svg"}
+
+            return toReturnObj
+
+        }))
+        
         await session.commitTransaction()
-        res.status(200).json({"message" : "successful retrieval of forums joined" , "body" : foundForumsWithJoinRequest})
+        res.status(200).json({"message" : "successful retrieval of forums joined" , "body" : toSendArr})
     }
     catch(err)
     {

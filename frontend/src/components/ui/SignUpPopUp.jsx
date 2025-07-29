@@ -11,7 +11,7 @@ const SignInPopUp = ({ isOpen, onClose }) => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showOtpForm, setShowOtpForm] = useState(false);
-  const auth = useAuth();
+  const { checkAuthStatus } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -82,8 +82,9 @@ const SignInPopUp = ({ isOpen, onClose }) => {
         });
 
         const loginData = await loginResponse.json();
-
+        console.log(loginData);
         if (loginResponse.ok) {
+          checkAuthStatus();
           navigate('/home');
           console.log('Successful login:', loginData);
         } else {

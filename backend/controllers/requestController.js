@@ -63,7 +63,7 @@ const sendInvite = async (req ,res)=>{
             duplicateRequest = await Notification.findOne({
             forum: foundForum._id,
             $or: [
-            { toUser: userId, type: 'join_request' },
+            { toUser: userId, type: 'forum_invite' },
             { fromUser: userId, type: 'join_request' },
             {toUser :userId , type:'promote_to_moderator'}
             ]

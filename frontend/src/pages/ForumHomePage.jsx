@@ -40,7 +40,6 @@ function ForumHomePage() {
         formData.append('forumId', post.forumId);
         formData.append('genre', post.genre);
         formData.append('authorName', post.authorName);
-        console.log(post.authorName);
 
         if (post.postImage && post.postImage.length > 0) {
           formData.append('postImage', post.postImage[0]);
@@ -77,42 +76,40 @@ function ForumHomePage() {
       <main className="flex w-screen flex-1">
         <LeftAsideBar />
         <section className="bg-main-elements flex flex-1 flex-col gap-6 p-6">
-          <div className="flex flex-col gap-2">
-            <ForumHeader forum={forumToShow} handleClick={handleClick} />
-
-            <div className="flex gap-4">
-              <Outlet
-                context={{
-                  forum: forumToShow,
-                  posts,
-                  forumId,
-                  addNewPost,
-                  isDialogOpen,
-                  setIsDialogOpen,
-                }}
-              />
-            </div>
-            <CreatePost
-              type="Create"
-              posts={posts}
-              forumId={forumId}
-              isOpen={isDialogOpen}
-              addNewPost={addNewPost}
-              onClose={() => setIsDialogOpen(false)}
-            />
-          </div>
+          <Outlet
+            context={{
+              forum: forumToShow,
+              posts,
+              forumId,
+              addNewPost,
+              handleClick,
+              isDialogOpen,
+              setIsDialogOpen,
+            }}
+          />
+          <CreatePost
+            type="Create"
+            posts={posts}
+            forumId={forumId}
+            isOpen={isDialogOpen}
+            addNewPost={addNewPost}
+            onClose={() => setIsDialogOpen(false)}
+          />
         </section>
       </main>
     </div>
   );
 }
 function ForumDefault() {
-  const { forum, posts } = useOutletContext();
+  const { forum, posts, handleClick } = useOutletContext();
   return (
-    <>
-      <ForumPosts forum={forum} posts={posts} />
-      <ForumLeftBar forum={forum} posts={posts} />
-    </>
+    <div className="flex flex-col gap-2">
+      <ForumHeader forum={forum} handleClick={handleClick} />
+      <div className="flex gap-4">
+        <ForumPosts forum={forum} posts={posts} />
+        <ForumLeftBar forum={forum} posts={posts} />
+      </div>
+    </div>
   );
 }
 
@@ -120,6 +117,17 @@ function ForumHeader({ forum, handleClick }) {
   const [isEditOptionsOpen, setIsEditOptionsOpen] = useState(false);
   const [isInvitePeopleOpen, setIsInvitePeopleOpen] = useState(false);
   const { user } = useAuth();
+  console.log(forum);
+  console.log(user);
+
+  const isJoined =
+    forum.member_id.some(item => item._id === user.info.userId) ||
+    forum.admin_id === user.info.userId ||
+    forum.moderator_id.some(item => item._id === user.info.userId);
+
+  const hasAdminPrivilage =
+    forum.admin_id === user.info.userId ||
+    forum.moderator_id.some(item => item._id === user.info.userId);
 
   return (
     <div className="flex items-center justify-between">
@@ -134,31 +142,36 @@ function ForumHeader({ forum, handleClick }) {
         >
           Create Thread
         </button>
-        <button className="rounded-button-round hover:text-font text-body cursor-pointer border border-[#255FCC] px-3 py-2 text-2xl font-semibold text-[#255FCC] transition-all duration-300 ease-in-out hover:bg-[#255FCC]">
-          Join Forum
-        </button>
-        <button
-          className="hover:bg-layout-elements-focus cursor-pointer rounded p-2 text-white"
-          onClick={() => setIsInvitePeopleOpen(prev => !prev)}
-        >
-          <UserPlus />
-        </button>
-        <div className="flex justify-end">
-          <button
-            onClick={() => setIsEditOptionsOpen(prev => !prev)}
-            className="hover:bg-layout-elements-focus cursor-pointer rounded p-2 text-white"
-          >
-            <MoreVertical />
+        {!isJoined && (
+          <button className="rounded-button-round hover:text-font text-body cursor-pointer border border-[#255FCC] px-3 py-2 text-2xl font-semibold text-[#255FCC] transition-all duration-300 ease-in-out hover:bg-[#255FCC]">
+            Join Forum
           </button>
-          {isEditOptionsOpen && (
-            <EditOptions
-              isOpen={isEditOptionsOpen}
-              forum={forum}
-              onClose={() => setIsEditOptionsOpen(false)}
-            />
-          )}
-          {isInvitePeopleOpen && <InvitePeople onClose={() => setIsInvitePeopleOpen(false)} />}
-        </div>
+        )}
+
+        {hasAdminPrivilage && (
+          <div className="flex justify-end gap-2">
+            <button
+              className="hover:bg-layout-elements-focus cursor-pointer rounded p-2 text-white"
+              onClick={() => setIsInvitePeopleOpen(prev => !prev)}
+            >
+              <UserPlus />
+            </button>
+            <button
+              onClick={() => setIsEditOptionsOpen(prev => !prev)}
+              className="hover:bg-layout-elements-focus cursor-pointer rounded p-2 text-white"
+            >
+              <MoreVertical />
+            </button>
+          </div>
+        )}
+        {isEditOptionsOpen && (
+          <EditOptions
+            isOpen={isEditOptionsOpen}
+            forum={forum}
+            onClose={() => setIsEditOptionsOpen(false)}
+          />
+        )}
+        {isInvitePeopleOpen && <InvitePeople onClose={() => setIsInvitePeopleOpen(false)} />}
       </div>
     </div>
   );

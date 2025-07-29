@@ -36,7 +36,6 @@ export default function PostContent() {
     const comment = formData.get('comment');
     const rootData = await addRootComment({ comment, postId });
     addRootCommentInContext(rootData);
-
     e.target.reset();
   };
 
@@ -185,7 +184,6 @@ function Comment({ comment, handleEditComment, activeCommentId, toggleEditOption
   };
   return (
     <div className="bg-layout-elements-focus border-layout-elements-focus rounded-button-round border p-4">
-      {console.log(comment)}
       <div className="mb-2 flex items-start gap-4">
         <div className="flex flex-col items-center gap-1 pt-1">
           <button
@@ -221,7 +219,7 @@ function Comment({ comment, handleEditComment, activeCommentId, toggleEditOption
               )}
             </div>
             <span className="text-font-light/80 text-xs">
-              {/* {formatDistanceToNow(Number(comment?.date), { addSuffix: true })} */}
+              {formatDistanceToNow(Number(comment?.date), { addSuffix: true })}
             </span>
           </div>
 

@@ -1,6 +1,29 @@
+import { useEffect } from 'react';
 import Notifications from '../../utils/fetchNotifications';
 
 function Notification() {
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/notification/getInvite', {
+          method: 'GET',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        const data = await response.json();
+        if (response.ok) {
+          console.log(data);
+        } else {
+          console.error('Upload failed:', data.error);
+        }
+      } catch (err) {
+        console.log(`Err: ${err}`);
+      }
+    };
+    fetchNotifications();
+  }, []);
   const baseClass =
     'hover:bg-layout-elements-focus rounded-button-round cursor-pointer mb-2 px-2 py-4';
   return (

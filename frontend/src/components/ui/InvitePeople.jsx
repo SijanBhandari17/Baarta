@@ -1,5 +1,6 @@
 import { X, UserPlus } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { usePost } from '../../context/PostContext';
 
 function InvitePeople({ onClose }) {
   const [allUsers, setAllUsers] = useState([]);
@@ -17,7 +18,6 @@ function InvitePeople({ onClose }) {
 
         const data = await response.json();
         if (response.ok) {
-          console.log(data);
           setAllUsers(data.body);
         } else {
           console.error('Upload failed:', data.error);
@@ -28,7 +28,6 @@ function InvitePeople({ onClose }) {
     };
     fetchUsers();
   }, []);
-  console.log(allUsers);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
@@ -61,6 +60,29 @@ function InvitePeople({ onClose }) {
 }
 
 function DisplayUser({ user }) {
+  const { forumToShow } = usePost();
+  const handleInviteClick = async () => {
+    const userId = user._id;
+    const type = 'forum_invite';
+    try {
+      const response = await fetch('http://localhost:5000/notification/sendInvite', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId, type, forumId: forumToShow._id }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        console.log(data);
+      } else {
+        console.error('Upload failed:', data.error);
+      }
+    } catch (err) {
+      console.log(`Err: ${err}`);
+    }
+  };
   return (
     <div className="mb-4 flex items-center gap-8 rounded-lg border border-zinc-700 bg-zinc-800 p-6 text-white shadow-sm transition-shadow duration-200 hover:shadow-md">
       <img
@@ -73,7 +95,10 @@ function DisplayUser({ user }) {
           <span className="text-font text-xl font-semibold">{user?.username}</span>
         </div>
       </div>
-      <button className="text-body flex cursor-pointer items-center gap-2 rounded-lg bg-gray-800 px-4 py-2 text-sm font-medium text-white transition-colors duration-200 hover:bg-gray-700 focus:ring-2 focus:ring-gray-600 focus:ring-offset-2 focus:ring-offset-gray-900 focus:outline-none active:bg-gray-900">
+      <button
+        onClick={() => handleInviteClick()}
+        className="text-body flex cursor-pointer items-center gap-2 rounded-lg bg-gray-800 px-4 py-2 text-sm text-white transition-colors duration-200 hover:bg-gray-700 active:bg-blue-600"
+      >
         <UserPlus size={16} />
         Invite
       </button>{' '}

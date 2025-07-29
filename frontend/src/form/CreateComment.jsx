@@ -10,11 +10,13 @@ function CreateComment({
   onShowCancelClick,
 }) {
   const [commentText, setCommentText] = useState('');
-  console.log(commentText);
 
   return (
     <form
-      onSubmit={handleSubmit}
+      onSubmit={e => {
+        handleSubmit(e);
+        setCommentText('');
+      }}
       className="bg-layout-elements-focus rounded-button-round border-layout-elements-focus border p-4"
     >
       <textarea

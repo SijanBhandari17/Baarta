@@ -7,7 +7,6 @@ function Notification() {
   const [selectedItem, setSelectedItem] = useState(null);
   const [showPopUp, setShowPopUp] = useState(false);
   const { notifications } = useNotification();
-  console.log(notifications);
 
   const handleNotificationClick = item => {
     setSelectedItem(item);
@@ -35,7 +34,7 @@ function Notification() {
                   className="rounded-button-round my-2 flex cursor-pointer flex-col gap-2 px-4 py-2 hover:bg-gray-500"
                 >
                   <p className="text-font text-title">
-                    {item.senderName} has requested you to join {item.forumName}
+                    {item.senderName} has invited you to join {item.forumName}
                   </p>
                   <p className="text-font-light/80 text-body">
                     {formatDistanceToNow(Number(item.date), { addSuffix: true })}

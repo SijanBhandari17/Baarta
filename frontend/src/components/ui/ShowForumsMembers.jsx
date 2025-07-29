@@ -1,28 +1,24 @@
-import { X, UserPlus } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { UserRoundCog, X } from 'lucide-react';
 import { usePost } from '../../context/PostContext';
+import { useEffect, useState } from 'react';
 
-function InvitePeople({ onClose }) {
-  const [allUsers, setAllUsers] = useState([]);
-  const { forumToShow } = usePost();
-  const forumId = forumToShow._id;
-  console.log(forumToShow);
+function ShowForumsMembers({ forum, onClose }) {
+  const [members, setMembers] = useState([]);
 
   useEffect(() => {
-    const fetchUsers = async () => {
+    const getAllMembers = async userId => {
       try {
-        const response = await fetch('http://localhost:5000/all/userProfile', {
-          method: 'POST',
+        const response = await fetch('http://localhost:5000/all/singleUser?userId=${userId}', {
+          method: 'GET',
           credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ forumId }),
         });
-
         const data = await response.json();
         if (response.ok) {
-          setAllUsers(data.body);
+          console.log(data);
+          setMembers(prev => [...prev, data.body]);
         } else {
           console.error('Upload failed:', data.error);
         }
@@ -30,14 +26,18 @@ function InvitePeople({ onClose }) {
         console.log(`Err: ${err}`);
       }
     };
-    fetchUsers();
+    console.log(forum);
+    for (const members of forum.member_id) {
+      console.log(members);
+      // getAllMembers(members);
+    }
   }, []);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <div className="flex max-h-[80vh] w-full max-w-2xl flex-col space-y-6 overflow-hidden rounded-xl bg-zinc-900 p-8 shadow-xl">
         <div className="flex items-center justify-between">
-          <h2 className="text-3xl font-bold text-white">Invite People</h2>
+          <h2 className="text-3xl font-bold text-white">Select Moderator</h2>
           <button
             type="button"
             onClick={onClose}
@@ -47,22 +47,10 @@ function InvitePeople({ onClose }) {
             <X size={28} className="cursor-pointer" />
           </button>
         </div>
-        {allUsers.length === 0 ? (
-          <p className="text-lg text-white">No users found</p>
-        ) : (
-          <div className="flex-1 overflow-y-auto">
-            <ul className="space-y-3 text-white">
-              {allUsers.map(user => (
-                <DisplayUser key={user._id} user={user} />
-              ))}
-            </ul>
-          </div>
-        )}
       </div>
     </div>
   );
 }
-
 function DisplayUser({ user }) {
   const { forumToShow } = usePost();
   const handleInviteClick = async () => {
@@ -103,10 +91,10 @@ function DisplayUser({ user }) {
         onClick={() => handleInviteClick()}
         className="text-body flex cursor-pointer items-center gap-2 rounded-lg bg-gray-800 px-4 py-2 text-sm text-white transition-colors duration-200 hover:bg-gray-700 active:bg-blue-600"
       >
-        <UserPlus size={16} />
+        <UserRoundCog size={16} />
         Invite
       </button>{' '}
     </div>
   );
 }
-export default InvitePeople;
+export default ShowForumsMembers;

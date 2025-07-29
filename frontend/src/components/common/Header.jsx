@@ -105,8 +105,8 @@ function SearchBar() {
       <input
         type="text"
         id="search-discussions"
-        placeholder="Search Discussions..."
-        className="rounded-button-round px-2 text-gray-500 caret-gray-100 placeholder:text-gray-500 focus:outline-none"
+        placeholder="Search "
+        className="rounded-button-round px-2 text-white caret-gray-100 placeholder:text-gray-500 focus:outline-none"
         onChange={handleChangeSearchBarChange}
         value={query}
       />

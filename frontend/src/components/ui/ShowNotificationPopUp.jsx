@@ -48,7 +48,7 @@ function ShowNotificationPopUp({ item, onClose }) {
 
             <div className="flex flex-col">
               <p className="text-font text-title">
-                {item.senderName} has requested you to join {item.forumName}
+                {item.senderName} has invited you to join {item.forumName}
               </p>
               <p className="text-font-light/80 text-small">
                 {formatDistanceToNow(Number(item.date), { addSuffix: true })}

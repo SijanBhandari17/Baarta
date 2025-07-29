@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Pencil, Trash2, UserRoundCog } from 'lucide-react';
 import CreateForum from '../../form/CreateForum';
 import { useForum } from '../../context/ForumContext';
 import { useNavigate } from 'react-router-dom';
 import { Button, Dialog, DialogTitle, DialogActions } from '@mui/material';
+import ShowForumsMembers from './ShowForumsMembers';
 
 function EditForumModal({ onClose, forum }) {
   const { updateForumInContext } = useForum();
@@ -49,12 +50,19 @@ function EditForumModal({ onClose, forum }) {
 function EditOptions({ isOpen, forum }) {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isModeratorModalOpen, setIsModeratorModalOpen] = useState(false);
 
   const options = [
     {
       label: 'Edit Forum',
       icon: Pencil,
       onClick: () => setIsEditModalOpen(true),
+      className: 'text-font',
+    },
+    {
+      label: 'Make Moderator',
+      icon: UserRoundCog,
+      onClick: () => setIsModeratorModalOpen(true),
       className: 'text-font',
     },
     {
@@ -87,6 +95,9 @@ function EditOptions({ isOpen, forum }) {
       )}
       {isDeleteModalOpen && (
         <DeleteOptions forum={forum} onClose={() => setIsDeleteModalOpen(false)} />
+      )}
+      {isModeratorModalOpen && (
+        <ShowForumsMembers forum={forum} onClose={() => setIsModeratorModalOpen(false)} />
       )}
     </>
   );

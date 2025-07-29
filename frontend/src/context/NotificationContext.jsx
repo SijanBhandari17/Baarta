@@ -5,7 +5,7 @@ const NotificationProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
-    const fetchNotifications = async () => {
+    const fetchInviteNotifications = async () => {
       try {
         const response = await fetch('http://localhost:5000/notification/getInvite', {
           method: 'GET',
@@ -16,7 +16,27 @@ const NotificationProvider = ({ children }) => {
         });
         const data = await response.json();
         if (response.ok) {
-          setNotifications(data.body);
+          console.log(data);
+          setNotifications(prev => [...prev, data.body]);
+        } else {
+          console.error('Upload failed:', data.error);
+        }
+      } catch (err) {
+        console.log(`Err: ${err}`);
+      }
+    };
+    const fetchJoinInvitaions = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/miscallenuous/withForumRequest', {
+          method: 'GET',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        const data = await response.json();
+        if (response.ok) {
+          setNotifications(prev => [...prev, data.body]);
           console.log(data);
         } else {
           console.error('Upload failed:', data.error);
@@ -25,7 +45,8 @@ const NotificationProvider = ({ children }) => {
         console.log(`Err: ${err}`);
       }
     };
-    fetchNotifications();
+    fetchInviteNotifications();
+    fetchJoinInvitaions();
   }, []);
 
   return (

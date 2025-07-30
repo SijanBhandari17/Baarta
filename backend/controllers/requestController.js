@@ -191,7 +191,7 @@ const getInvitation = async (req, res)=>{
 
         const foundForum = await Forum.findOne({_id : forum}).session(session).exec()
 
-        const toReturnObj = {...item.toObject(), senderName:foundSender?.username || '[deleted user]' , forumName : foundForum?.forum_name , senderProfilePicLink : foundSenderImage?.profilePicLink || 'https://res.cloudinary.com/dlddcx3uw/image/upload/v1752323363/defaultUser_cfqyxq.svg'}
+        const toReturnObj = {...item.toObject(), fromUserName :foundSender?.username || '[deleted user]' , forumName : foundForum?.forum_name , fromUserProfilePicLink : foundSenderImage?.profilePicLink || 'https://res.cloudinary.com/dlddcx3uw/image/upload/v1752323363/defaultUser_cfqyxq.svg'}
         
         
         return toReturnObj

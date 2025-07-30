@@ -40,10 +40,12 @@ const sendAllUser = async (req ,res)=>{
             return res.status(404).json({"message" : "all the user account are deleted"})
         }
         const foundJoinRequest = await Notification.find({forum : foundForum._id , type : 'join_request'}).session(session)
+        const foundInviteRequest = await Notification.find({forum : foundForum._id , type : 'forum_invite'})
         const foundJoinRequestUser = foundJoinRequest.map(item => item.fromUser)
+        const foundInviteRequestUser = foundInviteRequest.map(item => item.toUser)
         const filteredUserAcc = foundUserAcc.filter((item)=>{
             // return item._id.toString() !== foundUser._id.toString()
-            if((item._id.toString() !==  foundUser._id.toString()) &&  foundForum.admin_id.toString() !== item._id.toString() && !foundForum.member_id.includes(item._id) && !foundForum.moderator_id.includes(item._id) && !foundJoinRequestUser.includes(item._id)) return true
+            if((item._id.toString() !==  foundUser._id.toString()) &&  foundForum.admin_id.toString() !== item._id.toString() && !foundForum.member_id.includes(item._id) && !foundForum.moderator_id.includes(item._id) && !foundJoinRequestUser.includes(item._id) && !foundInviteRequestUser.includes(item._id)) return true
             else return false
         })
 

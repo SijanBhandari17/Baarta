@@ -1,10 +1,31 @@
 import { formatDistanceToNow } from 'date-fns';
 import { X } from 'lucide-react';
 import { useNotification } from '../../context/NotificationContext';
+import { useForum } from '../../context/ForumContext';
 
 function ShowNotificationPopUp({ item, onClose }) {
   const { updateNotificationInContext } = useNotification();
+  const { fetchForums } = useForum();
 
+  const onDecline = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/notification/removeInvite', {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ notificationId: item._id }),
+      });
+      const data = await response.json();
+      console.log(data);
+      if (response.ok) {
+        updateNotificationInContext(item._id);
+      }
+    } catch (err) {
+      console.log(`Err:${err}`);
+    }
+  };
   const onAccept = async () => {
     console.log('Called here', item);
     if (item.type === 'forum_invite') {
@@ -22,6 +43,7 @@ function ShowNotificationPopUp({ item, onClose }) {
         const data = await response.json();
         if (response.ok) {
           console.log(data);
+          fetchForums();
           updateNotificationInContext(item._id, 1);
           return data.body;
         } else {
@@ -44,6 +66,7 @@ function ShowNotificationPopUp({ item, onClose }) {
         const data = await response.json();
         if (response.ok) {
           console.log(data);
+          fetchForums();
           updateNotificationInContext(item._id, 1);
           return data.body;
         } else {
@@ -67,6 +90,7 @@ function ShowNotificationPopUp({ item, onClose }) {
         if (response.ok) {
           console.log(data);
           updateNotificationInContext(item._id, 1);
+
           return data.body;
         } else {
           console.error('Upload failed:', data.error);
@@ -132,7 +156,7 @@ function ShowNotificationPopUp({ item, onClose }) {
             </div>
           </>
         )}
-        {item.type === 'join_request' && (
+        {item.type === 'promote_to_moderator' && (
           <>
             <div className="flex gap-8">
               <img
@@ -155,10 +179,13 @@ function ShowNotificationPopUp({ item, onClose }) {
         <div className="flex justify-end space-x-6">
           <button
             type="button"
-            onClick={onClose}
+            onClick={async () => {
+              await onClose();
+              onDecline();
+            }}
             className="cursor-pointer rounded-lg bg-gray-800 px-8 py-3 text-lg text-gray-300 transition-colors hover:bg-gray-700 hover:text-white"
           >
-            Cancel
+            Decline
           </button>
           <button
             type="submit"

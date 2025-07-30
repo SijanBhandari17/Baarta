@@ -84,7 +84,7 @@ function ShowForumsMembers({ forum, onClose }) {
 }
 function DisplayUser({ user, handlePromoteClick }) {
   const { forumToShow } = usePost();
-  console.log(user);
+  const [moderaterRequestSent, setModeratorRequestSent] = useState(false);
   return (
     <div className="mb-4 flex items-center gap-8 rounded-lg border border-zinc-700 bg-zinc-800 p-6 text-white shadow-sm transition-shadow duration-200 hover:shadow-md">
       <img
@@ -97,13 +97,27 @@ function DisplayUser({ user, handlePromoteClick }) {
           <span className="text-font text-xl font-semibold">{user?.username}</span>
         </div>
       </div>
-      <button
-        onClick={() => handlePromoteClick(user._id)}
-        className="text-body flex cursor-pointer items-center gap-2 rounded-lg bg-gray-800 px-4 py-2 text-sm text-white transition-colors duration-200 hover:bg-gray-700 active:bg-blue-600"
-      >
-        <UserPlus size={16} />
-        Promote to Moderator
-      </button>{' '}
+      {!moderaterRequestSent ? (
+        <button
+          onClick={async () => {
+            await handlePromoteClick(user._id);
+            setModeratorRequestSent(true);
+          }}
+          className="text-body flex cursor-pointer items-center gap-2 rounded-lg bg-gray-800 px-4 py-2 text-sm text-white transition-colors duration-200 hover:bg-gray-700 active:bg-blue-600"
+        >
+          <UserPlus size={16} />
+          Promote to Moderator
+        </button>
+      ) : (
+        <button
+          onClick={async () => {
+            await handlePromoteClick(user._id);
+          }}
+          className="text-body flex cursor-pointer items-center gap-2 rounded-lg bg-gray-800 px-4 py-2 text-sm text-white transition-colors duration-200 hover:bg-gray-700 active:bg-blue-600"
+        >
+          Moderator Request Sent
+        </button>
+      )}
     </div>
   );
 }

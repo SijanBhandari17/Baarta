@@ -1,8 +1,11 @@
 import { useState, createContext, useEffect, useContext } from 'react';
+import { useAuth } from './AuthContext';
 const NotificationContext = createContext();
 
 const NotificationProvider = ({ children }) => {
+  const { user } = useAuth();
   const [notifications, setNotifications] = useState([]);
+
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
@@ -25,7 +28,6 @@ const NotificationProvider = ({ children }) => {
         if (inviteRes.ok && joinRes.ok) {
           const merged = [...inviteData.body, ...joinData.body];
           setNotifications(merged);
-          console.log('All notifications:', merged);
         } else {
           if (!inviteRes.ok) console.error('Invite fetch failed:', inviteData.error);
           if (!joinRes.ok) console.error('Join fetch failed:', joinData.error);
@@ -35,20 +37,15 @@ const NotificationProvider = ({ children }) => {
       }
     };
 
-    fetchNotifications();
-  }, []);
+    if (user) fetchNotifications();
+  }, [user]);
 
-  const updateNotificationInContext = (notificationId, index) => {
-    setNotifications(prev => {
-      const newSubArray = prev[index].filter(item => item._id !== notificationId);
-      const updatedArray = [...prev];
-      updatedArray[index] = newSubArray;
-      return updatedArray;
-    });
+  const updateNotificationInContext = notificationId => {
+    setNotifications(prev => prev.filter(item => item._id !== notificationId));
   };
 
   return (
-    <NotificationContext.Provider value={{ notifications }}>
+    <NotificationContext.Provider value={{ notifications, updateNotificationInContext }}>
       {children}
     </NotificationContext.Provider>
   );

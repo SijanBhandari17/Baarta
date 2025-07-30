@@ -65,6 +65,8 @@ function InvitePeople({ onClose }) {
 
 function DisplayUser({ user, setUsers }) {
   const { forumToShow } = usePost();
+  const [invitedRequestSent, setInviteRequestSent] = useState(false);
+
   const handleInviteClick = async () => {
     const userId = user._id;
     const type = 'forum_invite';
@@ -79,6 +81,7 @@ function DisplayUser({ user, setUsers }) {
       });
       const data = await response.json();
       if (response.ok) {
+        setInviteRequestSent(true);
         console.log(data);
       } else {
         console.error('Upload failed:', data.error);
@@ -99,13 +102,22 @@ function DisplayUser({ user, setUsers }) {
           <span className="text-font text-xl font-semibold">{user?.username}</span>
         </div>
       </div>
-      <button
-        onClick={() => handleInviteClick()}
-        className="text-body flex cursor-pointer items-center gap-2 rounded-lg bg-gray-800 px-4 py-2 text-sm text-white transition-colors duration-200 hover:bg-gray-700 active:bg-blue-600"
-      >
-        <UserPlus size={16} />
-        Invite
-      </button>{' '}
+      {!invitedRequestSent ? (
+        <button
+          onClick={() => handleInviteClick()}
+          className="text-body flex cursor-pointer items-center gap-2 rounded-lg bg-gray-800 px-4 py-2 text-sm text-white transition-colors duration-200 hover:bg-gray-700 active:bg-blue-600"
+        >
+          <UserPlus size={16} />
+          Invite
+        </button>
+      ) : (
+        <button
+          onClick={() => handleInviteClick()}
+          className="text-body flex cursor-pointer items-center gap-2 rounded-lg bg-gray-700 px-4 py-2 text-sm text-white transition-colors duration-200"
+        >
+          Request Sent
+        </button>
+      )}
     </div>
   );
 }

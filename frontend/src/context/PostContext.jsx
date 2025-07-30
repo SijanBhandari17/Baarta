@@ -12,7 +12,9 @@ const PostProvider = ({ children }) => {
 
   const { forum, loading } = useForum();
 
+  const [moderators, setModerators] = useState([]);
   const [posts, setPosts] = useState([]);
+  const [polls, setPolls] = useState([]);
 
   const forumToShow = useMemo(
     () => forum?.find(item => item.forum_name === decodedTitle),
@@ -22,8 +24,31 @@ const PostProvider = ({ children }) => {
   const forumId = forumToShow?._id || '';
 
   useEffect(() => {
-    if (forumId) fetchPosts();
+    if (forumId) {
+      fetchPosts();
+      for (const members of forumToShow.moderator_id) {
+        getModerators(members);
+      }
+      fetchPolls();
+    }
   }, [forumId]);
+
+  const fetchPolls = async () => {
+    try {
+      const response = await fetch(`http://localhost:5000/poll?forumId=${forumId}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+      });
+      const data = await response.json();
+      console.log(data);
+      if (response.ok) {
+        setPolls(prev => [...prev, ...data.body]);
+      }
+    } catch (err) {
+      console.log(`Err: ${err}`);
+    }
+  };
 
   const fetchPosts = async () => {
     try {
@@ -44,8 +69,50 @@ const PostProvider = ({ children }) => {
     }
   };
 
+  const getModerators = async userId => {
+    try {
+      const response = await fetch(`http://localhost:5000/all/singleuserprofile?userId=${userId}`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setModerators(prev => {
+          if (prev.some(item => item._id === data.body._id)) return [...prev];
+          return [...prev, data.body];
+        });
+      } else {
+        console.error('Upload failed:', data.error);
+      }
+    } catch (err) {
+      console.log(`Err: ${err}`);
+    }
+  };
+  const addPollInContext = poll => {
+    setPolls(prev => [poll, ...prev]);
+  };
+
+  const updatePollInContext = (selectedPoll, updatedOptions) => {
+    setPolls(prev =>
+      prev.map(poll =>
+        poll._id === selectedPoll._id
+          ? {
+              ...poll,
+              option: updatedOptions,
+            }
+          : poll,
+      ),
+    );
+  };
   const addPostInContext = postData => {
     setPosts(prev => [postData, ...prev]);
+  };
+
+  const updateUsingConsineSimilarity = posts => {
+    setPosts(posts);
   };
 
   const updatePostInContext = updatedPost => {
@@ -61,8 +128,13 @@ const PostProvider = ({ children }) => {
       value={{
         posts,
         forumToShow,
+        polls,
         loading,
+        moderators,
+        addPollInContext,
+        updateUsingConsineSimilarity,
         deletePostInContext,
+        updatePollInContext,
         addPostInContext,
         updatePostInContext,
       }}

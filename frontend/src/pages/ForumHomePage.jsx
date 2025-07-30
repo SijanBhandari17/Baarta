@@ -1,5 +1,6 @@
 import Header from '../components/common/Header';
 import LeftAsideBar from '../components/common/LeftAsideBar';
+import SearchIcon from '../assets/icons/searchIcon.svg';
 import { MoreVertical, UserPlus } from 'lucide-react';
 import { useParams, useOutletContext, Outlet, useNavigate } from 'react-router-dom';
 import { useForum } from '../context/ForumContext';
@@ -22,13 +23,15 @@ import { useAuth } from '../context/AuthContext';
 import { usePost } from '../context/PostContext';
 import InvitePeople from '../components/ui/InvitePeople';
 import CreatePoll from '../components/ui/CreatePoll';
+import PollModal from '../components/common/nav/asidebar/pollmodal';
+import SinglePoll from '../components/ui/Polls';
 
 function ForumHomePage() {
   const { forumTitle } = useParams();
   const decodedTitle = decodeURIComponent(forumTitle || '');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const { forum, loading } = useForum();
-  const { posts, forumToShow, addPostInContext } = usePost();
+  const { posts, moderators, forumToShow, addPostInContext } = usePost();
+  if (!forumToShow) return <LoadingSpinner />;
 
   const forumId = forumToShow?._id || '';
 
@@ -69,8 +72,6 @@ function ForumHomePage() {
     setIsDialogOpen(true);
   };
 
-  if (!forumToShow) return <LoadingSpinner />;
-
   return (
     <div className="flex h-svh flex-col">
       <Header />
@@ -83,6 +84,7 @@ function ForumHomePage() {
               posts,
               forumId,
               addNewPost,
+              moderators,
               handleClick,
               isDialogOpen,
               setIsDialogOpen,
@@ -102,13 +104,13 @@ function ForumHomePage() {
   );
 }
 function ForumDefault() {
-  const { forum, posts, handleClick } = useOutletContext();
+  const { forum, posts, handleClick, moderators } = useOutletContext();
   return (
     <div className="flex flex-col gap-2">
       <ForumHeader forum={forum} handleClick={handleClick} />
       <div className="flex gap-4">
         <ForumPosts forum={forum} posts={posts} />
-        <ForumLeftBar forum={forum} posts={posts} />
+        <ForumLeftBar moderators={moderators} forum={forum} posts={posts} />
       </div>
     </div>
   );
@@ -119,21 +121,67 @@ function ForumHeader({ forum, handleClick }) {
   const [isInvitePeopleOpen, setIsInvitePeopleOpen] = useState(false);
   const [isCreatePollOpen, setIsCreatePollOpen] = useState(false);
   const { user } = useAuth();
+  const { updateUsingConsineSimilarity } = usePost();
+  const [query, setQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
 
   const isJoined =
-    forum.member_id.includes(user.info.userId) ||
-    forum.admin_id === user.info.userId ||
-    forum.moderator_id.includes(user.info.userId);
+    forum.member_id.includes(user?.info.userId) ||
+    forum.admin_id === user?.info.userId ||
+    forum.moderator_id.includes(user?.info.userId);
 
   const hasAdminPrivilage =
-    forum.admin_id === user.info.userId ||
-    forum.moderator_id.some(item => item._id === user.info.userId);
+    forum.admin_id === user?.info.userId || forum.moderator_id.includes(user?.info.userId);
+
+  const handleChangeSearchBarChange = async e => {
+    console.log('hello');
+    const value = e.target.value;
+    setQuery(value);
+
+    try {
+      const res = await fetch('http://localhost:5000/search/post', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          forumId: forum._id,
+          searchQuery: value,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        console.log(data);
+        updateUsingConsineSimilarity(data.body);
+        setSearchResults(data.body);
+      } else {
+        console.error(data.error);
+      }
+    } catch (err) {
+      console.error('Search failed:', err);
+    }
+  };
 
   return (
     <div className="flex items-center justify-between">
       <div>
         <p className="text-font text-hero my-2 font-semibold">{forum.forum_name}</p>
         <p className="text-font text-body">{forum.description_text}</p>
+      </div>
+
+      <div className="bg-layout-elements-focus rounded-button-round relative flex h-15 w-[30rem] items-center px-2">
+        <img src={SearchIcon} alt="Seach Icon" className="" height="20px" width="20px" />
+        <input
+          type="text"
+          id="search-discussions"
+          placeholder="Search Posts.."
+          className="rounded-button-round px-2 text-white caret-gray-100 placeholder:text-gray-500 focus:outline-none"
+          onChange={handleChangeSearchBarChange}
+          value={query}
+        />
       </div>
       <div className="flex items-center gap-2">
         <button
@@ -178,7 +226,9 @@ function ForumHeader({ forum, handleClick }) {
           />
         )}
         {isInvitePeopleOpen && <InvitePeople onClose={() => setIsInvitePeopleOpen(false)} />}
-        {isCreatePollOpen && <CreatePoll onClose={() => setIsCreatePollOpen(false)} />}
+        {isCreatePollOpen && (
+          <CreatePoll forum={forum} onClose={() => setIsCreatePollOpen(false)} />
+        )}
       </div>
     </div>
   );
@@ -231,7 +281,9 @@ function ForumPosts({ posts }) {
   );
 }
 
-function ForumLeftBar({ forum, posts }) {
+function ForumLeftBar({ forum, moderators, posts }) {
+  const { polls } = usePost();
+  console.log('forumHomePage', polls);
   return (
     <div className="ml-auto flex flex-col gap-2">
       <div className="bg-layout-elements-focus rounded-button-round p-8">
@@ -268,18 +320,25 @@ function ForumLeftBar({ forum, posts }) {
 
       <div className="bg-layout-elements-focus rounded-button-round p-8">
         <h1 className="text-font text-title mb-4 font-semibold">Moderators</h1>
-
         <div className="flex flex-col gap-4">
           {forum.moderator_id.length !== 0 ? (
             <div>
-              {forum.moderator_id.map((item, index) => {
+              {moderators.map((item, index) => {
                 return (
-                  <div key={index}>
+                  <div
+                    key={item._id}
+                    className="mb-4 flex items-center gap-8 rounded-lg border border-zinc-700 bg-zinc-800 p-6 text-white shadow-sm transition-shadow duration-200 hover:shadow-md"
+                  >
                     <img
-                      src={item.info?.profilePic}
-                      className="h-25 w-25 cursor-pointer rounded-full object-cover object-center"
+                      src={item?.userProfilePicLink}
+                      alt={item?.username}
+                      className="h-16 w-16 rounded-full border-2 border-gray-200 object-cover shadow-sm"
                     />
-                    <p>{item.info?.name}</p>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-3">
+                        <span className="text-font text-xl font-semibold">{item?.username}</span>
+                      </div>
+                    </div>
                   </div>
                 );
               })}
@@ -287,6 +346,15 @@ function ForumLeftBar({ forum, posts }) {
           ) : (
             <div className="py-8 text-center text-lg text-gray-400">No Moderators yet </div>
           )}
+        </div>
+      </div>
+      <div className="bg-layout-elements-focus rounded-button-round p-8">
+        <h1 className="text-font text-title mb-4 font-semibold">Active Polls</h1>
+
+        <div className="flex flex-col gap-4">
+          {polls.map(poll => {
+            return <SinglePoll key={poll._id} poll={poll} />;
+          })}
         </div>
       </div>
     </div>

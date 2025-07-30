@@ -43,9 +43,14 @@ const sendAllUser = async (req ,res)=>{
         const foundInviteRequest = await Notification.find({forum : foundForum._id , type : 'forum_invite'}).session(session)
         const foundJoinRequestUser = foundJoinRequest.map(item => item.fromUser)
         const foundInviteRequestUser = foundInviteRequest.map(item => item.toUser)
+        // console.log(foundJoinRequestUser)
+        // console.log(foundInviteRequestUser)
+        // console.log(foundForum.moderator_id)
+        // console.log(foundForum.member_id)
         const filteredUserAcc = foundUserAcc.filter((item)=>{
+            // console.log(`${item._id} includes in forumInviteRequest ${foundInviteRequestUser.includes(item._id)} and is included in moderator_id ${foundForum.moderator_id.includes(item._id)} and is included in the member list ${foundForum.member_id.includes(item._id)}`)
             // return item._id.toString() !== foundUser._id.toString()
-            if((item._id.toString() !==  foundUser._id.toString()) &&  foundForum.admin_id.toString() !== item._id.toString() && !foundForum.member_id.includes(item._id) && !foundForum.moderator_id.includes(item._id) && !foundJoinRequestUser.includes(item._id) && !foundInviteRequestUser.includes(item._id)) return true
+            if((item._id.toString() !==  foundUser._id.toString()) &&  foundForum.admin_id.toString() !== item._id.toString() && !foundForum.member_id.includes(item._id) && !foundForum.moderator_id.includes(item._id) && !foundJoinRequestUser.includes(item._id.toString()) && !foundInviteRequestUser.includes(item._id.toString())) return true
             else return false
         })
 

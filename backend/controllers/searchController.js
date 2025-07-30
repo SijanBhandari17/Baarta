@@ -34,10 +34,17 @@ const searchPost = async (req , res)=>{
 
         const foundPostArr = await Post.find({_id : {$in : postArr}}).session(session).exec()
 
-        const toSendResult = foundPostArr.map((item) =>{
+        const toSendResult = await Promise.all(foundPostArr.map(async (item) =>{
             const cosineVal = calculateCosineSimilarity(searchQuery , item.title)
-            return {...item.toObject() , cosineVal}
-        })
+
+            const foundAuthor = await User.findOne({_id : item.author_id}).session(session).exec()
+
+            const foundAuthorProfilePic = await Profile.findOne({_id : foundAuthor._id}).session(session).exec()
+            
+
+            return {...item.toObject() , cosineVal, authorName : foundAuthor.username, authorEmail : foundAuthor.email , authorProfilePicLink : foundAuthorProfilePic?.profilePicLink || 'https://variety.com/wp-content/uploads/2021/07/Rick-Astley-Never-Gonna-Give-You-Up.png?w=1000&h=667&crop=1&resize=1000%2C667'}
+
+        }))
 
         toSendResult.sort((a,  b) =>   b.cosineVal - a.cosineVal  )
 

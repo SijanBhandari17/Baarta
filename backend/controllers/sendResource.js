@@ -14,10 +14,11 @@ const sendAllUser = async (req ,res)=>{
     {
 
         await session.startTransaction()
-        if(!req.body?.forumId) return res.status(400).json({"error" : "missing forumId in the request header"})
+        if(!req.query?.forumId) return res.status(400).json({"error" : "missing forumId in the request header"})
         if(!req.user?.email) return res.status(401).json({"error" : 'unauthenticated user request sent'})
         
         const {email}  = req.user
+        const {forumId} = req.query
 
         const foundUser = await User.findOne({email}).session(session).exec() 
         if(!foundUser){
@@ -38,10 +39,11 @@ const sendAllUser = async (req ,res)=>{
             await session.abortTransaction()
             return res.status(404).json({"message" : "all the user account are deleted"})
         }
-
+        const foundJoinRequest = await Notification.find({forum : foundForum._id , type : 'join_request'}).session(session)
+        const foundJoinRequestUser = foundJoinRequest.map(item => item.fromUser)
         const filteredUserAcc = foundUserAcc.filter((item)=>{
             // return item._id.toString() !== foundUser._id.toString()
-            if((item._id.toString() !==  foundUser._id.toString()) &&  foundForum.admin_id.toString() !== item._id.toString() && !foundForum.member_id.includes(item._id) && !foundForum.moderator_id.includes(item._id)) return true
+            if((item._id.toString() !==  foundUser._id.toString()) &&  foundForum.admin_id.toString() !== item._id.toString() && !foundForum.member_id.includes(item._id) && !foundForum.moderator_id.includes(item._id) && !foundJoinRequestUser.includes(item._id)) return true
             else return false
         })
 

@@ -21,6 +21,7 @@ function InvitePeople({ onClose }) {
 
         const data = await response.json();
         if (response.ok) {
+          console.log(data)
           setAllUsers(data.body);
         } else {
           console.error('Upload failed:', data.error);

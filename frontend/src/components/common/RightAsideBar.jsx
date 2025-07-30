@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import upcomingEventsArray from '../../utils/fetchUpcommingEvents';
 import activePollArray from '../../utils/fetchActivePolls';
 import CalenderIcon from '../../assets/icons/calendar.svg';
-import PollModal from './nav/asidebar/pollmodal';
+import SinglePoll from '../ui/Polls';
 // import { commuityStatus } from '../../utils/fetchCommnityStatus';
 
 function RightAsideBar() {
@@ -12,8 +12,7 @@ function RightAsideBar() {
   return (
     <aside className="bg-layout-elements top-20 flex h-[calc(100vh-5rem)] w-[15%] flex-col border border-l-white/10 p-6">
       <UpcommingEvents />
-      <ActivePoll onPollClick={setSelectedPoll} />
-      {selectedPoll && <PollModal poll={selectedPoll} onClose={() => setSelectedPoll(null)} />}
+      <ActivePoll />
       {/* <CommunityStatus /> */}
     </aside>
   );
@@ -46,47 +45,13 @@ function SingleEvent({ event }) {
   );
 }
 
-function ActivePoll({ onPollClick }) {
+function ActivePoll() {
   return (
     <div className="active-poll bg-layout-elements-focus rounded-button-round mb-8 w-full cursor-pointer border border-white/10">
       <h1 className="text-title text-font my-2 ml-5 font-semibold uppercase">Active Poll</h1>
       {activePollArray.map((item, index) => (
-        <SinglePoll poll={item} key={index} onClick={() => onPollClick(item)} />
+        <SinglePoll poll={item} key={index} />
       ))}
-    </div>
-  );
-}
-
-function SinglePoll({ poll, onClick }) {
-  const options = poll.options || [];
-  const total = options.reduce((sum, opt) => sum + (opt.votes || 0), 0);
-
-  return (
-    <div
-      className="hover:bg-layout-elements-hover flex w-full cursor-pointer flex-col items-center gap-2 px-3 py-2 transition"
-      onClick={onClick}
-    >
-      <h2 className="text-body text-font m-2 text-center font-medium">{poll.title}</h2>
-      {options.map((opt, idx) => {
-        const percent = total > 0 ? ((opt.votes / total) * 100).toFixed(1) : 0;
-        return (
-          <div key={idx} className="mb-2 w-5/6">
-            <div className="mb-1 flex justify-between text-sm text-white/60">
-              <span>{opt.label}</span>
-              <span>{percent}%</span>
-            </div>
-            <div className="relative h-2 w-full rounded-xl bg-gray-700">
-              <div
-                className="absolute top-0 left-0 h-2 rounded-xl bg-purple-500"
-                style={{ width: `${percent}%` }}
-              />
-            </div>
-          </div>
-        );
-      })}
-      <div className="mb-2 text-center text-sm text-white/50">
-        {total} votes · {poll.deadline}
-      </div>
     </div>
   );
 }
@@ -110,3 +75,4 @@ function SinglePoll({ poll, onClick }) {
 // }
 
 export default RightAsideBar;
+

@@ -26,7 +26,7 @@ function Notification() {
       </div>
 
       <div className="flex flex-col justify-evenly overflow-y-auto">
-        {notifications.length > 0 &&
+        {notifications.length > 0 ? (
           notifications.map(item => {
             if (item.type === 'forum_invite') {
               return (
@@ -74,8 +74,10 @@ function Notification() {
                 </div>
               );
             }
-            return null;
-          })}
+          })
+        ) : (
+          <p className="text-body mt-6 text-center text-gray-300">No Notifications</p>
+        )}
       </div>
 
       {showPopUp && selectedItem && (

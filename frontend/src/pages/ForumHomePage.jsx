@@ -23,48 +23,13 @@ import { usePost } from '../context/PostContext';
 import InvitePeople from '../components/ui/InvitePeople';
 import CreatePoll from '../components/ui/CreatePoll';
 import PollModal from '../components/common/nav/asidebar/pollmodal';
+import SinglePoll from '../components/ui/Polls';
 
 function ForumHomePage() {
   const { forumTitle } = useParams();
   const decodedTitle = decodeURIComponent(forumTitle || '');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const { forum, loading } = useForum();
-  const { posts, forumToShow, addPostInContext } = usePost();
-  const [moderators, setModerators] = useState([]);
-
-  useEffect(() => {
-    if (forumToShow) {
-      const getModerators = async userId => {
-        try {
-          const response = await fetch(
-            `http://localhost:5000/all/singleuserprofile?userId=${userId}`,
-            {
-              method: 'GET',
-              credentials: 'include',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-            },
-          );
-          const data = await response.json();
-          if (response.ok) {
-            setModerators(prev => {
-              if (prev.some(item => item._id === data.body._id)) return [...prev];
-              return [...prev, data.body];
-            });
-          } else {
-            console.error('Upload failed:', data.error);
-          }
-        } catch (err) {
-          console.log(`Err: ${err}`);
-        }
-      };
-      for (const members of forumToShow.moderator_id) {
-        getModerators(members);
-      }
-    }
-  }, [forumToShow]);
-
+  const { posts, moderators, forumToShow, addPostInContext } = usePost();
   if (!forumToShow) return <LoadingSpinner />;
 
   const forumId = forumToShow?._id || '';
@@ -105,9 +70,6 @@ function ForumHomePage() {
   const handleClick = () => {
     setIsDialogOpen(true);
   };
-  console.log(forumToShow);
-
-  console.log('moderator_id:', moderators);
 
   return (
     <div className="flex h-svh flex-col">
@@ -160,12 +122,12 @@ function ForumHeader({ forum, handleClick }) {
   const { user } = useAuth();
 
   const isJoined =
-    forum.member_id.includes(user.info.userId) ||
-    forum.admin_id === user.info.userId ||
-    forum.moderator_id.includes(user.info.userId);
+    forum.member_id.includes(user?.info.userId) ||
+    forum.admin_id === user?.info.userId ||
+    forum.moderator_id.includes(user?.info.userId);
 
   const hasAdminPrivilage =
-    forum.admin_id === user.info.userId || forum.moderator_id.includes(user.info.userId);
+    forum.admin_id === user?.info.userId || forum.moderator_id.includes(user?.info.userId);
 
   return (
     <div className="flex items-center justify-between">
@@ -272,6 +234,8 @@ function ForumPosts({ posts }) {
 }
 
 function ForumLeftBar({ forum, moderators, posts }) {
+  const { polls } = usePost();
+  console.log('forumHomePage', polls);
   return (
     <div className="ml-auto flex flex-col gap-2">
       <div className="bg-layout-elements-focus rounded-button-round p-8">
@@ -340,8 +304,9 @@ function ForumLeftBar({ forum, moderators, posts }) {
         <h1 className="text-font text-title mb-4 font-semibold">Active Polls</h1>
 
         <div className="flex flex-col gap-4">
-          {console.log(forum)}
-          <PollModal forumID={forum._id} />
+          {polls.map(poll => {
+            return <SinglePoll key={poll._id} poll={poll} />;
+          })}
         </div>
       </div>
     </div>

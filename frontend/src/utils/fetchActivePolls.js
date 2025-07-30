@@ -1,22 +1,12 @@
 const activePollArray = [
   {
-    title: "Which JavaScript framework do you prefer?",
-    options: [
-      { label: "React", votes: 120 },
-      { label: "Vue", votes: 45 },
-      { label: "Svelte", votes: 35 },
+    _id: 1234,
+    title: 'Which JavaScript framework do you prefer?',
+    option: [
+      { _id: 1, name: 'React', voter_Id: [1, 2, 3] },
+      { _id: 2, name: 'Vue', voter_Id: [1, 2, 3] },
+      { _id: 3, name: 'Svelte', voter_Id: [1, 2, 3] },
     ],
-    deadline: "August 30, 2025",
-  },
-  {
-    title: "Favorite backend technology?",
-    options: [
-      { label: "Node.js", votes: 70 },
-      { label: "Django", votes: 50 },
-      { label: "Laravel", votes: 30 },
-      { label: "Spring Boot", votes: 20 },
-    ],
-    deadline: "September 10, 2025",
   },
 ];
 

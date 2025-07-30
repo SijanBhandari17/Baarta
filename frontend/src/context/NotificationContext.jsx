@@ -1,10 +1,14 @@
 import { useState, createContext, useEffect, useContext } from 'react';
+import { useAuth } from './AuthContext';
 const NotificationContext = createContext();
 
 const NotificationProvider = ({ children }) => {
+  const { user } = useAuth();
+  console.log(user);
   const [notifications, setNotifications] = useState([]);
   useEffect(() => {
     const fetchNotifications = async () => {
+      console.log('Hello');
       try {
         const [inviteRes, joinRes] = await Promise.all([
           fetch('http://localhost:5000/notification/getInvite', {
@@ -21,11 +25,11 @@ const NotificationProvider = ({ children }) => {
 
         const inviteData = await inviteRes.json();
         const joinData = await joinRes.json();
+        console.log(inviteData, joinData);
 
         if (inviteRes.ok && joinRes.ok) {
           const merged = [...inviteData.body, ...joinData.body];
           setNotifications(merged);
-          console.log('All notifications:', merged);
         } else {
           if (!inviteRes.ok) console.error('Invite fetch failed:', inviteData.error);
           if (!joinRes.ok) console.error('Join fetch failed:', joinData.error);
@@ -35,8 +39,8 @@ const NotificationProvider = ({ children }) => {
       }
     };
 
-    fetchNotifications();
-  }, []);
+    if (user) fetchNotifications();
+  }, [user]);
 
   const updateNotificationInContext = notificationId => {
     setNotifications(prev => prev.filter(item => item._id !== notificationId));

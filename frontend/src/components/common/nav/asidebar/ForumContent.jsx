@@ -4,9 +4,11 @@ import { useNavigate } from 'react-router-dom';
 import CreateForum from '../../../../form/CreateForum';
 import { useForum } from '../../../../context/ForumContext';
 import LoadingSpinner from '../../LoadingSpinner';
+import NewForums from '../../../ui/NewForums';
 
 function ForumContent() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isShowNewForumsOpen, setIsShowNewForumsOpen] = useState(false);
   const { forum, addForum, loading } = useForum();
 
   const addNewForum = async forumData => {
@@ -36,7 +38,10 @@ function ForumContent() {
     <div className="bg-main-elements flex w-[70%] flex-col gap-4 p-6">
       <div className="flex items-center">
         <p className="text-font mr-auto text-3xl font-semibold">My Forums</p>
-        <button className="text-font rounded-button-round text-body cursor-pointer bg-[#4169E1] px-3 py-2 text-2xl hover:bg-[#255FCC]">
+        <button
+          onClick={() => setIsShowNewForumsOpen(true)}
+          className="text-font rounded-button-round text-body cursor-pointer bg-[#4169E1] px-3 py-2 text-2xl hover:bg-[#255FCC]"
+        >
           Join New Forum
         </button>
         <SquarePen
@@ -62,6 +67,7 @@ function ForumContent() {
         addNewForum={addNewForum}
         onClose={() => setIsDialogOpen(false)}
       />
+      {isShowNewForumsOpen && <NewForums onClose={() => setIsShowNewForumsOpen(false)} />}
     </div>
   );
 }

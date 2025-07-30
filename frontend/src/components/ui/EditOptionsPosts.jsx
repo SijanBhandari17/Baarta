@@ -1,72 +1,77 @@
 import { useState } from 'react';
-import { Pencil, Trash2, UserRoundCog } from 'lucide-react';
-import CreateForum from '../../form/CreateForum';
+import { Pencil, Trash2 } from 'lucide-react';
 import { useForum } from '../../context/ForumContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Button, Dialog, DialogTitle, DialogActions } from '@mui/material';
-import ShowForumsMembers from './ShowForumsMembers';
+import CreatePost from '../../form/CreatePosts';
+import { usePost } from '../../context/PostContext';
 
-function EditForumModal({ onClose, forum }) {
-  const { updateForumInContext } = useForum();
-  const navigate = useNavigate();
+function EditPostModal({ onClose, post }) {
+  const { updatePostInContext } = usePost();
 
-  const updateForum = async forumData => {
-    if (forumData && Object.keys(forumData).length !== 0) {
+  const updatePost = async postData => {
+    if (post && Object.keys(post).length !== 0) {
       try {
-        const response = await fetch('http://localhost:5000/forum', {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-          body: JSON.stringify(forumData),
-        });
-        const data = await response.json();
-        console.log(data);
+        const formData = new FormData();
+        formData.append('title', postData.title);
+        formData.append('content_text', postData.content_text);
+        formData.append('forumId', postData.forumId);
+        formData.append('genre', postData.genre);
+        formData.append('authorName', postData.authorName);
+        formData.append('postId', post._id);
+        console.log(post._id);
 
+        if (post.postImage && post.postImage.length > 0) {
+          formData.append('postImage', post.postImage[0]);
+        }
+
+        const response = await fetch('http://localhost:5000/post', {
+          method: 'PUT',
+          credentials: 'include',
+          body: formData,
+        });
+
+        const data = await response.json();
         if (response.ok) {
-          updateForumInContext(data.body);
-          navigate(`/b/${encodeURIComponent(data.body.forum_name)}`);
+          updatePostInContext(data.body);
+          console.log(data);
+        } else {
+          console.error('Upload failed:', data.error);
         }
       } catch (err) {
-        console.error('error:', err);
+        console.log(`Err: ${err}`);
       }
     }
   };
+  console.log(post);
 
   return (
     <>
       <div>Update Forum</div>
-      <CreateForum
+      <CreatePost
         type="Update"
-        value={forum}
+        post={post}
         isOpen={true}
         onClose={onClose}
-        updateForum={updateForum}
+        updatePost={updatePost}
       />
     </>
   );
 }
-function EditOptions({ isOpen, forum }) {
+function EditOptionsPost({ isOpen, post }) {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [isModeratorModalOpen, setIsModeratorModalOpen] = useState(false);
+  console.log(post);
 
   const options = [
     {
-      label: 'Edit Forum',
+      label: 'Edit Post',
       icon: Pencil,
       onClick: () => setIsEditModalOpen(true),
       className: 'text-font',
     },
     {
-      label: 'Make Moderator',
-      icon: UserRoundCog,
-      onClick: () => setIsModeratorModalOpen(true),
-      className: 'text-font',
-    },
-    {
-      label: 'Delete Forum',
+      label: 'Delete Post',
       icon: Trash2,
       onClick: () => setIsDeleteModalOpen(true),
       className: 'text-red-500',
@@ -90,41 +95,35 @@ function EditOptions({ isOpen, forum }) {
         ))}
       </div>
 
-      {isEditModalOpen && (
-        <EditForumModal forum={forum} onClose={() => setIsEditModalOpen(false)} />
-      )}
+      {isEditModalOpen && <EditPostModal post={post} onClose={() => setIsEditModalOpen(false)} />}
       {isDeleteModalOpen && (
-        <DeleteOptions forum={forum} onClose={() => setIsDeleteModalOpen(false)} />
-      )}
-      {isModeratorModalOpen && (
-        <ShowForumsMembers forum={forum} onClose={() => setIsModeratorModalOpen(false)} />
+        <DeleteOptions post={post} onClose={() => setIsDeleteModalOpen(false)} />
       )}
     </>
   );
 }
 
-function DeleteOptions({ onClose, forum }) {
+function DeleteOptions({ onClose, post }) {
   const { deleteForumInContext } = useForum();
+  const { deletePostInContext } = usePost();
+  const { forumTitle } = useParams();
   const navigate = useNavigate();
-  console.log(forum);
 
   const onDelete = async () => {
-    console.log('hi');
-    if (forum) {
+    if (post) {
       try {
-        const response = await fetch('http://localhost:5000/forum', {
+        const response = await fetch('http://localhost:5000/post', {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ forumId: forum._id }),
+          body: JSON.stringify({ postId: post._id }),
           credentials: 'include',
         });
         const data = await response.json();
         if (response.ok) {
-          console.log(data);
-          deleteForumInContext(forum._id);
-          navigate('/forum', { replace: true });
+          deletePostInContext(post._id);
+          navigate(`/b/${forumTitle}`);
         }
       } catch (err) {
         console.error('error:', err);
@@ -134,7 +133,7 @@ function DeleteOptions({ onClose, forum }) {
 
   return (
     <Dialog open={true} onClose={onClose}>
-      <DialogTitle>Are you sure you want to delete this forum?</DialogTitle>
+      <DialogTitle>Are you sure you want to delete this post?</DialogTitle>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
         <Button
@@ -151,4 +150,4 @@ function DeleteOptions({ onClose, forum }) {
   );
 }
 
-export default EditOptions;
+export default EditOptionsPost;

@@ -22,7 +22,7 @@ const verifyJWT = async (req , res , next) => {
       const {refreshToken} = cookies
       if(!refreshToken) return res.status(401).json({"message" : "cookie expired"});
       const foundUser = await User.findOne({refreshToken}).exec()
-      if(!foundUser) return  res.status(403).json({"error" : "no user matched with this refresh Token"});
+      if(!foundUser) return  res.status(401).json({"error" : "no user matched with this refresh Token or the user logged into another system"});
       let refreshDecoded;
       try{
       refreshDecoded = await verifyAsync(refreshToken , process.env.REFRESH_TOKEN_SECRET)

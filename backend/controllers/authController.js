@@ -7,7 +7,7 @@ const handleLogin = async (req , res) => {
   const {email, password} = req.body;
   if(!email || !password) return res.status(400).json({"error" : "both email and password are required"});
   const foundUser = await User.findOne({email}).exec() 
-  if(!foundUser) return res.sendStatus(401).json({"error" : "no such registered username found"});
+  if(!foundUser) return res.status(401).json({"error" : "wrong email or password entered"})
   const hashedPassword = foundUser.password;
   const match = await bcrypt.compare(password , hashedPassword);
   if(!match) return res.status(401).json({"error" : "password is invalid"});

@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 
 const genreOptions = ['AI', 'EdTech', 'Research', 'Climate', 'Literature', 'Analysis', 'Quantum'];
 
-function CreateForum({ updateForum, value, type, isOpen, onClose, addNewForum }) {
+function CreateForum({ updateForum, posts, type, isOpen, onClose, addNewForum }) {
   const [forumName, setForumName] = useState('');
   const [forumDescription, setForumDescription] = useState('');
   const [forumGenre, setForumGenre] = useState(null);
@@ -12,14 +12,14 @@ function CreateForum({ updateForum, value, type, isOpen, onClose, addNewForum })
   const selectedGenre = ' text-amber-400';
 
   useEffect(() => {
-    if (value) {
-      setForumName(value.forum_name || '');
-      setForumDescription(value.description_text || '');
-      const selected = genreOptions.indexOf(value.genre);
+    if (posts) {
+      setForumName(posts.forum_name || '');
+      setForumDescription(posts.description_text || '');
+      const selected = genreOptions.indexOf(posts.genre);
       setForumGenre(selected || null);
-      setForumId(value._id);
+      setForumId(posts._id);
     }
-  }, [value]);
+  }, [posts]);
 
   const handleSubmit = e => {
     e.preventDefault();

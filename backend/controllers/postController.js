@@ -86,6 +86,10 @@ const uploadPost = async (req, res) => {
         .json({ error: "the forum does not exist or is deleted " });
     }
 
+    const profilePic = await Profile.findOne({userId : foundUser._id}).session(session).exec()
+
+    const toSendResult = {...result[0].toObject() , authorEmail : foundUser.email  , authorName : foundUser.username , authorProfilePicLink : profilePic?.profilePicLink ||  "https://res.cloudinary.com/dlddcx3uw/image/upload/v1752323363/defaultUser_cfqyxq.svg"}
+
     foundForum.post_id = [...foundForum.post_id, result[0]._id];
     await foundForum.save({ session });
 
@@ -93,7 +97,7 @@ const uploadPost = async (req, res) => {
 
     res.status(201).json({
       message: "success post insetion",
-      body: result,
+      body: toSendResult,
     });
   } catch (err) {
     await session.abortTransaction();
@@ -291,7 +295,7 @@ const getPost = async (req, res) => {
           ...item.toObject(),
           authorName: postUploader?.username || "[deleted user]",
           authorEmail: postUploader?.email || "[deleted user]",
-          authorProfilePic:
+          authorProfilePicLink:
             postUploaderProfilePic?.profilePicLink ||
             "https://res.cloudinary.com/dlddcx3uw/image/upload/v1752323363/defaultUser_cfqyxq.svg",
         };
@@ -312,4 +316,58 @@ const getPost = async (req, res) => {
     await session.endSession();
   }
 };
-module.exports = { uploadPost, getPost, updatePost, deletePost };
+
+const upVotePost = async (req, res)=>{
+  const session = await mongoose.startSession()
+  try {
+
+    await session.startTransaction()
+
+    if(!req.body?.postId) return res.status(400).json({"error" : "postId missing in the request header"})    
+    if(!req.user?.email) return res.status(401).json({"error" : "unauthenticated user sent the request"})
+
+    const {postId} = req.body
+
+    const {email} = req.user
+
+    const foundUser = await User.findOne({email}).session(session).exec() 
+    if(!foundUser)
+    {
+      await session.abortTransaction()
+      return res.status(404).json({"error" : "the user account wasn't found at all"})
+    }
+
+    const foundPost = await Post.findOne({_id : postId}).session(session).exec()
+    if(!foundPost)
+    {
+      await session.abortTransaction()
+      return res.status(404).json({"error" : "the post wasn't found at all"})
+    }
+
+    if(foundPost.upvote_id.includes(foundUser._id))
+    {
+      const index = foundPost.upvote_id.indexOf(foundUser._id)
+      foundPost.upvote_id.splice(index , 1)
+    }
+    else
+    {
+      foundPost.upvote_id = [...foundPost.upvote_id , foundUser._id]
+    }
+
+    const result = await foundPost.save({session})
+
+    await session.commitTransaction()
+
+    res.status(201).json({"message" : "successfully upvoted the post" , "body" : result})
+
+
+  } catch (err) {
+    await session.abortTransaction();
+    return res.status(500).json({ error: `${err.message}` });
+  } finally {
+    await session.endSession();
+  }
+}
+
+
+module.exports = { uploadPost, getPost, updatePost, deletePost , upVotePost};

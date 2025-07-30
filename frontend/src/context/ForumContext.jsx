@@ -1,13 +1,17 @@
 import { useState, createContext, useEffect, useContext } from 'react';
+import { useAuth } from './AuthContext';
 const ForumContext = createContext();
 
 const ForumProvider = ({ children }) => {
   const [forum, setForum] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
 
   useEffect(() => {
-    fetchForums();
-  }, []);
+    if (user) {
+      fetchForums();
+    }
+  }, [user]);
 
   const fetchForums = async () => {
     try {
@@ -19,8 +23,6 @@ const ForumProvider = ({ children }) => {
 
       if (response.ok) {
         setForum(data.body);
-      } else {
-        console.log(data);
       }
     } catch (err) {
       console.log(`error:${err} `);
@@ -43,7 +45,7 @@ const ForumProvider = ({ children }) => {
 
   return (
     <ForumContext.Provider
-      value={{ forum, loading, deleteForumInContext, addForum, updateForumInContext }}
+      value={{ forum, loading, fetchForums, deleteForumInContext, addForum, updateForumInContext }}
     >
       {children}
     </ForumContext.Provider>

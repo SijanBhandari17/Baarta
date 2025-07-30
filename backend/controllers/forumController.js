@@ -284,4 +284,59 @@ const updateForum = async (req, res) => {
   }
 };
 
-module.exports = { createForum, getForum, deleteForum, updateForum };
+const leaveForum = async (req ,res)=>{
+  const session = await mongoose.startSession();
+  try {
+    await session.startTransaction();
+
+    if (!req.body?.forumId)
+      return res
+        .status(400)
+        .json({ error: "the req header is missing forumId" });
+    if (!req.user?.email)
+      return res.status(401).json({ error: "the unauthenticated user signup" });
+    const { forumId } = req.body;
+    const { email } = req.user;
+
+    const foundUser = await User.findOne({ email }).session(session).exec();
+
+    if (!foundUser) {
+      await session.abortTransaction();
+      return res.status(404).json({ error: "user name not registered" });
+    }
+
+    const foundForum = await Forum.findOne({ _id: forumId })
+      .session(session)
+      .exec();
+
+    if (!foundForum) {
+      await session.abortTransaction();
+      return res
+        .status(404)
+        .json({ error: " the forum is either deleted or removed" });
+    }
+    if(foundForum.admin_id.toString() === foundUser._id.toString())
+    {
+      await session.abortTransaction()
+      return res.status(403).json({"error" : "admin cant remove themselves from the forum "})
+    }
+    if(!foundForum.member_id.includes(foundUser._id) && !foundForum.moderator_id.includes(foundUser._id))
+    {
+      await session.abortTransaction()
+      return res.status(400).json({"error" : "you are not a part of the forum"})
+    }
+
+    const result = await Forum.updateOne({_id : foundForum._id } ,{$pull : {moderator_id : foundUser._id , member_id : foundUser._id}}, {session})
+
+    await session.commitTransaction()
+    res.status(201).json({"message" : "successfully left the forum" , "body" : result})
+
+  } catch (err) {
+    await session.abortTransaction();
+    res.status(500).json({ error: `${err.message}` });
+  } finally {
+    await session.endSession();
+  }
+}
+
+module.exports = { createForum, getForum, deleteForum, updateForum , leaveForum};

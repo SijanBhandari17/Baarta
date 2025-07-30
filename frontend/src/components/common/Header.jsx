@@ -9,9 +9,8 @@ import LoginPopUp from '../ui/LoginPopUp';
 import SignInPopUp from '../ui/SignUpPopUp';
 import { useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import DefaultProfile from '../../assets/images/defaultUser.svg';
 import { useNavigate } from 'react-router-dom';
-const notificationCount = 1;
+import { useNotification } from '../../context/NotificationContext';
 
 function Header() {
   const { user } = useAuth();
@@ -63,7 +62,9 @@ function useDropdown(selector) {
 function ProfileSection() {
   const [showProfile, toggleProfile] = useDropdown('.profile-section');
   const [showNotification, toggleNotification] = useDropdown('.notification-section');
-
+  const auth = useAuth();
+  const { notifications } = useNotification();
+  const { user, logOut } = auth;
   return (
     <div className="flex">
       <div className="notification-section relative flex items-center">
@@ -72,9 +73,9 @@ function ProfileSection() {
           title="Notifications"
           onClick={toggleNotification}
         />
-        {notificationCount > 0 ? (
+        {notifications?.length > 0 ? (
           <span className="absolute top-1 right-2 flex min-h-[1.5rem] min-w-[1.5rem] cursor-pointer items-center justify-center rounded-full bg-red-600 text-[1rem] text-white">
-            {notificationCount}
+            {notifications.length}
           </span>
         ) : (
           ' '
@@ -83,8 +84,8 @@ function ProfileSection() {
       </div>
       <div className="profile-section flex size-[56px] items-center justify-center rounded-full">
         <img
-          src={DefaultProfile}
-          className="hover:bg-layout-elements-focus h-15 w-16 cursor-pointer rounded-full p-2"
+          src={user.info?.profilePic}
+          className="hover:bg-layout-elements-focus h-15 w-16 cursor-pointer rounded-full object-cover object-center p-2"
           onClick={toggleProfile}
         />
       </div>
@@ -104,8 +105,8 @@ function SearchBar() {
       <input
         type="text"
         id="search-discussions"
-        placeholder="Search Discussions..."
-        className="rounded-button-round px-2 text-gray-500 caret-gray-100 placeholder:text-gray-500 focus:outline-none"
+        placeholder="Search "
+        className="rounded-button-round px-2 text-white caret-gray-100 placeholder:text-gray-500 focus:outline-none"
         onChange={handleChangeSearchBarChange}
         value={query}
       />

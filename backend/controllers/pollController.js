@@ -379,7 +379,6 @@ const getPollsByForumId = async (req, res) => {
     await session.startTransaction();
 
     const { forumId } = req.query;
-
     if (!forumId) {
       await session.abortTransaction();
       return res

@@ -7,6 +7,25 @@ function ShowNotificationPopUp({ item, onClose }) {
   const { updateNotificationInContext } = useNotification();
   const { fetchForums } = useForum();
 
+  const onDecline = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/notification/removeInvite', {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ notificationId: item._id }),
+      });
+      const data = await response.json();
+      console.log(data);
+      if (response.ok) {
+        updateNotificationInContext(item._id);
+      }
+    } catch (err) {
+      console.log(`Err:${err}`);
+    }
+  };
   const onAccept = async () => {
     console.log('Called here', item);
     if (item.type === 'forum_invite') {
@@ -160,10 +179,13 @@ function ShowNotificationPopUp({ item, onClose }) {
         <div className="flex justify-end space-x-6">
           <button
             type="button"
-            onClick={onClose}
+            onClick={async () => {
+              await onClose();
+              onDecline();
+            }}
             className="cursor-pointer rounded-lg bg-gray-800 px-8 py-3 text-lg text-gray-300 transition-colors hover:bg-gray-700 hover:text-white"
           >
-            Cancel
+            Decline
           </button>
           <button
             type="submit"

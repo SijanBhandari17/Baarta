@@ -1,9 +1,11 @@
 import { formatDistanceToNow } from 'date-fns';
 import { X } from 'lucide-react';
 import { useNotification } from '../../context/NotificationContext';
+import { useForum } from '../../context/ForumContext';
 
 function ShowNotificationPopUp({ item, onClose }) {
   const { updateNotificationInContext } = useNotification();
+  const { fetchForums } = useForum();
 
   const onAccept = async () => {
     console.log('Called here', item);
@@ -22,6 +24,7 @@ function ShowNotificationPopUp({ item, onClose }) {
         const data = await response.json();
         if (response.ok) {
           console.log(data);
+          fetchForums();
           updateNotificationInContext(item._id, 1);
           return data.body;
         } else {
@@ -44,6 +47,7 @@ function ShowNotificationPopUp({ item, onClose }) {
         const data = await response.json();
         if (response.ok) {
           console.log(data);
+          fetchForums();
           updateNotificationInContext(item._id, 1);
           return data.body;
         } else {
@@ -67,6 +71,7 @@ function ShowNotificationPopUp({ item, onClose }) {
         if (response.ok) {
           console.log(data);
           updateNotificationInContext(item._id, 1);
+
           return data.body;
         } else {
           console.error('Upload failed:', data.error);
@@ -132,7 +137,7 @@ function ShowNotificationPopUp({ item, onClose }) {
             </div>
           </>
         )}
-        {item.type === 'join_request' && (
+        {item.type === 'promote_to_moderator' && (
           <>
             <div className="flex gap-8">
               <img

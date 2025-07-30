@@ -22,6 +22,7 @@ import { useAuth } from '../context/AuthContext';
 import { usePost } from '../context/PostContext';
 import InvitePeople from '../components/ui/InvitePeople';
 import CreatePoll from '../components/ui/CreatePoll';
+import PollModal from '../components/common/nav/asidebar/pollmodal';
 
 function ForumHomePage() {
   const { forumTitle } = useParams();
@@ -29,6 +30,42 @@ function ForumHomePage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { forum, loading } = useForum();
   const { posts, forumToShow, addPostInContext } = usePost();
+  const [moderators, setModerators] = useState([]);
+
+  useEffect(() => {
+    if (forumToShow) {
+      const getModerators = async userId => {
+        try {
+          const response = await fetch(
+            `http://localhost:5000/all/singleuserprofile?userId=${userId}`,
+            {
+              method: 'GET',
+              credentials: 'include',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            },
+          );
+          const data = await response.json();
+          if (response.ok) {
+            setModerators(prev => {
+              if (prev.some(item => item._id === data.body._id)) return [...prev];
+              return [...prev, data.body];
+            });
+          } else {
+            console.error('Upload failed:', data.error);
+          }
+        } catch (err) {
+          console.log(`Err: ${err}`);
+        }
+      };
+      for (const members of forumToShow.moderator_id) {
+        getModerators(members);
+      }
+    }
+  }, [forumToShow]);
+
+  if (!forumToShow) return <LoadingSpinner />;
 
   const forumId = forumToShow?._id || '';
 
@@ -68,8 +105,9 @@ function ForumHomePage() {
   const handleClick = () => {
     setIsDialogOpen(true);
   };
+  console.log(forumToShow);
 
-  if (!forumToShow) return <LoadingSpinner />;
+  console.log('moderator_id:', moderators);
 
   return (
     <div className="flex h-svh flex-col">
@@ -83,6 +121,7 @@ function ForumHomePage() {
               posts,
               forumId,
               addNewPost,
+              moderators,
               handleClick,
               isDialogOpen,
               setIsDialogOpen,
@@ -102,13 +141,13 @@ function ForumHomePage() {
   );
 }
 function ForumDefault() {
-  const { forum, posts, handleClick } = useOutletContext();
+  const { forum, posts, handleClick, moderators } = useOutletContext();
   return (
     <div className="flex flex-col gap-2">
       <ForumHeader forum={forum} handleClick={handleClick} />
       <div className="flex gap-4">
         <ForumPosts forum={forum} posts={posts} />
-        <ForumLeftBar forum={forum} posts={posts} />
+        <ForumLeftBar moderators={moderators} forum={forum} posts={posts} />
       </div>
     </div>
   );
@@ -126,8 +165,7 @@ function ForumHeader({ forum, handleClick }) {
     forum.moderator_id.includes(user.info.userId);
 
   const hasAdminPrivilage =
-    forum.admin_id === user.info.userId ||
-    forum.moderator_id.some(item => item._id === user.info.userId);
+    forum.admin_id === user.info.userId || forum.moderator_id.includes(user.info.userId);
 
   return (
     <div className="flex items-center justify-between">
@@ -178,7 +216,9 @@ function ForumHeader({ forum, handleClick }) {
           />
         )}
         {isInvitePeopleOpen && <InvitePeople onClose={() => setIsInvitePeopleOpen(false)} />}
-        {isCreatePollOpen && <CreatePoll onClose={() => setIsCreatePollOpen(false)} />}
+        {isCreatePollOpen && (
+          <CreatePoll forum={forum} onClose={() => setIsCreatePollOpen(false)} />
+        )}
       </div>
     </div>
   );
@@ -231,7 +271,7 @@ function ForumPosts({ posts }) {
   );
 }
 
-function ForumLeftBar({ forum, posts }) {
+function ForumLeftBar({ forum, moderators, posts }) {
   return (
     <div className="ml-auto flex flex-col gap-2">
       <div className="bg-layout-elements-focus rounded-button-round p-8">
@@ -268,18 +308,25 @@ function ForumLeftBar({ forum, posts }) {
 
       <div className="bg-layout-elements-focus rounded-button-round p-8">
         <h1 className="text-font text-title mb-4 font-semibold">Moderators</h1>
-
         <div className="flex flex-col gap-4">
           {forum.moderator_id.length !== 0 ? (
             <div>
-              {forum.moderator_id.map((item, index) => {
+              {moderators.map((item, index) => {
                 return (
-                  <div key={index}>
+                  <div
+                    key={item._id}
+                    className="mb-4 flex items-center gap-8 rounded-lg border border-zinc-700 bg-zinc-800 p-6 text-white shadow-sm transition-shadow duration-200 hover:shadow-md"
+                  >
                     <img
-                      src={item.info?.profilePic}
-                      className="h-25 w-25 cursor-pointer rounded-full object-cover object-center"
+                      src={item?.userProfilePicLink}
+                      alt={item?.username}
+                      className="h-16 w-16 rounded-full border-2 border-gray-200 object-cover shadow-sm"
                     />
-                    <p>{item.info?.name}</p>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-3">
+                        <span className="text-font text-xl font-semibold">{item?.username}</span>
+                      </div>
+                    </div>
                   </div>
                 );
               })}
@@ -287,6 +334,14 @@ function ForumLeftBar({ forum, posts }) {
           ) : (
             <div className="py-8 text-center text-lg text-gray-400">No Moderators yet </div>
           )}
+        </div>
+      </div>
+      <div className="bg-layout-elements-focus rounded-button-round p-8">
+        <h1 className="text-font text-title mb-4 font-semibold">Active Polls</h1>
+
+        <div className="flex flex-col gap-4">
+          {console.log(forum)}
+          <PollModal forumID={forum._id} />
         </div>
       </div>
     </div>

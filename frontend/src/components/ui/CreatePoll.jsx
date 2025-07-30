@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { usePost } from '../../context/PostContext';
 
-function CreatePoll({ forumId, onClose, onSuccess }) {
+function CreatePoll({ forum, onClose, onSuccess }) {
   const [title, setTitle] = useState('');
   const [options, setOptions] = useState(['', '']);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
-  const { forumToShow } = usePost();
 
   const handleOptionChange = (index, value) => {
     const updated = [...options];
@@ -16,14 +15,12 @@ function CreatePoll({ forumId, onClose, onSuccess }) {
 
   const addOption = () => {
     if (options.length < 10) {
-      // Reasonable limit
       setOptions([...options, '']);
     }
   };
 
   const removeOption = index => {
     if (options.length > 2) {
-      // Minimum 2 options
       const updated = options.filter((_, i) => i !== index);
       setOptions(updated);
     }
@@ -41,7 +38,6 @@ function CreatePoll({ forumId, onClose, onSuccess }) {
       return false;
     }
 
-    // Check for duplicates
     const uniqueOptions = new Set(validOptions.map(opt => opt.trim().toLowerCase()));
     if (uniqueOptions.size !== validOptions.length) {
       setError('Duplicate options are not allowed');
@@ -59,22 +55,23 @@ function CreatePoll({ forumId, onClose, onSuccess }) {
 
     try {
       const validOptions = options.filter(opt => opt.trim()).map(opt => opt.trim());
-      console.log(forumId);
 
-      const response = await fetch('http://localhost:5000/polls', {
+      const response = await fetch('http://localhost:5000/poll', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           title: title.trim(),
-          forumId,
+          forumId: forum._id,
           options: validOptions,
         }),
       });
 
       const data = await response.json();
 
+      console.log(data);
       if (!response.ok) {
         throw new Error(data.error || 'Failed to create poll');
       }

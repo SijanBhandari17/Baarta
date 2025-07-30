@@ -40,7 +40,7 @@ function NewForums({ onClose }) {
           </button>
         </div>
         {forums.map(item => {
-          return <IndividualForums item={item} />;
+          return <IndividualForums key={item._id} item={item} />;
         })}
       </div>
     </div>

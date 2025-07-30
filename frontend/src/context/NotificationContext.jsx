@@ -38,17 +38,12 @@ const NotificationProvider = ({ children }) => {
     fetchNotifications();
   }, []);
 
-  const updateNotificationInContext = (notificationId, index) => {
-    setNotifications(prev => {
-      const newSubArray = prev[index].filter(item => item._id !== notificationId);
-      const updatedArray = [...prev];
-      updatedArray[index] = newSubArray;
-      return updatedArray;
-    });
+  const updateNotificationInContext = notificationId => {
+    setNotifications(prev => prev.filter(item => item._id !== notificationId));
   };
 
   return (
-    <NotificationContext.Provider value={{ notifications }}>
+    <NotificationContext.Provider value={{ notifications, updateNotificationInContext }}>
       {children}
     </NotificationContext.Provider>
   );

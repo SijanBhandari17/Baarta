@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import upcomingEventsArray from '../../utils/fetchUpcommingEvents';
-import activePollArray from '../../utils/fetchActivePolls';
 import CalenderIcon from '../../assets/icons/calendar.svg';
 import SinglePoll from '../ui/Polls';
 // import { commuityStatus } from '../../utils/fetchCommnityStatus';
@@ -12,7 +11,7 @@ function RightAsideBar() {
   return (
     <aside className="bg-layout-elements top-20 flex h-[calc(100vh-5rem)] w-[15%] flex-col border border-l-white/10 p-6">
       <UpcommingEvents />
-      <ActivePoll />
+      {/* <ActivePoll /> */}
       {/* <CommunityStatus /> */}
     </aside>
   );
@@ -75,4 +74,3 @@ function ActivePoll() {
 // }
 
 export default RightAsideBar;
-

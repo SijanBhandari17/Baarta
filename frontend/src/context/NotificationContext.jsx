@@ -4,11 +4,10 @@ const NotificationContext = createContext();
 
 const NotificationProvider = ({ children }) => {
   const { user } = useAuth();
-  console.log(user);
   const [notifications, setNotifications] = useState([]);
+
   useEffect(() => {
     const fetchNotifications = async () => {
-      console.log('Hello');
       try {
         const [inviteRes, joinRes] = await Promise.all([
           fetch('http://localhost:5000/notification/getInvite', {
@@ -25,7 +24,6 @@ const NotificationProvider = ({ children }) => {
 
         const inviteData = await inviteRes.json();
         const joinData = await joinRes.json();
-        console.log(inviteData, joinData);
 
         if (inviteRes.ok && joinRes.ok) {
           const merged = [...inviteData.body, ...joinData.body];

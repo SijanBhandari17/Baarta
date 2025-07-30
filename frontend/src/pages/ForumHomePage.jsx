@@ -1,5 +1,6 @@
 import Header from '../components/common/Header';
 import LeftAsideBar from '../components/common/LeftAsideBar';
+import SearchIcon from '../assets/icons/searchIcon.svg';
 import { MoreVertical, UserPlus } from 'lucide-react';
 import { useParams, useOutletContext, Outlet, useNavigate } from 'react-router-dom';
 import { useForum } from '../context/ForumContext';
@@ -120,6 +121,9 @@ function ForumHeader({ forum, handleClick }) {
   const [isInvitePeopleOpen, setIsInvitePeopleOpen] = useState(false);
   const [isCreatePollOpen, setIsCreatePollOpen] = useState(false);
   const { user } = useAuth();
+  const { updateUsingConsineSimilarity } = usePost();
+  const [query, setQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
 
   const isJoined =
     forum.member_id.includes(user?.info.userId) ||
@@ -129,11 +133,55 @@ function ForumHeader({ forum, handleClick }) {
   const hasAdminPrivilage =
     forum.admin_id === user?.info.userId || forum.moderator_id.includes(user?.info.userId);
 
+  const handleChangeSearchBarChange = async e => {
+    console.log('hello');
+    const value = e.target.value;
+    setQuery(value);
+
+    try {
+      const res = await fetch('http://localhost:5000/search/post', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          forumId: forum._id,
+          searchQuery: value,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        console.log(data);
+        updateUsingConsineSimilarity(data.body);
+        setSearchResults(data.body);
+      } else {
+        console.error(data.error);
+      }
+    } catch (err) {
+      console.error('Search failed:', err);
+    }
+  };
+
   return (
     <div className="flex items-center justify-between">
       <div>
         <p className="text-font text-hero my-2 font-semibold">{forum.forum_name}</p>
         <p className="text-font text-body">{forum.description_text}</p>
+      </div>
+
+      <div className="bg-layout-elements-focus rounded-button-round relative flex h-15 w-[30rem] items-center px-2">
+        <img src={SearchIcon} alt="Seach Icon" className="" height="20px" width="20px" />
+        <input
+          type="text"
+          id="search-discussions"
+          placeholder="Search Posts.."
+          className="rounded-button-round px-2 text-white caret-gray-100 placeholder:text-gray-500 focus:outline-none"
+          onChange={handleChangeSearchBarChange}
+          value={query}
+        />
       </div>
       <div className="flex items-center gap-2">
         <button

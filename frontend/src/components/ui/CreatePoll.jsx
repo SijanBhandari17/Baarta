@@ -6,6 +6,8 @@ function CreatePoll({ forum, onClose, onSuccess }) {
   const [options, setOptions] = useState(['', '']);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const { addPollInContext } = usePost();
+  console.log(addPollInContext);
 
   const handleOptionChange = (index, value) => {
     const updated = [...options];
@@ -70,8 +72,8 @@ function CreatePoll({ forum, onClose, onSuccess }) {
       });
 
       const data = await response.json();
-
       console.log(data);
+      addPollInContext(data.body[0]);
       if (!response.ok) {
         throw new Error(data.error || 'Failed to create poll');
       }

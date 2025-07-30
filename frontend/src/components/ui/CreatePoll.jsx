@@ -72,7 +72,6 @@ function CreatePoll({ forum, onClose, onSuccess }) {
       });
 
       const data = await response.json();
-      console.log(data);
       addPollInContext(data.body[0]);
       if (!response.ok) {
         throw new Error(data.error || 'Failed to create poll');

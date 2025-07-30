@@ -282,6 +282,11 @@ function ForumPosts({ posts }) {
 }
 
 function ForumLeftBar({ forum, moderators, posts }) {
+  const { user } = useAuth();
+
+  const hasAdminPrivilage =
+    forum.admin_id === user?.info.userId || forum.moderator_id.includes(user?.info.userId);
+
   const { polls } = usePost();
   console.log('forumHomePage', polls);
   return (
@@ -353,7 +358,7 @@ function ForumLeftBar({ forum, moderators, posts }) {
 
         <div className="flex flex-col gap-4">
           {polls.map(poll => {
-            return <SinglePoll key={poll._id} poll={poll} />;
+            return <SinglePoll key={poll._id} hasAdminPrivilage={hasAdminPrivilage} poll={poll} />;
           })}
         </div>
       </div>

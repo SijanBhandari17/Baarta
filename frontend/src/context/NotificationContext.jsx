@@ -3,51 +3,49 @@ const NotificationContext = createContext();
 
 const NotificationProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
-
   useEffect(() => {
-    const fetchInviteNotifications = async () => {
+    const fetchNotifications = async () => {
       try {
-        const response = await fetch('http://localhost:5000/notification/getInvite', {
-          method: 'GET',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-        const data = await response.json();
-        if (response.ok) {
-          console.log(data);
-          setNotifications(prev => [...prev, data.body]);
+        const [inviteRes, joinRes] = await Promise.all([
+          fetch('http://localhost:5000/notification/getInvite', {
+            method: 'GET',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+          }),
+          fetch('http://localhost:5000/miscallenuous/withForumRequest', {
+            method: 'GET',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+          }),
+        ]);
+
+        const inviteData = await inviteRes.json();
+        const joinData = await joinRes.json();
+
+        if (inviteRes.ok && joinRes.ok) {
+          const merged = [...inviteData.body, ...joinData.body];
+          setNotifications(merged);
+          console.log('All notifications:', merged);
         } else {
-          console.error('Upload failed:', data.error);
+          if (!inviteRes.ok) console.error('Invite fetch failed:', inviteData.error);
+          if (!joinRes.ok) console.error('Join fetch failed:', joinData.error);
         }
       } catch (err) {
-        console.log(`Err: ${err}`);
+        console.error('Error fetching notifications:', err);
       }
     };
-    const fetchJoinInvitaions = async () => {
-      try {
-        const response = await fetch('http://localhost:5000/miscallenuous/withForumRequest', {
-          method: 'GET',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-        const data = await response.json();
-        if (response.ok) {
-          setNotifications(prev => [...prev, data.body]);
-          console.log(data);
-        } else {
-          console.error('Upload failed:', data.error);
-        }
-      } catch (err) {
-        console.log(`Err: ${err}`);
-      }
-    };
-    fetchInviteNotifications();
-    fetchJoinInvitaions();
+
+    fetchNotifications();
   }, []);
+
+  const updateNotificationInContext = (notificationId, index) => {
+    setNotifications(prev => {
+      const newSubArray = prev[index].filter(item => item._id !== notificationId);
+      const updatedArray = [...prev];
+      updatedArray[index] = newSubArray;
+      return updatedArray;
+    });
+  };
 
   return (
     <NotificationContext.Provider value={{ notifications }}>

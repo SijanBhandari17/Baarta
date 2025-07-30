@@ -11,13 +11,12 @@ function InvitePeople({ onClose }) {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch('http://localhost:5000/all/userProfile', {
-          method: 'POST',
+        const response = await fetch(`http://localhost:5000/all/userProfile?forumId=${forumId}`, {
+          method: 'GET',
           credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ forumId }),
         });
 
         const data = await response.json();
@@ -53,7 +52,7 @@ function InvitePeople({ onClose }) {
           <div className="flex-1 overflow-y-auto">
             <ul className="space-y-3 text-white">
               {allUsers.map(user => (
-                <DisplayUser key={user._id} user={user} />
+                <DisplayUser key={user._id} setUsers={setAllUsers} user={user} />
               ))}
             </ul>
           </div>
@@ -63,7 +62,7 @@ function InvitePeople({ onClose }) {
   );
 }
 
-function DisplayUser({ user }) {
+function DisplayUser({ user, setUsers }) {
   const { forumToShow } = usePost();
   const handleInviteClick = async () => {
     const userId = user._id;

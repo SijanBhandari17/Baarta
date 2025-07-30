@@ -1,29 +1,82 @@
 import { formatDistanceToNow } from 'date-fns';
 import { X } from 'lucide-react';
+import { useNotification } from '../../context/NotificationContext';
 
 function ShowNotificationPopUp({ item, onClose }) {
-  const onAccept = async () => {
-    try {
-      const response = await fetch('http://localhost:5000/notification/acceptInvite', {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ notificationId: item._id }),
-      });
+  const { updateNotificationInContext } = useNotification();
 
-      const data = await response.json();
-      if (response.ok) {
-        console.log(data);
-        return data.body;
-      } else {
-        console.error('Upload failed:', data.error);
+  const onAccept = async () => {
+    console.log('Called here', item);
+    if (item.type === 'forum_invite') {
+      console.log(item);
+      try {
+        const response = await fetch('http://localhost:5000/notification/acceptInvite', {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ notificationId: item._id }),
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          console.log(data);
+          updateNotificationInContext(item._id, 1);
+          return data.body;
+        } else {
+          console.error('Upload failed:', data.error);
+        }
+      } catch (err) {
+        console.log(`Err: ${err}`);
       }
-    } catch (err) {
-      console.log(`Err: ${err}`);
+    } else if (item.type === 'join_request') {
+      try {
+        const response = await fetch('http://localhost:5000/notification/acceptJoinInvite', {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ notificationId: item._id }),
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          console.log(data);
+          updateNotificationInContext(item._id, 1);
+          return data.body;
+        } else {
+          console.error('Upload failed:', data.error);
+        }
+      } catch (err) {
+        console.log(`Err: ${err}`);
+      }
+    } else if (item.type === 'promote_to_moderator') {
+      try {
+        const response = await fetch('http://localhost:5000/notification/acceptInvite', {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ notificationId: item._id }),
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          console.log(data);
+          updateNotificationInContext(item._id, 1);
+          return data.body;
+        } else {
+          console.error('Upload failed:', data.error);
+        }
+      } catch (err) {
+        console.log(`Err: ${err}`);
+      }
     }
   };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <div className="flex max-h-[80vh] w-full max-w-2xl flex-col space-y-6 overflow-hidden rounded-xl bg-zinc-900 p-8 shadow-xl">
@@ -40,21 +93,64 @@ function ShowNotificationPopUp({ item, onClose }) {
         </div>
 
         {item.type === 'forum_invite' && (
-          <div className="flex gap-8">
-            <img
-              src={item.senderProfilePicLink}
-              className="h-25 w-25 cursor-pointer rounded-full object-cover object-center"
-            />
+          <>
+            <div className="flex gap-8">
+              <img
+                src={item.fromUserProfilePicLink}
+                className="h-25 w-25 cursor-pointer rounded-full object-cover object-center"
+                alt={`${item.fromUserName}'s profile`}
+              />
 
-            <div className="flex flex-col">
-              <p className="text-font text-title">
-                {item.senderName} has invited you to join {item.forumName}
-              </p>
-              <p className="text-font-light/80 text-small">
-                {formatDistanceToNow(Number(item.date), { addSuffix: true })}
-              </p>
+              <div className="flex flex-col">
+                <p className="text-font text-title">
+                  {item.fromUserName} has invited you to join {item.forumName}
+                </p>
+                <p className="text-font-light/80 text-small">
+                  {formatDistanceToNow(Number(item.date), { addSuffix: true })}
+                </p>
+              </div>
             </div>
-          </div>
+          </>
+        )}
+        {item.type === 'join_request' && (
+          <>
+            <div className="flex gap-8">
+              <img
+                src={item.fromUserProfilePicLink}
+                className="h-25 w-25 cursor-pointer rounded-full object-cover object-center"
+                alt={`${item.fromUserName}'s profile`}
+              />
+
+              <div className="flex flex-col">
+                <p className="text-font text-title">
+                  {item.fromUserName} has requested to join {item.forumName}
+                </p>
+                <p className="text-font-light/80 text-small">
+                  {formatDistanceToNow(Number(item.date), { addSuffix: true })}
+                </p>
+              </div>
+            </div>
+          </>
+        )}
+        {item.type === 'join_request' && (
+          <>
+            <div className="flex gap-8">
+              <img
+                src={item.fromUserProfilePicLink}
+                className="h-25 w-25 cursor-pointer rounded-full object-cover object-center"
+                alt={`${item.fromUserName}'s profile`}
+              />
+
+              <div className="flex flex-col">
+                <p className="text-font text-title">
+                  {item.fromUserName} has requested you to be moderator for {item.forumName}
+                </p>
+                <p className="text-font-light/80 text-small">
+                  {formatDistanceToNow(Number(item.date), { addSuffix: true })}
+                </p>
+              </div>
+            </div>
+          </>
         )}
         <div className="flex justify-end space-x-6">
           <button
@@ -79,4 +175,5 @@ function ShowNotificationPopUp({ item, onClose }) {
     </div>
   );
 }
+
 export default ShowNotificationPopUp;

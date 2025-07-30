@@ -21,6 +21,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { useAuth } from '../context/AuthContext';
 import { usePost } from '../context/PostContext';
 import InvitePeople from '../components/ui/InvitePeople';
+import CreatePoll from '../components/ui/CreatePoll';
 
 function ForumHomePage() {
   const { forumTitle } = useParams();
@@ -116,6 +117,7 @@ function ForumDefault() {
 function ForumHeader({ forum, handleClick }) {
   const [isEditOptionsOpen, setIsEditOptionsOpen] = useState(false);
   const [isInvitePeopleOpen, setIsInvitePeopleOpen] = useState(false);
+  const [isCreatePollOpen, setIsCreatePollOpen] = useState(false);
   const { user } = useAuth();
 
   const isJoined =
@@ -149,6 +151,12 @@ function ForumHeader({ forum, handleClick }) {
         {hasAdminPrivilage && (
           <div className="flex justify-end gap-2">
             <button
+              className="text-royalpurple-dark p-button-padding border-royalpurple-dark rounded-button-round hover:bg-royalpurple-dark cursor-pointer border-2 px-6 font-medium transition-all duration-300 ease-in hover:text-gray-50"
+              onClick={() => setIsCreatePollOpen(prev => !prev)}
+            >
+              Create Poll
+            </button>
+            <button
               className="hover:bg-layout-elements-focus cursor-pointer rounded p-2 text-white"
               onClick={() => setIsInvitePeopleOpen(prev => !prev)}
             >
@@ -170,6 +178,7 @@ function ForumHeader({ forum, handleClick }) {
           />
         )}
         {isInvitePeopleOpen && <InvitePeople onClose={() => setIsInvitePeopleOpen(false)} />}
+        {isCreatePollOpen && <CreatePoll onClose={() => setIsCreatePollOpen(false)} />}
       </div>
     </div>
   );

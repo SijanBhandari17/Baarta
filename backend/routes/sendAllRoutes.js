@@ -11,4 +11,3 @@ Router.route("/forum").get(sendAllForum);
 Router.route("/singleuserprofile").get(sendOneUser);
 
 module.exports = Router;
-

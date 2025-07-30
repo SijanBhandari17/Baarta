@@ -73,7 +73,7 @@ function ProfileSection() {
           title="Notifications"
           onClick={toggleNotification}
         />
-        {notifications.length > 0 ? (
+        {notifications?.length > 0 ? (
           <span className="absolute top-1 right-2 flex min-h-[1.5rem] min-w-[1.5rem] cursor-pointer items-center justify-center rounded-full bg-red-600 text-[1rem] text-white">
             {notifications.length}
           </span>

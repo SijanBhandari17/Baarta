@@ -4,7 +4,7 @@ import { usePost } from '../../context/PostContext';
 import { Button, Dialog, DialogTitle, DialogActions } from '@mui/material';
 import CreatePoll from './CreatePoll';
 
-function EditOptionsPoll({ isOpen, poll }) {
+function EditOptionsPoll({ isOpen, poll, onClose }) {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
@@ -40,14 +40,25 @@ function EditOptionsPoll({ isOpen, poll }) {
         ))}
       </div>
 
-      {isEditModalOpen && <EditPollModal poll={poll} onClose={() => setIsEditModalOpen(false)} />}
+      {isEditModalOpen && (
+        <EditPollModal
+          poll={poll}
+          closeEditOptions={onClose}
+          onClose={() => setIsEditModalOpen(false)}
+        />
+      )}
       {isDeleteModalOpen && (
-        <DeleteOptions poll={poll} onClose={() => setIsDeleteModalOpen(false)} />
+        <DeleteOptions
+          poll={poll}
+          closeEditOptions={onClose}
+          onClose={() => setIsDeleteModalOpen(false)}
+        />
       )}
     </>
   );
 }
-function EditPollModal({ poll, onClose }) {
+function EditPollModal({ poll, onClose, closeEditOptions }) {
+  const { updatePollInContext } = usePost();
   const updatePoll = async ({ pollId, title, options }) => {
     console.log(pollId);
     try {
@@ -61,7 +72,9 @@ function EditPollModal({ poll, onClose }) {
       });
       const data = await response.json();
       if (response.ok) {
-        console.log(data);
+        updatePollInContext(data.body);
+        closeEditOptions();
+        onClose();
       } else {
         console.error('Upload failed:', data.error);
       }
@@ -69,6 +82,7 @@ function EditPollModal({ poll, onClose }) {
       console.log(`Err: ${err}`);
     }
   };
+
   return (
     <>
       <CreatePoll
@@ -81,7 +95,7 @@ function EditPollModal({ poll, onClose }) {
     </>
   );
 }
-function DeleteOptions({ poll, onClose }) {
+function DeleteOptions({ poll, closeEditOptions, onClose }) {
   const { deletePollInContext } = usePost();
   const onDelete = async () => {
     if (poll) {
@@ -94,9 +108,9 @@ function DeleteOptions({ poll, onClose }) {
           body: JSON.stringify({ pollId: poll._id }),
           credentials: 'include',
         });
-        const data = await response.json();
         if (response.ok) {
           deletePollInContext(poll._id);
+          closeEditOptions();
         }
       } catch (err) {
         console.error('error:', err);

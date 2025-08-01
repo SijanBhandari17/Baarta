@@ -99,17 +99,8 @@ const PostProvider = ({ children }) => {
     setPolls(prev => prev.filter(poll => poll._id !== pollId));
   };
 
-  const updatePollInContext = (selectedPoll, updatedOptions) => {
-    setPolls(prev =>
-      prev.map(poll =>
-        poll._id === selectedPoll._id
-          ? {
-              ...poll,
-              option: updatedOptions,
-            }
-          : poll,
-      ),
-    );
+  const updatePollInContext = updatedPoll => {
+    setPolls(prev => prev.map(poll => (poll._id === updatedPoll._id ? { ...updatedPoll } : poll)));
   };
   const addPostInContext = postData => {
     setPosts(prev => [postData, ...prev]);

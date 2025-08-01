@@ -213,7 +213,7 @@ function ForumHeader({ forum, handleClick }) {
         )}
         {isInvitePeopleOpen && <InvitePeople onClose={() => setIsInvitePeopleOpen(false)} />}
         {isCreatePollOpen && (
-          <CreatePoll forum={forum} onClose={() => setIsCreatePollOpen(false)} />
+          <CreatePoll type="Create" forum={forum} onClose={() => setIsCreatePollOpen(false)} />
         )}
       </div>
     </div>

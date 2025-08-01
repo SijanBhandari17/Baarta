@@ -2,12 +2,11 @@ import React, { useState } from 'react';
 import { usePost } from '../../context/PostContext';
 
 function CreatePoll({ type, poll, forum, updatePoll, onClose, onSuccess }) {
-  const [title, setTitle] = useState(poll.title || []);
-  const [options, setOptions] = useState(poll.option.map(opt => opt.name));
+  const [title, setTitle] = useState(poll?.title || []);
+  const [options, setOptions] = useState(poll?.option.map(opt => opt.name) || [[], []]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const { addPollInContext } = usePost();
-  console.log(poll);
 
   const handleOptionChange = (index, value) => {
     const updated = [...options];
@@ -51,11 +50,8 @@ function CreatePoll({ type, poll, forum, updatePoll, onClose, onSuccess }) {
     return true;
   };
 
-  const handleSubmit = async e => {
+  const handleSubmit = async () => {
     if (!validateForm()) return;
-
-    setIsSubmitting(true);
-    setError('');
 
     const validOptions = options.map(opt => opt.trim());
     if (!updatePoll) {
@@ -78,17 +74,23 @@ function CreatePoll({ type, poll, forum, updatePoll, onClose, onSuccess }) {
         if (!response.ok) {
           throw new Error(data.error || 'Failed to create poll');
         }
-
         onSuccess?.(data);
         onClose();
       } catch (err) {
         setError(err.message || 'Failed to create poll');
-      } finally {
-        setIsSubmitting(false);
       }
     } else {
-      updatePoll({ pollId: poll._id, title: title.trim(), options: validOptions });
+      try {
+        await updatePoll({ pollId: poll._id, title: title.trim(), options: validOptions });
+        onSuccess?.();
+        onClose();
+      } catch (err) {
+        setError(err.message || 'Failed to update poll');
+      }
     }
+    setIsSubmitting(true);
+    setError('');
+    setIsSubmitting(false);
   };
 
   return (

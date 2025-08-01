@@ -4,7 +4,9 @@ import SearchIcon from '../assets/icons/searchIcon.svg';
 import { MoreVertical, UserPlus } from 'lucide-react';
 import { useOutletContext, Outlet, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import { User, Users, Clock, MessageSquare, MessageCircle, Calendar, Bookmark } from 'lucide-react';
+import { User, Users, Clock, MessageSquare, MessageCircle, Calendar } from 'lucide-react';
+import { CiBookmark } from 'react-icons/ci';
+import { MdOutlineBookmark } from 'react-icons/md';
 import CreatePost from '../form/CreatePosts';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import EditOptions from '../components/ui/EditOptions';
@@ -221,49 +223,67 @@ function ForumHeader({ forum, handleClick }) {
 }
 
 function ForumPosts({ posts }) {
-  const navigate = useNavigate();
-
-  const handlePostClick = item => {
-    navigate(`${item._id}`);
-  };
   return (
     <>
       {posts && posts.length > 0 ? (
         <div className="flex flex-1 flex-col gap-4">
           {posts.map((item, index) => (
-            <div key={index} className="bg-layout-elements-focus rounded-button-round p-3">
-              <div
-                onClick={() => handlePostClick(item)}
-                className="mb-2 flex cursor-pointer items-start justify-between"
-              >
-                <p className="text-title text-font font-semibold">{item.title}</p>
-                <Bookmark className="ml-2 flex-shrink-0 cursor-pointer text-white" />
-              </div>
-              <div className="flex gap-4">
-                <div className="flex items-center gap-1">
-                  <User className="text-font-light/80 h-4 w-4" />
-                  <p className="text-font-light/80">{item.authorName}</p>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Clock className="text-font-light/80 h-4 w-4" />
-                  <p className="text-font-light/80">
-                    {formatDistanceToNow(Number(item.post_date), { addSuffix: true })}
-                  </p>
-                </div>
-              </div>
-              <div className="flex gap-4">
-                <div className="flex items-center gap-1">
-                  <MessageCircle className="text-font-light/80 h-4 w-4" />
-                  <p className="text-font-light/80">{item.comment_id.length || 0} comments</p>
-                </div>
-              </div>
-            </div>
+            <IndividualPosts key={item._id} post={item} />
           ))}
         </div>
       ) : (
         <div className="py-8 text-center text-lg text-gray-400">No posts yet</div>
       )}
     </>
+  );
+}
+
+function IndividualPosts({ post }) {
+  const navigate = useNavigate();
+  const [savedPost, setSavedPost] = useState(false);
+
+  const handlePostClick = item => {
+    navigate(`${item._id}`);
+  };
+
+  const toggleSave = (e, postId) => {
+    e.stopPropagation();
+    setSavedPost(prev => !prev);
+  };
+  return (
+    <div className="bg-layout-elements-focus rounded-button-round p-3">
+      <div
+        onClick={() => handlePostClick(post)}
+        className="relative mb-2 flex cursor-pointer items-start justify-between"
+      >
+        <p className="text-title text-font font-semibold">{post.title}</p>
+        <button onClick={e => toggleSave(e, post._id)} className="h-10 w-10 cursor-pointer">
+          {!savedPost ? (
+            <CiBookmark className="ml-2 h-full w-full flex-shrink-0 cursor-pointer text-white" />
+          ) : (
+            <MdOutlineBookmark className="ml-2 h-full w-full flex-shrink-0 cursor-pointer text-white" />
+          )}
+        </button>
+      </div>
+      <div className="flex gap-4">
+        <div className="flex items-center gap-1">
+          <User className="text-font-light/80 h-4 w-4" />
+          <p className="text-font-light/80">{post.authorName}</p>
+        </div>
+        <div className="flex items-center gap-1">
+          <Clock className="text-font-light/80 h-4 w-4" />
+          <p className="text-font-light/80">
+            {formatDistanceToNow(Number(post.post_date), { addSuffix: true })}
+          </p>
+        </div>
+      </div>
+      <div className="flex gap-4">
+        <div className="flex items-center gap-1">
+          <MessageCircle className="text-font-light/80 h-4 w-4" />
+          <p className="text-font-light/80">{post.comment_id.length || 0} comments</p>
+        </div>
+      </div>
+    </div>
   );
 }
 

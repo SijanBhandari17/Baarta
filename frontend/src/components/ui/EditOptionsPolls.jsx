@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Pencil, Trash2 } from 'lucide-react';
 import { usePost } from '../../context/PostContext';
 import { Button, Dialog, DialogTitle, DialogActions } from '@mui/material';
+import CreatePoll from './CreatePoll';
 
 function EditOptionsPoll({ isOpen, poll }) {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -39,10 +40,44 @@ function EditOptionsPoll({ isOpen, poll }) {
         ))}
       </div>
 
-      {/* {isEditModalOpen && <EditPollModal poll={poll} onClose={() => setIsEditModalOpen(false)} />} */}
+      {isEditModalOpen && <EditPollModal poll={poll} onClose={() => setIsEditModalOpen(false)} />}
       {isDeleteModalOpen && (
         <DeleteOptions poll={poll} onClose={() => setIsDeleteModalOpen(false)} />
       )}
+    </>
+  );
+}
+function EditPollModal({ poll, onClose }) {
+  const updatePoll = async ({ pollId, title, options }) => {
+    console.log(pollId);
+    try {
+      const response = await fetch('http://localhost:5000/poll', {
+        method: 'PUT',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ pollId, options, title }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        console.log(data);
+      } else {
+        console.error('Upload failed:', data.error);
+      }
+    } catch (err) {
+      console.log(`Err: ${err}`);
+    }
+  };
+  return (
+    <>
+      <CreatePoll
+        type="Update"
+        poll={poll}
+        isOpen={true}
+        onClose={onClose}
+        updatePoll={updatePoll}
+      />
     </>
   );
 }

@@ -36,7 +36,7 @@ const savePost = async(req ,res)=>{
             return res.status(404).json({"error" : "the post is either deleted or removed"})
         }
 
-        foundUser.save_post = [...foundUser.save_post , foundUser._id]
+        foundUser.save_post = [...foundUser.save_post , foundPost._id]
 
         const result = await foundUser.save({session})
 
@@ -63,4 +63,50 @@ const savePost = async(req ,res)=>{
 
 } 
 
-module.exports = {savePost}
+const deleteSavedPost = async (req, res)=>{
+
+    const session = await mongoose.startSession()
+    try{
+        await session.startTransaction()
+
+        if(!req.body?.postId) return res.status(400).json({"error" : "missing postId in the request header"})
+
+        const {postId} = req.body
+
+        if(!req.user?.email) return res.status(400).json({"error" : "unauthenticated user sent the request"})
+
+        const {email} =  req.user
+
+        const foundUser = await User.findOne({email}).session(session).exec()
+        if(!foundUser)
+        {
+            await session.abortTransaction()
+            return res.status(404).json({"error" : "user not found"})
+        }
+
+        const foundPost = await Post.findOne({_id : postId}).session(session).exec()
+        if(!foundPost) 
+        {
+            await session.abortTransaction()
+            return res.status(404).json({"error" : "the post is either deleted or removed"})
+        }
+
+        const result = await User.updateOne({_id : foundUser._id }, {$pull: {save_post : postId}}, {session})
+
+        await session.commitTransaction()
+
+        res.status(201).json({"message" : "your saved post was deleted", "body" : result})
+
+    }
+    catch(err)
+    {
+        await session.abortTransaction()
+        return res.status(500).json({"error" : `${err.stack}`})
+    }
+    finally{
+        await session.endSession()
+    }
+
+}
+
+module.exports = {savePost , deleteSavedPost}

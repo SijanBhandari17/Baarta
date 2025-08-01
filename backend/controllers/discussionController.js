@@ -186,4 +186,6 @@ const getDiscussion = async (req ,res )=>{
         await session.endSession()
     }
 }
-module.exports = {postDiscussion , deleteDiscussion}
+
+
+module.exports = {postDiscussion , deleteDiscussion , getDiscussion}

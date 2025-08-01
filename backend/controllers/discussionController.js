@@ -7,7 +7,6 @@ const Forum = require('../models/forumModel')
 const Poll = require('../models/pollModel')
 const Discussion = require('../models/discussionModel')
 const mongoose = require('mongoose')
-const discussionModel = require('../models/discussionModel')
 
 const postDiscussion = async (req, res)=>{
     const session = await mongoose.startSession()

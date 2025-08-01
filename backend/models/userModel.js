@@ -14,6 +14,7 @@ const userSchema = new Schema({
             forum_id : Number,
             role : { type: Number , default : 1 } // 1 is for member 2 is for moderator and 3 is for admin
         }
-    ]
+    ],
+    save_post : [{type:mongoose.Schema.Types.ObjectId , ref : 'Post'}  ]
 })
 module.exports = mongoose.model('User' , userSchema)

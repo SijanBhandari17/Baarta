@@ -16,6 +16,7 @@ const profilepic = require('./routes/profilePic')
 const commentRoute = require('./routes/commentRoutes')
 const replyHandler = require('./routes/replyRoutes')
 const notificationHandler = require('./routes/requestRoutes')
+const postSaveHandler = require('./routes/savePostRoutes')
 const pollHandler = require('./routes/pollRoutes')
 const allResource = require('./routes/sendAllRoutes')
 const discussionHandler = require('./routes/discussionRoutes')
@@ -61,6 +62,9 @@ app.use('/miscallenuous' , verifyJWT)
 app.use('/miscallenuous' , miscallenuousHandler)
 app.use('/search' , verifyJWT)
 app.use('/search' , searchHandler)
+app.use('/save' , verifyJWT)
+app.use('/save' , postSaveHandler)
+
 
 mongoose.connection.once('open' , ()=>{
   console.log('connected to MongoDB atlas')

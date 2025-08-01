@@ -1,7 +1,11 @@
 require('dotenv').config()
 const express = require('express');
+const http = require('http')
+const socketIo = require('socket.io')
 const cookieParser = require('cookie-parser');
 const app = express();
+const server = http.createServer(app)
+const io = socketIo(server)
 const handleNewUser = require('./routes/registerRoute');
 const handleLogin = require('./routes/authRoutes');
 const handleLogout = require('./routes/logoutRoutes');
@@ -23,7 +27,6 @@ const cloudinaryMiddleware = require('./middleware/cloudinaryMiddleware')
 const corsOptions = require('./config/corsOption')
 const mongoose = require('mongoose')
 const connectDB = require('./config/dbConfig');
-const { verify } = require('jsonwebtoken');
 const PORT = process.env.PORT || 5500;
 connectDB()
 app.use(cookieParser());
@@ -61,7 +64,7 @@ app.use('/search' , searchHandler)
 
 mongoose.connection.once('open' , ()=>{
   console.log('connected to MongoDB atlas')
-  app.listen(5000 , '0.0.0.0' ,()=>{
+  server.listen(5000 , '0.0.0.0' ,()=>{
     console.log(`the server is listening to port no . ${PORT}`)
   })
 })

@@ -163,4 +163,4 @@ const deleteSavedPost = async (req, res)=>{
 
 }
 
-module.exports = {savePost , deleteSavedPost}
+module.exports = {savePost , deleteSavedPost , getSavedPost}

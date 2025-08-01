@@ -93,6 +93,10 @@ const uploadPost = async (req, res) => {
     foundForum.post_id = [...foundForum.post_id, result[0]._id];
     await foundForum.save({ session });
 
+    foundUser.no_post +=1
+
+    await foundUser.save({session})
+
     await session.commitTransaction();
 
     res.status(201).json({
@@ -111,7 +115,7 @@ const updatePost = async (req, res) => {
   const session = await mongoose.startSession();
   try {
     await session.startTransaction();
-    if (!req.body?.postId)
+    if (!req.body?.postId) 
       return res
         .status(400)
         .json({ error: "forumId is missing the request header" });
@@ -242,6 +246,10 @@ const deletePost = async (req, res) => {
       { session },
     );
 
+    foundUser.no_post -= 1
+
+    await foundUser.save({session})
+
     await session.commitTransaction();
 
     res.status(201).json({
@@ -368,6 +376,7 @@ const upVotePost = async (req, res)=>{
     await session.endSession();
   }
 }
+
 
 
 module.exports = { uploadPost, getPost, updatePost, deletePost , upVotePost};

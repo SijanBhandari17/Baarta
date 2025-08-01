@@ -39,6 +39,8 @@ const addCommentToPost = async (req , res)=>{
 
         foundPost.comment_id = [...foundPost.comment_id , result[0]._id]
         await foundPost.save({session})
+        foundUser.no_replies += 1
+        await foundUser.save({session})
         await session.commitTransaction()
         return res.status(201).json({"message" : 'successfully added comment' , "body" : toSendResult})
     }
@@ -89,6 +91,8 @@ const removeCommentFromPost = async (req , res)=>{
         // }
         await Comment.deleteOne({_id : commentId}, {session})
         const result = await Post.updateOne({_id : foundComment.parent.parent_id} , {$pull :  { comment_id : foundComment._id }} , {session})
+        foundUser.no_replies -= 1
+        foundUser.save({session})
         await session.commitTransaction()
         return res.status(201).json({"message" : 'successfully removed comment from the post ' , "body" : result})
     }

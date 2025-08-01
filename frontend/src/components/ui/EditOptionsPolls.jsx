@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { Pencil, Trash2 } from 'lucide-react';
+import { usePost } from '../../context/PostContext';
+import { Button, Dialog, DialogTitle, DialogActions } from '@mui/material';
 
 function EditOptionsPoll({ isOpen, poll }) {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -38,10 +40,51 @@ function EditOptionsPoll({ isOpen, poll }) {
       </div>
 
       {/* {isEditModalOpen && <EditPollModal poll={poll} onClose={() => setIsEditModalOpen(false)} />} */}
-      {/* {isDeleteModalOpen && ( */}
-      {/*   <DeleteOptions poll={poll} onClose={() => setIsDeleteModalOpen(false)} /> */}
-      {/* )} */}
+      {isDeleteModalOpen && (
+        <DeleteOptions poll={poll} onClose={() => setIsDeleteModalOpen(false)} />
+      )}
     </>
+  );
+}
+function DeleteOptions({ poll, onClose }) {
+  const { deletePollInContext } = usePost();
+  const onDelete = async () => {
+    if (poll) {
+      try {
+        const response = await fetch('http://localhost:5000/poll/deletePoll', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ pollId: poll._id }),
+          credentials: 'include',
+        });
+        const data = await response.json();
+        if (response.ok) {
+          deletePollInContext(poll._id);
+        }
+      } catch (err) {
+        console.error('error:', err);
+      }
+    }
+  };
+
+  return (
+    <Dialog open={true} onClose={onClose}>
+      <DialogTitle>Are you sure you want to delete this poll?</DialogTitle>
+      <DialogActions>
+        <Button onClick={onClose}>Cancel</Button>
+        <Button
+          color="error"
+          onClick={async () => {
+            await onDelete();
+            onClose();
+          }}
+        >
+          Delete
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 }
 export default EditOptionsPoll;

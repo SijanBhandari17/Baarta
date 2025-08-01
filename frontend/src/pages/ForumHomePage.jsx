@@ -2,7 +2,6 @@ import Header from '../components/common/Header';
 import LeftAsideBar from '../components/common/LeftAsideBar';
 import SearchIcon from '../assets/icons/searchIcon.svg';
 import { MoreVertical, UserPlus } from 'lucide-react';
-import { BiUpvote, BiSolidUpvote } from 'react-icons/bi';
 import { useOutletContext, Outlet, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { User, Users, Clock, MessageSquare, MessageCircle, Calendar, Bookmark } from 'lucide-react';

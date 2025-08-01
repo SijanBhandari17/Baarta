@@ -90,8 +90,13 @@ const PostProvider = ({ children }) => {
       console.log(`Err: ${err}`);
     }
   };
+
   const addPollInContext = poll => {
     setPolls(prev => [poll, ...prev]);
+  };
+
+  const deletePollInContext = pollId => {
+    setPolls(prev => prev.filter(poll => poll._id !== pollId));
   };
 
   const updatePollInContext = (selectedPoll, updatedOptions) => {
@@ -133,6 +138,7 @@ const PostProvider = ({ children }) => {
         addPollInContext,
         updateUsingConsineSimilarity,
         deletePostInContext,
+        deletePollInContext,
         updatePollInContext,
         addPostInContext,
         updatePostInContext,

@@ -139,10 +139,6 @@ function Comment({ comment, handleEditComment, activeCommentId, toggleEditOption
   const [editText, setEditText] = useState(comment.text);
   const { addCommentInContext, updateCommentInContext, deleteCommentInContext } = useComment();
   const [likedByMe, setLikedByMe] = useState(comment.no_of_likes.includes(user.info.userId));
-  console.log(comment.no_of_likes);
-  console.log(user.info.userId);
-  console.log(comment.no_of_likes.includes(user.info.userId));
-  console.log(likedByMe);
   const [likeNumber, setLikeNumber] = useState(comment.no_of_likes.length);
   const showEditOptions = activeCommentId === comment._id;
 
@@ -182,7 +178,6 @@ function Comment({ comment, handleEditComment, activeCommentId, toggleEditOption
   };
 
   const handleLikeComment = async commentId => {
-    console.log(commentId);
     try {
       const response = await fetch('http://localhost:5000/comment/likecomment', {
         method: 'POST',

@@ -6,7 +6,7 @@ import { useForum } from './ForumContext';
 const PostContext = createContext();
 
 const PostProvider = ({ children }) => {
-  const { forumTitle, postId } = useParams();
+  const { forumTitle } = useParams();
 
   const decodedTitle = decodeURIComponent(forumTitle || '');
 
@@ -41,7 +41,6 @@ const PostProvider = ({ children }) => {
         credentials: 'include',
       });
       const data = await response.json();
-      console.log(data);
       if (response.ok) {
         setPolls(prev => [...prev, ...data.body]);
       }

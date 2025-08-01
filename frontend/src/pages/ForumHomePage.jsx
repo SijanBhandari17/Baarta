@@ -2,19 +2,10 @@ import Header from '../components/common/Header';
 import LeftAsideBar from '../components/common/LeftAsideBar';
 import SearchIcon from '../assets/icons/searchIcon.svg';
 import { MoreVertical, UserPlus } from 'lucide-react';
-import { useParams, useOutletContext, Outlet, useNavigate } from 'react-router-dom';
-import { useForum } from '../context/ForumContext';
-import { useEffect, useMemo, useState } from 'react';
-import {
-  User,
-  Users,
-  Clock,
-  MessageSquare,
-  MessageCircle,
-  Calendar,
-  Eye,
-  Bookmark,
-} from 'lucide-react';
+import { BiUpvote, BiSolidUpvote } from 'react-icons/bi';
+import { useOutletContext, Outlet, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { User, Users, Clock, MessageSquare, MessageCircle, Calendar, Bookmark } from 'lucide-react';
 import CreatePost from '../form/CreatePosts';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import EditOptions from '../components/ui/EditOptions';
@@ -23,12 +14,9 @@ import { useAuth } from '../context/AuthContext';
 import { usePost } from '../context/PostContext';
 import InvitePeople from '../components/ui/InvitePeople';
 import CreatePoll from '../components/ui/CreatePoll';
-import PollModal from '../components/common/nav/asidebar/pollmodal';
 import SinglePoll from '../components/ui/Polls';
 
 function ForumHomePage() {
-  const { forumTitle } = useParams();
-  const decodedTitle = decodeURIComponent(forumTitle || '');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { posts, moderators, forumToShow, addPostInContext } = usePost();
   if (!forumToShow) return <LoadingSpinner />;
@@ -134,7 +122,6 @@ function ForumHeader({ forum, handleClick }) {
     forum.admin_id === user?.info.userId || forum.moderator_id.includes(user?.info.userId);
 
   const handleChangeSearchBarChange = async e => {
-    console.log('hello');
     const value = e.target.value;
     setQuery(value);
 
@@ -288,7 +275,6 @@ function ForumLeftBar({ forum, moderators, posts }) {
     forum.admin_id === user?.info.userId || forum.moderator_id.includes(user?.info.userId);
 
   const { polls } = usePost();
-  console.log('forumHomePage', polls);
   return (
     <div className="ml-auto flex flex-col gap-2">
       <div className="bg-layout-elements-focus rounded-button-round p-8">
@@ -328,7 +314,7 @@ function ForumLeftBar({ forum, moderators, posts }) {
         <div className="flex flex-col gap-4">
           {forum.moderator_id.length !== 0 ? (
             <div>
-              {moderators.map((item, index) => {
+              {moderators.map(item => {
                 return (
                   <div
                     key={item._id}

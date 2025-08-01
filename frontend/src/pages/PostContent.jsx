@@ -1,7 +1,8 @@
 import { useParams } from 'react-router-dom';
 import CreateComment from '../form/CreateComment';
 import { useState, useMemo, useRef } from 'react';
-import { ChevronUp, MoreVertical, Eye, MessageCircle, Clock } from 'lucide-react';
+import { MoreVertical, MessageCircle, Clock } from 'lucide-react';
+import { BiUpvote, BiSolidUpvote } from 'react-icons/bi';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { format } from 'date-fns';
 import EditOptionsPost from '../components/ui/EditOptionsPosts';
@@ -16,6 +17,7 @@ import {
   deleteReply,
   updateComment,
 } from '../utils/handleComments';
+import { useAuth } from '../context/AuthContext';
 
 export default function PostContent() {
   const { postId } = useParams();
@@ -23,7 +25,7 @@ export default function PostContent() {
   const { posts } = usePost();
   const [isEditOptionsOpen, setIsEditOptionsOpen] = useState(false);
   const [activeCommentId, setActiveCommentId] = useState(null);
-  const { addRootCommentInContext, addCommentInContext, comments, loading } = useComment();
+  const { addRootCommentInContext, comments, loading } = useComment();
 
   const toggleEditOptionsForComment = commentId => {
     setActiveCommentId(prevId => (prevId === commentId ? null : commentId));
@@ -130,13 +132,18 @@ export default function PostContent() {
   );
 }
 function Comment({ comment, handleEditComment, activeCommentId, toggleEditOptionsForComment }) {
+  const { user } = useAuth();
   const [showReplies, setShowReplies] = useState(false);
   const [showReplyInput, setShowReplyInput] = useState(false);
   const [editMode, setEditMode] = useState(false); //false == view mode
   const [editText, setEditText] = useState(comment.text);
-  const [like, setLike] = useState(0);
   const { addCommentInContext, updateCommentInContext, deleteCommentInContext } = useComment();
-  const likedByMe = useRef(false);
+  const [likedByMe, setLikedByMe] = useState(comment.no_of_likes.includes(user.info.userId));
+  console.log(comment.no_of_likes);
+  console.log(user.info.userId);
+  console.log(comment.no_of_likes.includes(user.info.userId));
+  console.log(likedByMe);
+  const [likeNumber, setLikeNumber] = useState(comment.no_of_likes.length);
   const showEditOptions = activeCommentId === comment._id;
 
   const handleReplyCancel = () => {
@@ -174,31 +181,48 @@ function Comment({ comment, handleEditComment, activeCommentId, toggleEditOption
     toggleEditOptionsForComment(null);
   };
 
-  const handleLikeComment = commentId => {
-    likedByMe.current = true;
+  const handleLikeComment = async commentId => {
+    console.log(commentId);
+    try {
+      const response = await fetch('http://localhost:5000/comment/likecomment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ commentId: commentId }),
+      });
 
-    if (!likedByMe.current) setLike(like + 1);
+      const data = await response.json();
+      console.log(data);
+      if (response.ok) {
+        setLikedByMe(prevLiked => {
+          setLikeNumber(prev => (prevLiked ? prev - 1 : prev + 1));
+          return !prevLiked;
+        });
+      }
+    } catch (err) {
+      console.log(`Err: ${err}`);
+    }
   };
+
+  if (!comment) return <LoadingSpinner />;
+
   return (
     <div className="bg-layout-elements-focus border-layout-elements-focus rounded-button-round border p-4">
       <div className="mb-2 flex items-start gap-4">
         <div className="flex flex-col items-center gap-1 pt-1">
           <button
-            disabled={likedByMe}
             onClick={() => handleLikeComment(comment._id)}
-            className={`flex h-8 w-8 items-center justify-center rounded-full transition-all duration-200 ${
-              likedByMe.current
-                ? 'bg-[#4169E1] text-white hover:bg-[#3A5FD8]'
-                : 'bg-layout-elements-focus border-layout-elements-focus hover:bg-layout-elements-focus/80 text-font-light/60 hover:text-font-light border'
-            }`}
+            className={`flex h-8 w-8 items-center justify-center rounded-full transition-all duration-200 ${'bg-layout-elements-focus border-layout-elements-focus hover:bg-layout-elements-focus/80 text-font-light/60 hover:text-font-light border'}`}
           >
-            <ChevronUp className="cursor-pointer" size={16} />
+            {!likedByMe ? (
+              <BiUpvote className="cursor-pointer" size={16} />
+            ) : (
+              <BiSolidUpvote className="cursor-pointer" />
+            )}
           </button>
-          {/* {comment.no_of_likes.length > 0 && ( */}
-          {/*   <span className="text-font-light/60 text-xs font-medium"> */}
-          {/*     {comment.no_of_likes.length} */}
-          {/*   </span> */}
-          {/* )} */}
+          {likeNumber > 0 && (
+            <span className="text-font-light/60 text-xs font-medium">{likeNumber}</span>
+          )}
         </div>
         <img
           src={comment?.authorProfilePicLink}

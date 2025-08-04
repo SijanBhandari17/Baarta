@@ -15,7 +15,7 @@ function RightAsideBar() {
   return (
     <aside className="bg-layout-elements top-20 flex h-[calc(100vh-5rem)] w-[15%] flex-col border border-l-white/10 p-6">
       <UpcommingEvents />
-      <ActivePoll />
+      {/* <ActivePoll /> */}
     </aside>
   );
 }
@@ -63,6 +63,7 @@ function ActivePoll() {
   return (
     <div className="active-poll bg-layout-elements-focus rounded-button-round mb-8 w-full cursor-pointer border border-white/10">
       <h1 className="text-title text-font my-2 ml-5 font-semibold uppercase">Active Poll</h1>
+      {!activePolls.length && <LoadingSpinner />}
       {activePolls.map((item, index) => (
         <SinglePoll poll={item} key={index} updateInAsideBar={setActivePolls} />
       ))}

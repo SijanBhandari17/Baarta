@@ -3,6 +3,7 @@ import LeftAsideBar from '../components/common/LeftAsideBar';
 import CalenderIcon from '../assets/icons/calendar.svg';
 import { useLocation, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import socket from '../socket';
 
 function UpcommingEventInfo() {
   const { eventId } = useParams();
@@ -22,6 +23,7 @@ function UpcommingEventInfo() {
               className="bg-primary hover:bg-primary-dark mb-4 cursor-pointer rounded px-6 py-2 text-white transition"
               onClick={() => {
                 // handle Go Live logic here
+                socket.emit('host-connect', { msg: 'hello' }, 'fuckyou');
               }}
             >
               Go Live
@@ -31,6 +33,7 @@ function UpcommingEventInfo() {
               className="bg-secondary hover:bg-secondary-dark mb-4 cursor-pointer rounded px-6 py-2 text-white transition"
               onClick={() => {
                 // handle Join Now logic here
+                socket.emit('participant-connect', { msg: 'hi' }, 'fuckyou');
               }}
             >
               Join Now

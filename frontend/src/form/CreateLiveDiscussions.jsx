@@ -14,6 +14,8 @@ function Creatediscussion({
 }) {
   const [discussionName, setdiscussionName] = useState('');
   const [discussionDescription, setdiscussionDescription] = useState('');
+  const [discussionDate, setDiscussionDate] = useState('');
+  const [discussionTime, setDiscussionTime] = useState('');
   const { user } = useAuth();
   const { forumToShow } = usePost();
 
@@ -23,7 +25,14 @@ function Creatediscussion({
     const data = new FormData(form);
     const title = data.get('discussion-name');
     const content_text = data.get('discussion-description');
+    const date = data.get('discussion-date');
+    const time = data.get('discussion-time');
     const forumId = forumToShow._id;
+    let scheduledDateTime = null;
+    if (date && time) {
+      scheduledDateTime = new Date(`${date} ${time}`).toISOString();
+    }
+    console.log(scheduledDateTime);
 
     try {
       const response = await fetch('http://localhost:5000/discussion', {
@@ -32,7 +41,12 @@ function Creatediscussion({
           'Content-Type': 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify({ forumId, title, description: content_text }),
+        body: JSON.stringify({
+          forumId,
+          title,
+          description: content_text,
+          end_date: scheduledDateTime,
+        }),
       });
       const data = await response.json();
       console.log(data);
@@ -42,6 +56,8 @@ function Creatediscussion({
 
     setdiscussionName('');
     setdiscussionDescription('');
+    setDiscussionDate('');
+    setDiscussionTime('');
     form.reset();
     onClose();
   };
@@ -101,6 +117,40 @@ function Creatediscussion({
               className="min-h-[120px] w-full rounded-lg border border-gray-700 bg-gray-800 p-3 text-white placeholder-gray-400 focus:border-blue-600 focus:outline-none"
               required
             />
+          </div>
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div>
+              <label
+                htmlFor="discussion-date"
+                className="mb-2 block text-lg font-semibold text-white"
+              >
+                Discussion Date
+              </label>
+              <input
+                id="discussion-date"
+                name="discussion-date"
+                type="date"
+                value={discussionDate}
+                onChange={e => setDiscussionDate(e.target.value)}
+                className="w-full rounded-lg border border-gray-700 bg-gray-800 p-3 text-white focus:border-blue-600 focus:outline-none"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="discussion-time"
+                className="mb-2 block text-lg font-semibold text-white"
+              >
+                Discussion Time
+              </label>
+              <input
+                id="discussion-time"
+                name="discussion-time"
+                type="time"
+                value={discussionTime}
+                onChange={e => setDiscussionTime(e.target.value)}
+                className="w-full rounded-lg border border-gray-700 bg-gray-800 p-3 text-white focus:border-blue-600 focus:outline-none"
+              />
+            </div>
           </div>
         </div>
         <div className="mt-12 flex justify-end space-x-6">

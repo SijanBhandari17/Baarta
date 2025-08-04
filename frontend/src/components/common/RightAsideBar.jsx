@@ -67,7 +67,7 @@ function ActivePoll() {
       }
     };
     getActivePolls();
-  });
+  }, []);
   return (
     <div className="active-poll bg-layout-elements-focus rounded-button-round mb-8 w-full cursor-pointer border border-white/10">
       <h1 className="text-title text-font my-2 ml-5 font-semibold uppercase">Active Poll</h1>

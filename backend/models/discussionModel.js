@@ -5,6 +5,6 @@ const discussionSchema = new Schema({
   title: { type: String, required: true },
   description:{type : String , required : true},
   post_date: { type: String, required: true, default: Date.now }, // date is kept for the no of millliseconds after thu jan 1 1970 for sorting purposes while recovering them
-  end_date : {type : String}
+  end_date : {type : String , required : true}
 });
 module.exports = mongoose.model("Discussion", discussionSchema);

@@ -164,22 +164,27 @@ const getDiscussion = async (req ,res )=>{
         }
 
 
-        const discussionArr = foundForum.discussion_id
+        const discussionArr = foundForum.discussion_id.map(item => item.toString())
 
         const foundDiscussionArr = await Discussion.find({_id : {$in : discussionArr}}).session(session).exec()
 
-        
+        const toSendBody = await Promise.all(foundDiscussionArr.map(async(item)=>{
+            const authorId = await User.findOne({_id : item.author_id}).session(session).exec()
+            const authorProfilePic= await Profile.findOne({userId : authorId._id}).session(session).exec()
+            
+            return {...item.toObject() , authorName : authorId.username , authorEmail : authorId.email , authorProfilePicLink : authorProfilePic?.profilePicLink || "https://res.cloudinary.com/dlddcx3uw/image/upload/v1752323363/defaultUser_cfqyxq.svg" }
+        })) 
 
         await session.commitTransaction()
 
-        return res.status(201).json({"message" : 'successful deletion of the discussion' , "body" : result})
+        res.status(201).json({"message" : 'successful deletion of the discussion' , "body" : toSendBody})
          
     }
 
     catch(err)
     {
         await session.abortTransaction()
-        res.status(500).json({"error" : `${err.stack}`})
+        return res.status(500).json({"error" : `${err.stack}`})
     }
     finally{
         await session.endSession()

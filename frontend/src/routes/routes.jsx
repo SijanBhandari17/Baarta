@@ -5,11 +5,9 @@ import { ProtectedRoute, PublicRoute } from './protectedroutes';
 import HomeContent from '../components/common/nav/asidebar/HomeContent';
 import ForumContent from '../components/common/nav/asidebar/ForumContent';
 import Saved from '../components/common/nav/asidebar/SavedContent';
-import Drafts from '../components/common/nav/asidebar/DraftContent';
 
 import LiveDiscussions from '../components/common/nav/home/LiveDiscussions';
 import Threads from '../components/common/nav/home/Threads';
-import Trending from '../components/common/nav/home/Trending';
 import UpcommingEventInfo from '../pages/UpcommingEvents';
 import { ForumHomePage, ForumDefault } from '../pages/ForumHomePage';
 import PostContent from '../pages/PostContent';
@@ -33,11 +31,9 @@ const router = createBrowserRouter(
           <Route index element={<Navigate to="livediscussions" replace />} />
           <Route path="livediscussions" element={<LiveDiscussions />} />
           <Route path="mythreads" element={<Threads />} />
-          <Route path="trending" element={<Trending />} />
         </Route>
         <Route path="forum" element={<ForumContent />} />
         <Route path="saved" element={<Saved />} />
-        <Route path="draft" element={<Drafts />} />
       </Route>
       <Route path="upcommingevents/:eventId" element={<UpcommingEventInfo />} />
       <Route

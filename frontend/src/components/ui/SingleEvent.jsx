@@ -5,7 +5,6 @@ function SingleEvent({ event, isAdmin }) {
   // const date = dateObj.toISOString().slice(0, 10);
   // const time = dateObj.toISOString().slice(11, 16);
   const navigate = useNavigate();
-  console.log(isAdmin);
   const handleClick = () => {
     navigate(`/upcommingevents/${encodeURIComponent(event._id)}`, {
       state: {

@@ -184,11 +184,18 @@ const sendAllPolls = async(req, res)=>{
 
         const joinForumPollArr = await Poll.find({forumId : {$in : joinForumIdArr}}).session(session).exec()
 
-        
+        const toSendBody = await Promise.all(joinForumPollArr.map(async(item)=>{
+            const authorId = await User.findOne({_id : item.authorId}).session(session).exec()
+            const authorProfilePic= await Profile.findOne({userId : authorId._id}).session(session).exec()
+            
+            return {...item.toObject() , authorName : authorId.username , authorEmail : authorId.email , authorProfilePicLink : authorProfilePic?.profilePicLink || "https://res.cloudinary.com/dlddcx3uw/image/upload/v1752323363/defaultUser_cfqyxq.svg" }
+
+
+        })) 
 
         await session.commitTransaction()
 
-        return res.status(200).json({"message" : "all forums sent" , "body" : toSendBody})
+        return res.status(200).json({"message" : "polls successfully found" , "body" : toSendBody})
 
     }
 
@@ -203,4 +210,4 @@ const sendAllPolls = async(req, res)=>{
 
 }
 
-module.exports = {sendAllUser , sendAllForum , sendOneUser}
+module.exports = {sendAllUser , sendAllForum , sendOneUser , sendAllPolls}

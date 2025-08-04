@@ -172,7 +172,7 @@ const sendAllPolls = async(req, res)=>{
             return res.status(404).json({"error" : "the user account was either deleted or removed"})
         }
 
-        const joinForumArr = await Forum.find({member_id : foundUser._id}).session(session)
+        const joinForumArr = await Forum.find({$or : [{moderator_id : foundUser._id} , {admin_id : foundUser._id} , {member_id : foundUser._id}]}).session(session)
         if(joinForumArr.length === 0 )
         {
             await session.commitTransaction()
@@ -180,9 +180,14 @@ const sendAllPolls = async(req, res)=>{
             return res.status(200).json({"message" : "polls successfully found" , "body":[]})
         } 
 
+        console.log(joinForumArr)
+
         const joinForumIdArr = joinForumArr.map(item => item._id.toString())
 
+        console.log(joinForumArr)
+
         const joinForumPollArr = await Poll.find({forumId : {$in : joinForumIdArr}}).session(session).exec()
+
 
         const toSendBody = await Promise.all(joinForumPollArr.map(async(item)=>{
             const authorId = await User.findOne({_id : item.authorId}).session(session).exec()
@@ -193,6 +198,7 @@ const sendAllPolls = async(req, res)=>{
 
         })) 
 
+        console.log(toSendBody.length)
         await session.commitTransaction()
 
         return res.status(200).json({"message" : "polls successfully found" , "body" : toSendBody})
@@ -228,7 +234,7 @@ const sendAllDiscussions = async(req, res)=>{
             return res.status(404).json({"error" : "the user account was either deleted or removed"})
         }
 
-        const joinForumArr = await Forum.find({member_id : foundUser._id}).session(session)
+        const joinForumArr = await Forum.find({$or : [{admin_id : foundUser._id} , {moderator_id : foundUser._id} , {member_id : foundUser._id}]}).session(session)
         if(joinForumArr.length === 0 )
         {
             await session.commitTransaction()

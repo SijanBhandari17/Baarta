@@ -167,16 +167,9 @@ const getDiscussion = async (req ,res )=>{
             return res.status(404).json({"error" : "the forum is either deleted or removed"})
         }
 
-        console.log(foundForum)        
-
 
         const discussionArr = foundForum.discussion_id.map(item => item.toString())
-
-        console.log(discussionArr)
-
         const foundDiscussionArr = await Discussion.find({_id : {$in : discussionArr}}).session(session).exec()
-
-        console.log(foundDiscussionArr.length)
 
         const toSendBody = await Promise.all(foundDiscussionArr.map(async(item)=>{
             const authorId = await User.findOne({_id : item.author_id}).session(session).exec()

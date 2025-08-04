@@ -39,7 +39,7 @@ const router = createBrowserRouter(
         <Route path="saved" element={<Saved />} />
         <Route path="draft" element={<Drafts />} />
       </Route>
-      <Route path="upcommingevents" element={<UpcommingEventInfo />} />
+      <Route path="upcommingevents/:eventId" element={<UpcommingEventInfo />} />
       <Route
         path="/b/:forumTitle"
         element={

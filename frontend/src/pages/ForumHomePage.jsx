@@ -15,6 +15,7 @@ import CreatePoll from '../components/ui/CreatePoll';
 import SinglePoll from '../components/ui/Polls';
 import IndividualPosts from '../components/ui/SinglePosts';
 import Creatediscussion from '../form/CreateLiveDiscussions';
+import SingleEvent from '../components/ui/SingleEvent';
 
 function ForumHomePage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -268,6 +269,8 @@ function ForumLeftBar({ forum, moderators, posts }) {
     forum.admin_id === user?.info.userId || forum.moderator_id.includes(user?.info.userId);
 
   const { polls } = usePost();
+  const { discussions } = usePost();
+  console.log(discussions);
   return (
     <div className="ml-auto flex flex-col gap-2">
       <div className="bg-layout-elements-focus rounded-button-round p-8">
@@ -345,8 +348,8 @@ function ForumLeftBar({ forum, moderators, posts }) {
       <div className="bg-layout-elements-focus rounded-button-round p-8">
         <h1 className="text-font text-title mb-4 font-semibold">Upcomming Events</h1>
         <div className="flex flex-col gap-4">
-          {polls.map(poll => {
-            return <SinglePoll key={poll._id} hasAdminPrivilage={hasAdminPrivilage} poll={poll} />;
+          {discussions?.map(event => {
+            return <SingleEvent key={event._id} isAdmin={hasAdminPrivilage} event={event} />;
           })}
         </div>
       </div>

@@ -6,6 +6,7 @@ const ForumProvider = ({ children }) => {
   const [forum, setForum] = useState([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
+  console.log(forum);
 
   useEffect(() => {
     if (user) {

@@ -177,7 +177,7 @@ const getDiscussion = async (req ,res )=>{
 
         await session.commitTransaction()
 
-        res.status(201).json({"message" : 'successful deletion of the discussion' , "body" : toSendBody})
+        res.status(201).json({"message" : 'successful retreival of discussion' , "body" : toSendBody})
          
     }
 

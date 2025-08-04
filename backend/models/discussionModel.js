@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const discussionSchema = new Schema({
+  forum_id : {type : mongoose.Schema.Types.ObjectId , ref : "Forum"},
   author_id: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   title: { type: String, required: true },
   description:{type : String , required : true},

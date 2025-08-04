@@ -234,7 +234,7 @@ const sendAllDiscussions = async(req, res)=>{
             return res.status(404).json({"error" : "the user account was either deleted or removed"})
         }
 
-        const joinForumArr = await Forum.find({member_id : foundUser._id}).session(session)
+        const joinForumArr = await Forum.find({$or : [{admin_id : foundUser._id} , {moderator_id : foundUser._id} , {member_id : foundUser._id}]}).session(session)
         if(joinForumArr.length === 0 )
         {
             await session.commitTransaction()

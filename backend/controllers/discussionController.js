@@ -54,6 +54,7 @@ const postDiscussion = async (req, res)=>{
 
         const createdDiscussion = await Discussion.create([
             {
+                forum_id : forumId,
                 author_id : foundUser._id,
                 title : title,
                 description : description,
@@ -140,7 +141,7 @@ const getDiscussion = async (req ,res )=>{
 
         await session.startTransaction()
 
-        if(!req.body?.forumId) return res.status(400).json({"error" : "missing forumId in the request header"})
+        if(!req.query?.forumId) return res.status(400).json({"error" : "missing forumId in the request header"})
 
         const {forumId} = req.body
 

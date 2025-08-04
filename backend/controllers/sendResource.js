@@ -238,10 +238,10 @@ const sendAllDiscussions = async(req, res)=>{
 
         const joinForumIdArr = joinForumArr.map(item => item._id.toString())
 
-        const joinForumDiscussionArr = await Disucssion.find({forumId : {$in : joinForumIdArr}}).session(session).exec()
+        const joinForumDiscussionArr = await Disucssion.find({forum_id : {$in : joinForumIdArr}}).session(session).exec()
 
-        const toSendBody = await Promise.all(joinForumPollArr.map(async(item)=>{
-            const authorId = await User.findOne({_id : item.authorId}).session(session).exec()
+        const toSendBody = await Promise.all(joinForumDiscussionArr.map(async(item)=>{
+            const authorId = await User.findOne({_id : item.author_id}).session(session).exec()
             const authorProfilePic= await Profile.findOne({userId : authorId._id}).session(session).exec()
             
             return {...item.toObject() , authorName : authorId.username , authorEmail : authorId.email , authorProfilePicLink : authorProfilePic?.profilePicLink || "https://res.cloudinary.com/dlddcx3uw/image/upload/v1752323363/defaultUser_cfqyxq.svg" }
@@ -266,4 +266,4 @@ const sendAllDiscussions = async(req, res)=>{
 
 }
 
-module.exports = {sendAllUser , sendAllForum , sendOneUser , sendAllPolls}
+module.exports = {sendAllUser , sendAllForum , sendOneUser , sendAllPolls , sendAllDiscussions}

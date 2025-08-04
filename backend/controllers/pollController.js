@@ -64,7 +64,7 @@ const postPoll = async (req, res) => {
     );
 
     foundForum.poll_id = [...foundForum.poll_id , result[0]._id]
-    await foundForum.save({session})
+
 
     await session.commitTransaction();
     res.status(201).json({ message: "successfully created the poll", body: result });

@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { io } from 'socket.io-client';
+import socket from '../socket';
 
 const AuthContext = createContext();
 
@@ -9,7 +9,7 @@ const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     checkAuthStatus();
-    const socket = io('http://localhost:5000');
+    socket.connect();
 
     socket.on('message', data => {
       console.log('Received message: ', data);

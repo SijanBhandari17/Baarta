@@ -1,12 +1,4 @@
-import {
-  event,
-  speakers,
-  schedule,
-  location,
-  similarEvents,
-  discussion,
-  userOptions,
-} from '../utils/fetchInfoEvent';
+import { event, speakers } from '../utils/fetchInfoEvent';
 import Header from '../components/common/Header';
 import LeftAsideBar from '../components/common/LeftAsideBar';
 import CalenderIcon from '../assets/icons/calendar.svg';
@@ -20,7 +12,6 @@ function UpcommingEventInfo() {
         <section className="w-[70%] p-6">
           <EventHeader />
           <FeaturedSpeaker />
-          <EventSchedule />
         </section>
       </main>
     </div>
@@ -75,29 +66,6 @@ function FeaturedSpeaker() {
             </div>
           </div>
         ))}
-      </div>
-    </section>
-  );
-}
-function EventSchedule() {
-  return (
-    <section className="mb-5">
-      <div className="text-font text-title mb-4 font-bold">Event Schedule</div>
-      <div className="space-y-4">
-        {schedule.map((item, index) => {
-          return (
-            <div
-              key={index}
-              className="bg-layout-elements-focus rounded-button-round mb-2 flex w-1/3 items-start space-x-4 p-4"
-            >
-              <p className="text-lg font-bold text-[#4968F4]">{item.time}</p>
-              <div className="flex-1">
-                <p className="text-font text-body font-semibold">{item.title}</p>
-                {item.speaker && <p className="text-sm text-gray-400">{item.speaker}</p>}
-              </div>
-            </div>
-          );
-        })}
       </div>
     </section>
   );

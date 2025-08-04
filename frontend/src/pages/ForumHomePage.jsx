@@ -14,9 +14,11 @@ import InvitePeople from '../components/ui/InvitePeople';
 import CreatePoll from '../components/ui/CreatePoll';
 import SinglePoll from '../components/ui/Polls';
 import IndividualPosts from '../components/ui/SinglePosts';
+import Creatediscussion from '../form/CreateLiveDiscussions';
 
 function ForumHomePage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isDiscussionDialogOpen, setIsDiscussionDialogOpen] = useState(false);
   const { posts, moderators, forumToShow, addPostInContext } = usePost();
   if (!forumToShow) return <LoadingSpinner />;
 
@@ -59,6 +61,9 @@ function ForumHomePage() {
     setIsDialogOpen(true);
   };
 
+  const handleDiscussionClick = () => {
+    setIsDiscussionDialogOpen(true);
+  };
   return (
     <div className="flex h-svh flex-col">
       <Header />
@@ -73,8 +78,11 @@ function ForumHomePage() {
               addNewPost,
               moderators,
               handleClick,
+              handleDiscussionClick,
               isDialogOpen,
+              isDiscussionDialogOpen,
               setIsDialogOpen,
+              setIsDiscussionDialogOpen,
             }}
           />
           <CreatePost
@@ -85,16 +93,27 @@ function ForumHomePage() {
             addNewPost={addNewPost}
             onClose={() => setIsDialogOpen(false)}
           />
+          <Creatediscussion
+            posts={posts}
+            forumId={forumId}
+            isOpen={isDiscussionDialogOpen}
+            addNewPost={addNewPost}
+            onClose={() => setIsDiscussionDialogOpen(false)}
+          />
         </section>
       </main>
     </div>
   );
 }
 function ForumDefault() {
-  const { forum, posts, handleClick, moderators } = useOutletContext();
+  const { forum, posts, handleClick, handleDiscussionClick, moderators } = useOutletContext();
   return (
     <div className="flex flex-col gap-2">
-      <ForumHeader forum={forum} handleClick={handleClick} />
+      <ForumHeader
+        forum={forum}
+        handleClick={handleClick}
+        handleDiscussionClick={handleDiscussionClick}
+      />
       <div className="flex gap-4">
         <ForumPosts forum={forum} posts={posts} />
         <ForumLeftBar moderators={moderators} forum={forum} posts={posts} />
@@ -103,7 +122,7 @@ function ForumDefault() {
   );
 }
 
-function ForumHeader({ forum, handleClick }) {
+function ForumHeader({ forum, handleClick, handleDiscussionClick }) {
   const [isEditOptionsOpen, setIsEditOptionsOpen] = useState(false);
   const [isInvitePeopleOpen, setIsInvitePeopleOpen] = useState(false);
   const [isCreatePollOpen, setIsCreatePollOpen] = useState(false);
@@ -175,6 +194,12 @@ function ForumHeader({ forum, handleClick }) {
           className="text-font rounded-button-round text-body cursor-pointer bg-[#4169E1] px-3 py-2 text-2xl font-semibold hover:bg-[#255FCC]"
         >
           Create Thread
+        </button>
+        <button
+          onClick={handleDiscussionClick}
+          className="text-font rounded-button-round text-body cursor-pointer bg-[#4169E1] px-3 py-2 text-2xl font-semibold hover:bg-[#255FCC]"
+        >
+          Create Discussions
         </button>
         {!isJoined && (
           <button className="rounded-button-round hover:text-font text-body cursor-pointer border border-[#255FCC] px-3 py-2 text-2xl font-semibold text-[#255FCC] transition-all duration-300 ease-in-out hover:bg-[#255FCC]">

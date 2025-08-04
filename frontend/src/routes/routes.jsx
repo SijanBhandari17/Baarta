@@ -15,6 +15,7 @@ import { ForumHomePage, ForumDefault } from '../pages/ForumHomePage';
 import PostContent from '../pages/PostContent';
 import { PostProvider } from '../context/PostContext';
 import { CommentProvider } from '../context/CommnentContext';
+import Discussion from '../pages/LiveDiscussions';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -66,6 +67,7 @@ const router = createBrowserRouter(
           </PublicRoute>
         }
       />
+      <Route path="/livediscussions/:discussionId" element={<Discussion />} />
     </>,
   ),
 );

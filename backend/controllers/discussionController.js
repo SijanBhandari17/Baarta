@@ -18,8 +18,9 @@ const postDiscussion = async (req, res)=>{
         if(!req.body?.forumId) return res.status(400).json({"error" : "missing forumId in the request header"})
         if(!req.body?.title) return res.status(400).json({"error" : "missing title in the request header"})
         if(!req.body?.description) return res.status(400).json({"error" : "missing description in the request header"})
+        if(!req.body?.end_date) return res.status(400).json({"error" : "missing end_date in the request header"})
 
-        const {forumId , title , description} = req.body
+        const {forumId , title , description , end_date} = req.body
 
         if(!req.user?.email) return res.status(400).json({"error" : "unauthenticated user sent the request"})
 
@@ -55,7 +56,8 @@ const postDiscussion = async (req, res)=>{
             {
                 author_id : foundUser._id,
                 title : title,
-                description : description
+                description : description,
+                end_date : end_date
             }
         ] , {session})
 

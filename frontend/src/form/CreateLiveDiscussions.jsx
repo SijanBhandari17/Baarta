@@ -3,6 +3,7 @@ import { X } from 'lucide-react';
 import { useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { usePost } from '../context/PostContext';
+import { useLocation } from 'react-router-dom';
 
 function Creatediscussion({
   discussion,
@@ -17,7 +18,8 @@ function Creatediscussion({
   const [discussionDate, setDiscussionDate] = useState('');
   const [discussionTime, setDiscussionTime] = useState('');
   const { user } = useAuth();
-  const { forumToShow } = usePost();
+  const location = useLocation();
+  const { forumToShow } = location.state;
 
   const handleSubmit = async e => {
     e.preventDefault();

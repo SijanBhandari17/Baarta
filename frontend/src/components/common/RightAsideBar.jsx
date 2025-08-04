@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import upcomingEventsArray from '../../utils/fetchUpcommingEvents';
-import CalenderIcon from '../../assets/icons/calendar.svg';
 import SinglePoll from '../ui/Polls';
 import upCommingEvents from '../../utils/fetchPoll';
 import getActivePolls from '../../utils/fetchPoll';
+import LoadingSpinner from './LoadingSpinner';
+import SingleEvent from '../ui/SingleEvent';
 
 // import { commuityStatus } from '../../utils/fetchCommnityStatus';
 
@@ -32,22 +33,9 @@ function UpcommingEvents() {
   );
 }
 
-function SingleEvent({ event }) {
-  return (
-    <div className="individual-upcoming-event hover:bg-layout-elements-focus rounded-button-round mb-4 flex cursor-pointer items-center gap-2 pl-1">
-      <img src={CalenderIcon} alt="Calendar Icon" width="20px" height="20px" />
-      <div className="upcoming-event-info">
-        <h2 className="text-body text-font">{event.title}</h2>
-        <p className="text-small text-font-light/50">
-          {event.date} at {event.time}
-        </p>
-      </div>
-    </div>
-  );
-}
-
 function ActivePoll() {
-  const [activePolls, setActivePOlls] = useState([]);
+  const [activePolls, setActivePolls] = useState([]);
+
   useEffect(() => {
     const getActivePolls = async () => {
       try {
@@ -57,22 +45,26 @@ function ActivePoll() {
           credentials: 'include',
         });
         const data = await response.json();
-        console.log(data);
         if (response.ok) {
-          console.log(data);
-          setActivePOlls[data.body];
+          setActivePolls(data.body);
         }
       } catch (err) {
         console.log(`Err: ${err}`);
       }
     };
+
     getActivePolls();
   }, []);
+
+  useEffect(() => {}, [activePolls]);
+
+  if (!activePolls.length > 0) return <LoadingSpinner />;
+
   return (
     <div className="active-poll bg-layout-elements-focus rounded-button-round mb-8 w-full cursor-pointer border border-white/10">
       <h1 className="text-title text-font my-2 ml-5 font-semibold uppercase">Active Poll</h1>
       {activePolls.map((item, index) => (
-        <SinglePoll poll={item} key={index} />
+        <SinglePoll poll={item} key={index} updateInAsideBar={setActivePolls} />
       ))}
     </div>
   );

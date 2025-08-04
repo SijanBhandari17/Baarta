@@ -4,12 +4,11 @@ import LoadingSpinner from '../../LoadingSpinner';
 import { useAuth } from '../../../../context/AuthContext';
 
 function PollModal({ poll, onClose }) {
-  const { updatePollInContext } = usePost();
   const [options, setOptions] = useState(poll.option?.map(item => ({ ...item })));
   const [selected, setSelected] = useState(null);
   const [submitted, setSubmitted] = useState(false);
   const { user } = useAuth();
-
+  const { updatePollInContext } = usePost();
   const totalVotes = options.reduce((sum, o) => sum + o.voter_Id.length, 0);
   const handleOptionClick = option => {
     if (!submitted) {
@@ -18,6 +17,7 @@ function PollModal({ poll, onClose }) {
     }
   };
   const handleOptionsUpdate = updatedPoll => {
+    console.log('hello');
     updatePollInContext(updatedPoll);
   };
 

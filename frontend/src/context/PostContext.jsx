@@ -7,7 +7,6 @@ const PostContext = createContext();
 
 const PostProvider = ({ children }) => {
   const { forumTitle } = useParams();
-
   const decodedTitle = decodeURIComponent(forumTitle || '');
 
   const { forum, loading } = useForum();
@@ -51,6 +50,7 @@ const PostProvider = ({ children }) => {
       console.log(`Err: ${err}`);
     }
   };
+
   const fetchPolls = async () => {
     try {
       const response = await fetch(`http://localhost:5000/poll?forumId=${forumId}`, {
@@ -118,6 +118,8 @@ const PostProvider = ({ children }) => {
   };
 
   const updatePollInContext = updatedPoll => {
+    console.log('hell');
+    console.log(updatedPoll);
     setPolls(prev => prev.map(poll => (poll._id === updatedPoll._id ? { ...updatedPoll } : poll)));
   };
   const addPostInContext = postData => {
@@ -142,6 +144,7 @@ const PostProvider = ({ children }) => {
         posts,
         forumToShow,
         polls,
+        discussions,
         loading,
         moderators,
         addPollInContext,

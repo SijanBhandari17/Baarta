@@ -1,8 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import upcomingEventsArray from '../../utils/fetchUpcommingEvents';
 import CalenderIcon from '../../assets/icons/calendar.svg';
 import SinglePoll from '../ui/Polls';
+import upCommingEvents from '../../utils/fetchPoll';
+import getActivePolls from '../../utils/fetchPoll';
+
 // import { commuityStatus } from '../../utils/fetchCommnityStatus';
 
 function RightAsideBar() {
@@ -11,8 +14,7 @@ function RightAsideBar() {
   return (
     <aside className="bg-layout-elements top-20 flex h-[calc(100vh-5rem)] w-[15%] flex-col border border-l-white/10 p-6">
       <UpcommingEvents />
-      {/* <ActivePoll /> */}
-      {/* <CommunityStatus /> */}
+      <ActivePoll />
     </aside>
   );
 }
@@ -45,32 +47,35 @@ function SingleEvent({ event }) {
 }
 
 function ActivePoll() {
+  const [activePolls, setActivePOlls] = useState([]);
+  useEffect(() => {
+    const getActivePolls = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/all/poll', {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+        });
+        const data = await response.json();
+        console.log(data);
+        if (response.ok) {
+          console.log(data);
+          setActivePOlls[data.body];
+        }
+      } catch (err) {
+        console.log(`Err: ${err}`);
+      }
+    };
+    getActivePolls();
+  });
   return (
     <div className="active-poll bg-layout-elements-focus rounded-button-round mb-8 w-full cursor-pointer border border-white/10">
       <h1 className="text-title text-font my-2 ml-5 font-semibold uppercase">Active Poll</h1>
-      {activePollArray.map((item, index) => (
+      {activePolls.map((item, index) => (
         <SinglePoll poll={item} key={index} />
       ))}
     </div>
   );
 }
-
-// Optional: Uncomment if you need it
-// function CommunityStatus() {
-//   return (
-//     <div className="community-status width-full mt-2">
-//       <h1 className="text-title text-font my-4 font-semibold">Community Status</h1>
-//       <div>
-//         {communityStatus.map((item, index) => (
-//           <div key={index} className="mb-4 flex items-center gap-4">
-//             <img src={item.imgSrc} alt="Community" />
-//             <p className="text-body text-font">{item.title}</p>
-//             <p className="text-font ml-auto font-semibold">{item.count}</p>
-//           </div>
-//         ))}
-//       </div>
-//     </div>
-//   );
-// }
 
 export default RightAsideBar;

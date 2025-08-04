@@ -162,7 +162,7 @@ const sendAllPolls = async(req, res)=>{
 
         await session.startTransaction()
 
-        if(req.user?.email) return res.status(401).json({"error" : "unauthenticated user sent the request"})
+        if(!req.user?.email) return res.status(401).json({"error" : "unauthenticated user sent the request"})
         
         const {email} = req.user 
         
@@ -218,7 +218,7 @@ const sendAllDiscussions = async(req, res)=>{
 
         await session.startTransaction()
 
-        if(req.user?.email) return res.status(401).json({"error" : "unauthenticated user sent the request"})
+        if(!req.user?.email) return res.status(401).json({"error" : "unauthenticated user sent the request"})
         
         const {email} = req.user 
         

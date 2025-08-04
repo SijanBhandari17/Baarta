@@ -61,9 +61,11 @@ const postDiscussion = async (req, res) => {
       foundForum.admin_id.toString() !== foundUser._id.toString()
     ) {
       await session.abortTransaction();
-      return res.status(403).json({
-        error: "you need to be a part of the forum to add a discussion",
-      });
+      return res
+        .status(403)
+        .json({
+          error: "you need to be a part of the forum to add a discussion",
+        });
     }
 
     const duplicateDiscussion = await Discussion.findOne({ title })
@@ -71,9 +73,11 @@ const postDiscussion = async (req, res) => {
       .exec();
     if (duplicateDiscussion) {
       await session.abortTransaction();
-      return res.status(409).json({
-        error: "same discussion with the same title has been uploaded",
-      });
+      return res
+        .status(409)
+        .json({
+          error: "same discussion with the same title has been uploaded",
+        });
     }
 
     const createdDiscussion = await Discussion.create(
@@ -104,10 +108,12 @@ const postDiscussion = async (req, res) => {
 
     await session.commitTransaction();
 
-    return res.status(201).json({
-      message: "successful created of the discussion",
-      body: toSendResult,
-    });
+    return res
+      .status(201)
+      .json({
+        message: "successful created of the discussion",
+        body: toSendResult,
+      });
   } catch (err) {
     await session.abortTransaction();
     res.status(500).json({ error: `${err.stack}` });
@@ -211,7 +217,9 @@ const getDiscussion = async (req, res) => {
         .json({ error: "the forum is either deleted or removed" });
     }
 
-    const discussionArr = foundForum.discussion_id;
+    const discussionArr = foundForum.discussion_id.map((item) =>
+      item.toString(),
+    );
 
     const foundDiscussionArr = await Discussion.find({
       _id: { $in: discussionArr },
@@ -219,14 +227,37 @@ const getDiscussion = async (req, res) => {
       .session(session)
       .exec();
 
+    const toSendBody = await Promise.all(
+      foundDiscussionArr.map(async (item) => {
+        const authorId = await User.findOne({ _id: item.author_id })
+          .session(session)
+          .exec();
+        const authorProfilePic = await Profile.findOne({ userId: authorId._id })
+          .session(session)
+          .exec();
+
+        return {
+          ...item.toObject(),
+          authorName: authorId.username,
+          authorEmail: authorId.email,
+          authorProfilePicLink:
+            authorProfilePic?.profilePicLink ||
+            "https://res.cloudinary.com/dlddcx3uw/image/upload/v1752323363/defaultUser_cfqyxq.svg",
+        };
+      }),
+    );
+
     await session.commitTransaction();
 
-    return res
+    res
       .status(201)
-      .json({ message: "successful deletion of the discussion", body: result });
+      .json({
+        message: "successful deletion of the discussion",
+        body: toSendBody,
+      });
   } catch (err) {
     await session.abortTransaction();
-    res.status(500).json({ error: `${err.stack}` });
+    return res.status(500).json({ error: `${err.stack}` });
   } finally {
     await session.endSession();
   }

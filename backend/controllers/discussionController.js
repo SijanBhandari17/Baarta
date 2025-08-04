@@ -143,7 +143,7 @@ const getDiscussion = async (req ,res )=>{
 
         if(!req.query?.forumId) return res.status(400).json({"error" : "missing forumId in the request header"})
 
-        const {forumId} = req.body
+        const {forumId} = req.query
 
         if(!req.user?.email) return res.status(400).json({"error" : "unauthenticated user sent the request"})
 

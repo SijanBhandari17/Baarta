@@ -270,7 +270,6 @@ function ForumLeftBar({ forum, moderators, posts }) {
 
   const { polls } = usePost();
   const { discussions } = usePost();
-  console.log(discussions);
   return (
     <div className="ml-auto flex flex-col gap-2">
       <div className="bg-layout-elements-focus rounded-button-round p-8">

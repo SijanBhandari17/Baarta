@@ -29,12 +29,11 @@ function Creatediscussion({
     const time = data.get('discussion-time');
     const forumId = forumToShow._id;
     let scheduledDateTime = null;
-
     if (date && time) {
       scheduledDateTime = new Date(`${date} ${time}`);
+      scheduledDateTime = scheduledDateTime.toLocaleString();
     }
     console.log(scheduledDateTime);
-    console.log(scheduledDateTime.toLocaleString());
 
     try {
       const response = await fetch('http://localhost:5000/discussion', {

@@ -6,7 +6,6 @@ import { useAuth } from '../context/AuthContext';
 import socket from '../socket';
 
 function UpcommingEventInfo() {
-  const { eventId } = useParams();
   const location = useLocation();
   const { event } = location.state;
   const { user } = useAuth();

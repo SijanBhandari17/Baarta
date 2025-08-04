@@ -1,10 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import upcomingEventsArray from '../../utils/fetchUpcommingEvents';
-import SinglePoll from '../ui/Polls';
-import upCommingEvents from '../../utils/fetchPoll';
-import getActivePolls from '../../utils/fetchPoll';
-import LoadingSpinner from './LoadingSpinner';
 import SingleEvent from '../ui/SingleEvent';
 
 function RightAsideBar() {

@@ -1,7 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import CalenderIcon from '../../assets/icons/calendar.svg';
 function SingleEvent({ event, isAdmin }) {
-  console.log(event.end_date);
   const [date, time] = event.end_date.split(', ');
 
   const navigate = useNavigate();

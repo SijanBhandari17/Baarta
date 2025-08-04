@@ -5,6 +5,7 @@ const Comment = require('../models/commentModel')
 const Profile = require('../models/profilePicModel')
 const Forum = require('../models/forumModel')
 const Poll = require('../models/pollModel')
+const Disucssion = require("../models/discussionModel")
 const mongoose = require('mongoose')
 
 const sendAllUser = async (req ,res)=>{
@@ -151,6 +152,55 @@ const sendOneUser = async (req ,res)=>{
     finally{
         await session.endSession()
     }
+}
+
+const sendAllPolls = async(req, res)=>{
+    const session = await mongoose.startSession()
+
+    try
+    {
+
+        await session.startTransaction()
+
+        if(req.user?.email) return res.status(401).json({"error" : "unauthenticated user sent the request"})
+        
+        const {email} = req.user 
+        
+        const foundUser = await User.findOne({email}).session(session).exec()
+        if(!foundUser){
+            await session.abortTransaction()
+            return res.status(404).json({"error" : "the user account was either deleted or removed"})
+        }
+
+        const joinForumArr = await Forum.find({member_id : foundUser._id}).session(session)
+        if(joinForumArr.length === 0 )
+        {
+            await session.commitTransaction()
+            await session.endSession()
+            return res.status(200).json({"message" : "polls successfully found" , "body":[]})
+        } 
+
+        const joinForumIdArr = joinForumArr.map(item => item._id.toString())
+
+        const joinForumPollArr = await Poll.find({forumId : {$in : joinForumIdArr}}).session(session).exec()
+
+        
+
+        await session.commitTransaction()
+
+        return res.status(200).json({"message" : "all forums sent" , "body" : toSendBody})
+
+    }
+
+    catch(err)
+    {
+        await session.abortTransaction()
+        return res.status(500).json({"error" : `${err.stack}`})
+    }
+    finally{
+        await session.endSession()
+    }
+
 }
 
 module.exports = {sendAllUser , sendAllForum , sendOneUser}

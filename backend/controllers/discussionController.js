@@ -18,9 +18,8 @@ const postDiscussion = async (req, res)=>{
         if(!req.body?.forumId) return res.status(400).json({"error" : "missing forumId in the request header"})
         if(!req.body?.title) return res.status(400).json({"error" : "missing title in the request header"})
         if(!req.body?.description) return res.status(400).json({"error" : "missing description in the request header"})
-        if(!req.body?.genre) return res.status(400).json({"error" : "missing genre in the request header"})
 
-        const {forumId , title , description , genre} = req.body
+        const {forumId , title , description} = req.body
 
         if(!req.user?.email) return res.status(400).json({"error" : "unauthenticated user sent the request"})
 
@@ -56,8 +55,7 @@ const postDiscussion = async (req, res)=>{
             {
                 author_id : foundUser._id,
                 title : title,
-                description : description,
-                genre : genre
+                description : description
             }
         ] , {session})
 
@@ -85,7 +83,6 @@ const deleteDiscussion = async (req ,res )=>{
     const session = await mongoose.startSession()
     try
     {
-
         await session.startTransaction()
 
         if(!req.body?.discussionId) return res.status(400).json({"error" : "missing discussionId in the request header"})

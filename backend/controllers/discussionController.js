@@ -61,11 +61,9 @@ const postDiscussion = async (req, res) => {
       foundForum.admin_id.toString() !== foundUser._id.toString()
     ) {
       await session.abortTransaction();
-      return res
-        .status(403)
-        .json({
-          error: "you need to be a part of the forum to add a discussion",
-        });
+      return res.status(403).json({
+        error: "you need to be a part of the forum to add a discussion",
+      });
     }
 
     const duplicateDiscussion = await Discussion.findOne({ title })
@@ -73,11 +71,9 @@ const postDiscussion = async (req, res) => {
       .exec();
     if (duplicateDiscussion) {
       await session.abortTransaction();
-      return res
-        .status(409)
-        .json({
-          error: "same discussion with the same title has been uploaded",
-        });
+      return res.status(409).json({
+        error: "same discussion with the same title has been uploaded",
+      });
     }
 
     const createdDiscussion = await Discussion.create(
@@ -108,12 +104,10 @@ const postDiscussion = async (req, res) => {
 
     await session.commitTransaction();
 
-    return res
-      .status(201)
-      .json({
-        message: "successful created of the discussion",
-        body: toSendResult,
-      });
+    return res.status(201).json({
+      message: "successful created of the discussion",
+      body: toSendResult,
+    });
   } catch (err) {
     await session.abortTransaction();
     res.status(500).json({ error: `${err.stack}` });
@@ -249,12 +243,10 @@ const getDiscussion = async (req, res) => {
 
     await session.commitTransaction();
 
-    res
-      .status(201)
-      .json({
-        message: "successful deletion of the discussion",
-        body: toSendBody,
-      });
+    res.status(201).json({
+      message: "successful retreival of discussion",
+      body: toSendBody,
+    });
   } catch (err) {
     await session.abortTransaction();
     return res.status(500).json({ error: `${err.stack}` });

@@ -2,34 +2,23 @@ import Header from '../components/common/Header';
 import LeftAsideBar from '../components/common/LeftAsideBar';
 import SearchIcon from '../assets/icons/searchIcon.svg';
 import { MoreVertical, UserPlus } from 'lucide-react';
-import { useParams, useOutletContext, Outlet, useNavigate } from 'react-router-dom';
-import { useForum } from '../context/ForumContext';
-import { useEffect, useMemo, useState } from 'react';
-import {
-  User,
-  Users,
-  Clock,
-  MessageSquare,
-  MessageCircle,
-  Calendar,
-  Eye,
-  Bookmark,
-} from 'lucide-react';
+import { useOutletContext, Outlet } from 'react-router-dom';
+import { useState } from 'react';
+import { Users, MessageSquare, Calendar } from 'lucide-react';
 import CreatePost from '../form/CreatePosts';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import EditOptions from '../components/ui/EditOptions';
-import { formatDistanceToNow } from 'date-fns';
 import { useAuth } from '../context/AuthContext';
 import { usePost } from '../context/PostContext';
 import InvitePeople from '../components/ui/InvitePeople';
 import CreatePoll from '../components/ui/CreatePoll';
-import PollModal from '../components/common/nav/asidebar/pollmodal';
 import SinglePoll from '../components/ui/Polls';
+import IndividualPosts from '../components/ui/SinglePosts';
+import Creatediscussion from '../form/CreateLiveDiscussions';
 
 function ForumHomePage() {
-  const { forumTitle } = useParams();
-  const decodedTitle = decodeURIComponent(forumTitle || '');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isDiscussionDialogOpen, setIsDiscussionDialogOpen] = useState(false);
   const { posts, moderators, forumToShow, addPostInContext } = usePost();
   if (!forumToShow) return <LoadingSpinner />;
 
@@ -72,6 +61,9 @@ function ForumHomePage() {
     setIsDialogOpen(true);
   };
 
+  const handleDiscussionClick = () => {
+    setIsDiscussionDialogOpen(true);
+  };
   return (
     <div className="flex h-svh flex-col">
       <Header />
@@ -86,8 +78,11 @@ function ForumHomePage() {
               addNewPost,
               moderators,
               handleClick,
+              handleDiscussionClick,
               isDialogOpen,
+              isDiscussionDialogOpen,
               setIsDialogOpen,
+              setIsDiscussionDialogOpen,
             }}
           />
           <CreatePost
@@ -98,16 +93,27 @@ function ForumHomePage() {
             addNewPost={addNewPost}
             onClose={() => setIsDialogOpen(false)}
           />
+          <Creatediscussion
+            posts={posts}
+            forumId={forumId}
+            isOpen={isDiscussionDialogOpen}
+            addNewPost={addNewPost}
+            onClose={() => setIsDiscussionDialogOpen(false)}
+          />
         </section>
       </main>
     </div>
   );
 }
 function ForumDefault() {
-  const { forum, posts, handleClick, moderators } = useOutletContext();
+  const { forum, posts, handleClick, handleDiscussionClick, moderators } = useOutletContext();
   return (
     <div className="flex flex-col gap-2">
-      <ForumHeader forum={forum} handleClick={handleClick} />
+      <ForumHeader
+        forum={forum}
+        handleClick={handleClick}
+        handleDiscussionClick={handleDiscussionClick}
+      />
       <div className="flex gap-4">
         <ForumPosts forum={forum} posts={posts} />
         <ForumLeftBar moderators={moderators} forum={forum} posts={posts} />
@@ -116,7 +122,7 @@ function ForumDefault() {
   );
 }
 
-function ForumHeader({ forum, handleClick }) {
+function ForumHeader({ forum, handleClick, handleDiscussionClick }) {
   const [isEditOptionsOpen, setIsEditOptionsOpen] = useState(false);
   const [isInvitePeopleOpen, setIsInvitePeopleOpen] = useState(false);
   const [isCreatePollOpen, setIsCreatePollOpen] = useState(false);
@@ -134,7 +140,6 @@ function ForumHeader({ forum, handleClick }) {
     forum.admin_id === user?.info.userId || forum.moderator_id.includes(user?.info.userId);
 
   const handleChangeSearchBarChange = async e => {
-    console.log('hello');
     const value = e.target.value;
     setQuery(value);
 
@@ -190,6 +195,12 @@ function ForumHeader({ forum, handleClick }) {
         >
           Create Thread
         </button>
+        <button
+          onClick={handleDiscussionClick}
+          className="text-font rounded-button-round text-body cursor-pointer bg-[#4169E1] px-3 py-2 text-2xl font-semibold hover:bg-[#255FCC]"
+        >
+          Create Discussions
+        </button>
         {!isJoined && (
           <button className="rounded-button-round hover:text-font text-body cursor-pointer border border-[#255FCC] px-3 py-2 text-2xl font-semibold text-[#255FCC] transition-all duration-300 ease-in-out hover:bg-[#255FCC]">
             Join Forum
@@ -227,7 +238,7 @@ function ForumHeader({ forum, handleClick }) {
         )}
         {isInvitePeopleOpen && <InvitePeople onClose={() => setIsInvitePeopleOpen(false)} />}
         {isCreatePollOpen && (
-          <CreatePoll forum={forum} onClose={() => setIsCreatePollOpen(false)} />
+          <CreatePoll type="Create" forum={forum} onClose={() => setIsCreatePollOpen(false)} />
         )}
       </div>
     </div>
@@ -235,43 +246,12 @@ function ForumHeader({ forum, handleClick }) {
 }
 
 function ForumPosts({ posts }) {
-  const navigate = useNavigate();
-
-  const handlePostClick = item => {
-    navigate(`${item._id}`);
-  };
   return (
     <>
       {posts && posts.length > 0 ? (
         <div className="flex flex-1 flex-col gap-4">
           {posts.map((item, index) => (
-            <div key={index} className="bg-layout-elements-focus rounded-button-round p-3">
-              <div
-                onClick={() => handlePostClick(item)}
-                className="mb-2 flex cursor-pointer items-start justify-between"
-              >
-                <p className="text-title text-font font-semibold">{item.title}</p>
-                <Bookmark className="ml-2 flex-shrink-0 cursor-pointer text-white" />
-              </div>
-              <div className="flex gap-4">
-                <div className="flex items-center gap-1">
-                  <User className="text-font-light/80 h-4 w-4" />
-                  <p className="text-font-light/80">{item.authorName}</p>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Clock className="text-font-light/80 h-4 w-4" />
-                  <p className="text-font-light/80">
-                    {formatDistanceToNow(Number(item.post_date), { addSuffix: true })}
-                  </p>
-                </div>
-              </div>
-              <div className="flex gap-4">
-                <div className="flex items-center gap-1">
-                  <MessageCircle className="text-font-light/80 h-4 w-4" />
-                  <p className="text-font-light/80">{item.comment_id.length || 0} comments</p>
-                </div>
-              </div>
-            </div>
+            <IndividualPosts key={item._id} post={item} />
           ))}
         </div>
       ) : (
@@ -282,8 +262,12 @@ function ForumPosts({ posts }) {
 }
 
 function ForumLeftBar({ forum, moderators, posts }) {
+  const { user } = useAuth();
+
+  const hasAdminPrivilage =
+    forum.admin_id === user?.info.userId || forum.moderator_id.includes(user?.info.userId);
+
   const { polls } = usePost();
-  console.log('forumHomePage', polls);
   return (
     <div className="ml-auto flex flex-col gap-2">
       <div className="bg-layout-elements-focus rounded-button-round p-8">
@@ -323,7 +307,7 @@ function ForumLeftBar({ forum, moderators, posts }) {
         <div className="flex flex-col gap-4">
           {forum.moderator_id.length !== 0 ? (
             <div>
-              {moderators.map((item, index) => {
+              {moderators.map(item => {
                 return (
                   <div
                     key={item._id}
@@ -353,7 +337,7 @@ function ForumLeftBar({ forum, moderators, posts }) {
 
         <div className="flex flex-col gap-4">
           {polls.map(poll => {
-            return <SinglePoll key={poll._id} poll={poll} />;
+            return <SinglePoll key={poll._id} hasAdminPrivilage={hasAdminPrivilage} poll={poll} />;
           })}
         </div>
       </div>

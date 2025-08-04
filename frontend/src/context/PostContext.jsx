@@ -6,7 +6,7 @@ import { useForum } from './ForumContext';
 const PostContext = createContext();
 
 const PostProvider = ({ children }) => {
-  const { forumTitle, postId } = useParams();
+  const { forumTitle } = useParams();
 
   const decodedTitle = decodeURIComponent(forumTitle || '');
 
@@ -41,7 +41,6 @@ const PostProvider = ({ children }) => {
         credentials: 'include',
       });
       const data = await response.json();
-      console.log(data);
       if (response.ok) {
         setPolls(prev => [...prev, ...data.body]);
       }
@@ -91,21 +90,17 @@ const PostProvider = ({ children }) => {
       console.log(`Err: ${err}`);
     }
   };
+
   const addPollInContext = poll => {
     setPolls(prev => [poll, ...prev]);
   };
 
-  const updatePollInContext = (selectedPoll, updatedOptions) => {
-    setPolls(prev =>
-      prev.map(poll =>
-        poll._id === selectedPoll._id
-          ? {
-              ...poll,
-              option: updatedOptions,
-            }
-          : poll,
-      ),
-    );
+  const deletePollInContext = pollId => {
+    setPolls(prev => prev.filter(poll => poll._id !== pollId));
+  };
+
+  const updatePollInContext = updatedPoll => {
+    setPolls(prev => prev.map(poll => (poll._id === updatedPoll._id ? { ...updatedPoll } : poll)));
   };
   const addPostInContext = postData => {
     setPosts(prev => [postData, ...prev]);
@@ -134,6 +129,7 @@ const PostProvider = ({ children }) => {
         addPollInContext,
         updateUsingConsineSimilarity,
         deletePostInContext,
+        deletePollInContext,
         updatePollInContext,
         addPostInContext,
         updatePostInContext,

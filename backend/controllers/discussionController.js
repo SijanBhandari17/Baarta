@@ -166,6 +166,7 @@ const getDiscussion = async (req ,res )=>{
 
         const discussionArr = foundForum.discussion_id.map(item => item.toString())
 
+
         const foundDiscussionArr = await Discussion.find({_id : {$in : discussionArr}}).session(session).exec()
 
         const toSendBody = await Promise.all(foundDiscussionArr.map(async(item)=>{

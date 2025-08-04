@@ -15,6 +15,7 @@ const PostProvider = ({ children }) => {
   const [moderators, setModerators] = useState([]);
   const [posts, setPosts] = useState([]);
   const [polls, setPolls] = useState([]);
+  const [discussions, setDiscussions] = useState([]);
 
   const forumToShow = useMemo(
     () => forum?.find(item => item.forum_name === decodedTitle),
@@ -30,9 +31,26 @@ const PostProvider = ({ children }) => {
         getModerators(members);
       }
       fetchPolls();
+      fetchUpcommingEvents();
     }
   }, [forumId]);
 
+  const fetchUpcommingEvents = async () => {
+    try {
+      const response = await fetch(`http://localhost:5000/discussion?forumId=${forumId}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+      });
+      const data = await response.json();
+      console.log(data);
+      if (response.ok) {
+        setDiscussions(prev => [...prev, ...data.body]);
+      }
+    } catch (err) {
+      console.log(`Err: ${err}`);
+    }
+  };
   const fetchPolls = async () => {
     try {
       const response = await fetch(`http://localhost:5000/poll?forumId=${forumId}`, {

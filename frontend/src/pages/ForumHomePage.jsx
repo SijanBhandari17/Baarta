@@ -332,9 +332,18 @@ function ForumLeftBar({ forum, moderators, posts }) {
           )}
         </div>
       </div>
+
       <div className="bg-layout-elements-focus rounded-button-round p-8">
         <h1 className="text-font text-title mb-4 font-semibold">Active Polls</h1>
+        <div className="flex flex-col gap-4">
+          {polls.map(poll => {
+            return <SinglePoll key={poll._id} hasAdminPrivilage={hasAdminPrivilage} poll={poll} />;
+          })}
+        </div>
+      </div>
 
+      <div className="bg-layout-elements-focus rounded-button-round p-8">
+        <h1 className="text-font text-title mb-4 font-semibold">Upcomming Events</h1>
         <div className="flex flex-col gap-4">
           {polls.map(poll => {
             return <SinglePoll key={poll._id} hasAdminPrivilage={hasAdminPrivilage} poll={poll} />;

@@ -62,6 +62,10 @@ const postDiscussion = async (req, res)=>{
             }
         ] , {session})
 
+        foundForum.discussion_id = [...foundForum.discussion_id , createdDiscussion[0]._id]
+
+        await foundForum.save({session})
+
         const foundProfilePicture = await Profile.findOne({userId : foundUser._id}).session(session).exec()
         
         const toSendResult = {...createdDiscussion[0].toObject() , authorName : foundUser.username , authorEmail : foundUser.email , authorProfilePicLink : foundProfilePicture?.profilePicLink ||   "https://res.cloudinary.com/dlddcx3uw/image/upload/v1752323363/defaultUser_cfqyxq.svg"}
@@ -163,11 +167,16 @@ const getDiscussion = async (req ,res )=>{
             return res.status(404).json({"error" : "the forum is either deleted or removed"})
         }
 
+        console.log(foundForum)        
+
 
         const discussionArr = foundForum.discussion_id.map(item => item.toString())
 
+        console.log(discussionArr)
 
         const foundDiscussionArr = await Discussion.find({_id : {$in : discussionArr}}).session(session).exec()
+
+        console.log(foundDiscussionArr.length)
 
         const toSendBody = await Promise.all(foundDiscussionArr.map(async(item)=>{
             const authorId = await User.findOne({_id : item.author_id}).session(session).exec()
@@ -175,6 +184,7 @@ const getDiscussion = async (req ,res )=>{
             
             return {...item.toObject() , authorName : authorId.username , authorEmail : authorId.email , authorProfilePicLink : authorProfilePic?.profilePicLink || "https://res.cloudinary.com/dlddcx3uw/image/upload/v1752323363/defaultUser_cfqyxq.svg" }
         })) 
+        console.log(toSendBody.length)
 
         await session.commitTransaction()
 

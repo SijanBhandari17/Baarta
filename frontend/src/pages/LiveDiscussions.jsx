@@ -14,7 +14,7 @@ import {
 } from 'react-icons/fa';
 import { CiStreamOn } from 'react-icons/ci';
 import { initialMessages, participants } from '../utils/LiveDiscussions.js';
-import { goLive, startStreaming } from '../sockets/handleGoLive.js';
+import { goLive, startStreaming, connectToBroadcast } from '../sockets/handleGoLive.js';
 import { useLocation, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import socket from '../sockets/socket.js';
@@ -64,47 +64,41 @@ const Discussion = () => {
 
   useEffect(() => {
     if (isHost && videoRef.current) {
-      videoRef.current.muted = isHost;
-      videoRef.current.volume = 1.0;
-      const startVideo = async () => {
+      videoRef.current.muted = true; // Mute local preview to prevent feedback
+
+      const startBroadcast = async () => {
         try {
           const stream = await goLive(videoRef.current);
           setLocalStream(stream);
+          await startStreaming(discussionId);
         } catch (error) {
-          console.error('Failed to start video:', error);
+          console.error('Failed to start broadcast:', error);
         }
       };
-      startVideo();
+
+      startBroadcast();
     } else if (!isHost) {
-      socket.on('receive-ice', async obj => {
-        if (!peerConnectionRef.current) {
-          peerConnectionRef.current = new RTCPeerConnection({
-            iceServers: [
-              { urls: 'stun:stun.l.google.com:19302' },
-              { urls: 'stun:stun1.l.google.com:19302' },
-              { urls: 'stun:stun.cloudflare.com:3478' },
-            ],
-          });
+      // Viewer logic
+      const connectToStream = async () => {
+        try {
+          const connection = await connectToBroadcast(discussionId, videoRef.current);
+          peerConnectionRef.current = connection;
+        } catch (error) {
+          console.error('Failed to connect to broadcast:', error);
         }
-        const pc = peerConnectionRef.current;
-        pc.ontrack = e => {
-          videoRef.current.srcObject = e.streams[0];
-        };
-        pc.onicecandidate = e => {
-          if (!e.candidate) {
-            socket.emit('offered-from-client', pc.localDescription);
-          }
-        };
-        await pc.setRemoteDescription(obj);
+      };
 
-        const answer = await pc.createAnswer();
-        await pc.setLocalDescription(answer);
-
-        //dont forget abt enabling this
-        // setShowJoinNow(true);
-      });
+      connectToStream();
     }
-  }, [isHost]);
+
+    // Clean up
+    return () => {
+      if (localStream) {
+        localStream.getTracks().forEach(track => track.stop());
+      }
+      // Close peer connections when component unmounts
+    };
+  }, [isHost, discussionId]);
 
   useEffect(() => {
     const interval = setInterval(() => {

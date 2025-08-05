@@ -177,7 +177,6 @@ const getDiscussion = async (req ,res )=>{
             
             return {...item.toObject() , authorName : authorId.username , authorEmail : authorId.email , authorProfilePicLink : authorProfilePic?.profilePicLink || "https://res.cloudinary.com/dlddcx3uw/image/upload/v1752323363/defaultUser_cfqyxq.svg" }
         })) 
-        console.log(toSendBody.length)
 
         await session.commitTransaction()
 

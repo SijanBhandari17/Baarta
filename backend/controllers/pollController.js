@@ -129,7 +129,6 @@ const updatePoll = async (req, res) => {
     //   { session },
     // );
      
-    console.log('the user options are' , options)
 
     const pushPollOption = []
 

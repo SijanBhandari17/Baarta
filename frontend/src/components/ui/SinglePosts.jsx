@@ -1,16 +1,19 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { CiBookmark } from 'react-icons/ci';
 import { MdOutlineBookmark } from 'react-icons/md';
 import { User, Clock, MessageCircle, MessageSquare } from 'lucide-react';
 
 function IndividualPosts({ post, showSavedIcon, deleteSavedPosts }) {
-  const navigate = useNavigate();
   const [savedPost, setSavedPost] = useState(false);
 
+  const navigate = useNavigate();
+
   const handlePostClick = item => {
-    navigate(`${item._id}`);
+    navigate(`${item._id}`, {
+      state: { postToShow: post },
+    });
   };
 
   const toggleSave = async (e, postId) => {

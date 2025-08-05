@@ -2,7 +2,7 @@ import Header from '../components/common/Header';
 import LeftAsideBar from '../components/common/LeftAsideBar';
 import SearchIcon from '../assets/icons/searchIcon.svg';
 import { MoreVertical, UserPlus } from 'lucide-react';
-import { useOutletContext, Outlet } from 'react-router-dom';
+import { useOutletContext, Outlet, useLocation } from 'react-router-dom';
 import { useState } from 'react';
 import { Users, MessageSquare, Calendar } from 'lucide-react';
 import CreatePost from '../form/CreatePosts';
@@ -20,8 +20,9 @@ import SingleEvent from '../components/ui/SingleEvent';
 function ForumHomePage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDiscussionDialogOpen, setIsDiscussionDialogOpen] = useState(false);
-  const { posts, moderators, forumToShow, addPostInContext } = usePost();
-  if (!forumToShow) return <LoadingSpinner />;
+  const location = useLocation();
+  const { forumToShow } = location.state;
+  const { posts, moderators, addPostInContext } = usePost();
 
   const forumId = forumToShow?._id || '';
 
@@ -108,6 +109,7 @@ function ForumHomePage() {
 }
 function ForumDefault() {
   const { forum, posts, handleClick, handleDiscussionClick, moderators } = useOutletContext();
+
   return (
     <div className="flex flex-col gap-2">
       <ForumHeader
@@ -270,7 +272,6 @@ function ForumLeftBar({ forum, moderators, posts }) {
 
   const { polls } = usePost();
   const { discussions } = usePost();
-  console.log(discussions);
   return (
     <div className="ml-auto flex flex-col gap-2">
       <div className="bg-layout-elements-focus rounded-button-round p-8">

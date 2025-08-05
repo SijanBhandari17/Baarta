@@ -16,10 +16,6 @@ const navbarInfo = [
     label: 'Saved',
     imgSrc: SavedSrc,
   },
-  {
-    label: 'Draft',
-    imgSrc: DraftsSrc,
-  },
 ];
 
 const homeContentNavbar = [
@@ -28,9 +24,6 @@ const homeContentNavbar = [
   },
   {
     label: 'My Threads',
-  },
-  {
-    label: 'Trending',
   },
 ];
 

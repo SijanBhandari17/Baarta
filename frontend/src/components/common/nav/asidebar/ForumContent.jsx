@@ -51,9 +51,10 @@ function ForumContent() {
       </div>
       <div className="grid grid-cols-3 gap-2">
         {forum?.map(item => {
+          console.log(item);
           return (
             <IndividualFourmComponent
-              title={item.forum_name}
+              forum={item}
               category={item.genre}
               participants={item.member_id.length + item.moderator_id.length + 1}
               key={item._id}
@@ -72,16 +73,19 @@ function ForumContent() {
   );
 }
 
-function IndividualFourmComponent({ activeUser, title, category, participants }) {
+function IndividualFourmComponent({ activeUser, forum, category, participants }) {
   const navigate = useNavigate();
 
+  console.log(forum);
   const handleEnterForum = () => {
-    navigate(`/b/${encodeURIComponent(title)}`);
+    navigate(`/b/${encodeURIComponent(forum.forum_name)}`, {
+      state: { forumToShow: forum },
+    });
   };
 
   return (
     <div className="bg-layout-elements-focus rounded-button-round flex flex-col gap-2 p-6">
-      <p className="text-title text-font mb-2 font-semibold">{title}</p>
+      <p className="text-title text-font mb-2 font-semibold">{forum.forum_name}</p>
       <p className="text-font rounded-button-round inline-block w-fit bg-[#5a5a5a] p-1">
         {category}
       </p>

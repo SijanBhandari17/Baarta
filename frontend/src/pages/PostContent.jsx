@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import CreateComment from '../form/CreateComment';
 import { useState, useMemo, useRef } from 'react';
 import { MoreVertical, MessageCircle, Clock } from 'lucide-react';
@@ -21,16 +21,19 @@ import { useAuth } from '../context/AuthContext';
 
 export default function PostContent() {
   const { postId } = useParams();
+
   const decodedPostId = decodeURIComponent(postId || '');
-  const { posts } = usePost();
   const [isEditOptionsOpen, setIsEditOptionsOpen] = useState(false);
   const [activeCommentId, setActiveCommentId] = useState(null);
   const { addRootCommentInContext, comments, loading } = useComment();
+  const location = useLocation();
+  const { postToShow } = location.state;
+
+  console.log(postToShow);
 
   const toggleEditOptionsForComment = commentId => {
     setActiveCommentId(prevId => (prevId === commentId ? null : commentId));
   };
-  const postToShow = useMemo(() => posts.find(item => item._id === decodedPostId));
 
   const handleSubmit = async e => {
     e.preventDefault();
@@ -41,7 +44,7 @@ export default function PostContent() {
     e.target.reset();
   };
 
-  if (!postToShow) return <LoadingSpinner />;
+  // if (!postToShow) return <LoadingSpinner />;
 
   return (
     <div className="text-font-light/80 flex w-full flex-col gap-10 lg:flex-row">
@@ -199,7 +202,7 @@ function Comment({ comment, handleEditComment, activeCommentId, toggleEditOption
     }
   };
 
-  if (!comment) return <LoadingSpinner />;
+  // if (!comment) return <LoadingSpinner />;
 
   return (
     <div className="bg-layout-elements-focus border-layout-elements-focus rounded-button-round border p-4">

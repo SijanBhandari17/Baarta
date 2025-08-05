@@ -1,25 +1,19 @@
 import { useState, useMemo, createContext, useEffect, useContext } from 'react';
 import { useAuth } from './AuthContext';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useForum } from './ForumContext';
 
 const PostContext = createContext();
 
 const PostProvider = ({ children }) => {
-  const { forumTitle } = useParams();
-  const decodedTitle = decodeURIComponent(forumTitle || '');
-
   const { forum, loading } = useForum();
+  const location = useLocation();
+  const { forumToShow } = location.state;
 
   const [moderators, setModerators] = useState([]);
   const [posts, setPosts] = useState([]);
   const [polls, setPolls] = useState([]);
   const [discussions, setDiscussions] = useState([]);
-
-  const forumToShow = useMemo(
-    () => forum?.find(item => item.forum_name === decodedTitle),
-    [forum, decodedTitle],
-  );
 
   const forumId = forumToShow?._id || '';
 
@@ -42,7 +36,6 @@ const PostProvider = ({ children }) => {
         credentials: 'include',
       });
       const data = await response.json();
-      console.log(data);
       if (response.ok) {
         setDiscussions(prev => [...prev, ...data.body]);
       }
@@ -118,8 +111,6 @@ const PostProvider = ({ children }) => {
   };
 
   const updatePollInContext = updatedPoll => {
-    console.log('hell');
-    console.log(updatedPoll);
     setPolls(prev => prev.map(poll => (poll._id === updatedPoll._id ? { ...updatedPoll } : poll)));
   };
   const addPostInContext = postData => {
@@ -142,7 +133,6 @@ const PostProvider = ({ children }) => {
     <PostContext.Provider
       value={{
         posts,
-        forumToShow,
         polls,
         discussions,
         loading,

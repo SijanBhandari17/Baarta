@@ -12,7 +12,7 @@ export const initialMessages = [
   {
     name: 'Dr. Emily Watson',
     time: '10:32 AM',
-    message: "Great! I'd love to hear about the correlation with temperature data.",
+    message: 'Great! Id love to hear about the correlation with temperature data.',
   },
   {
     name: 'James Park',

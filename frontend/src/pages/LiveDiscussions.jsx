@@ -41,16 +41,28 @@ const Discussion = () => {
   const [isScreenSharing, setIsScreenSharing] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [audioLevels, setAudioLevels] = useState({});
+  const [localStream, setLocalStream] = useState(null);
 
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
+  const videoRef = useRef(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    const localVideo = document.querySelector('.localVideo');
-    console.log(localVideo);
-    goLive(localVideo);
-  }, [messages]);
+
+    const startVideo = async () => {
+      if (videoRef.current && !localStream) {
+        try {
+          const stream = await goLive(videoRef.current);
+          setLocalStream(stream);
+        } catch (error) {
+          console.error('Failed to start video:', error);
+        }
+      }
+    };
+
+    startVideo();
+  }, [messages, localStream]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -225,7 +237,13 @@ const Discussion = () => {
                 </div>
               </div>
             ) : (
-              <video className="localVideo h-full w-full object-cover" />
+              <video
+                ref={videoRef}
+                autoPlay
+                muted
+                playsInline
+                className="h-full w-full object-cover"
+              />
             )}
 
             <div className="absolute top-6 left-6 rounded-full border border-red-500/30 bg-red-500/20 px-3 py-1.5 backdrop-blur-md">

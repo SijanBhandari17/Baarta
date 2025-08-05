@@ -8,6 +8,7 @@ const handleDashBoard = async (req, res) => {
         .status(400)
         .json({ error: "bad request at accessing the dashboard" });
     const profile = await Profile.findOne({ userId: result._id }).exec();
+    const foundUser = await User.findOne({ email: req.user.email }).exec();
     res.status(200).json({
       messsage: `access granted`,
       info: {
@@ -16,7 +17,9 @@ const handleDashBoard = async (req, res) => {
         profilePic:
           profile?.profilePicLink ||
           "https://res.cloudinary.com/dlddcx3uw/image/upload/v1752323363/defaultUser_cfqyxq.svg",
-          userId : result._id
+        userId: result._id,
+        no_of_post: foundUser.no_post,
+        no_of_replies: foundUser.no_replies,
       },
     });
   } catch (err) {

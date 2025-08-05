@@ -26,7 +26,6 @@ function UpcommingEventInfo() {
             <button
               className="text-royalpurple-dark p-button-padding border-royalpurple-dark rounded-button-round hover:bg-royalpurple-dark cursor-pointer border-2 px-6 font-medium transition-all duration-300 ease-in hover:text-gray-50"
               onClick={() => {
-                socket.emit('host-connect', { msg: 'hello' }, 'fuckyou');
                 handleGoLiveClick();
               }}
             >
@@ -35,10 +34,7 @@ function UpcommingEventInfo() {
           ) : (
             <button
               className="text-royalpurple-dark p-button-padding border-royalpurple-dark rounded-button-round hover:bg-royalpurple-dark cursor-pointer border-2 px-6 font-medium transition-all duration-300 ease-in hover:text-gray-50"
-              onClick={() => {
-                // handle Join Now logic here
-                socket.emit('participant-connect', { msg: 'hi' }, 'fuckyou');
-              }}
+              onClick={() => {}}
             >
               Join Now
             </button>

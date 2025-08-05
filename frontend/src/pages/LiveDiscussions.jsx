@@ -12,8 +12,9 @@ import {
   FaCog,
   FaUsers,
 } from 'react-icons/fa';
+import { CiStreamOn } from 'react-icons/ci';
 import { initialMessages, participants } from '../utils/LiveDiscussions.js';
-import { goLive } from '../sockets/handleGoLive.js';
+import { goLive, startStreaming } from '../sockets/handleGoLive.js';
 
 const YOUR_NAME = 'You';
 const getAvatarByName = name => {
@@ -329,6 +330,15 @@ const Discussion = () => {
               title="Leave call"
             >
               <FaPhoneSlash className="text-lg" />
+            </button>
+            <button
+              className="rounded-2xl bg-gradient-to-br from-red-600 to-red-700 p-4 shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-xl"
+              title="Start Streaming"
+              onClick={() => {
+                startStreaming();
+              }}
+            >
+              <CiStreamOn className="text-lg" />
             </button>
           </div>
 

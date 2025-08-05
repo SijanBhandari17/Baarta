@@ -5,7 +5,6 @@ const socketIo = require('socket.io')
 const cookieParser = require('cookie-parser');
 const app = express();
 const server = http.createServer(app)
-const io = socketIo(server)
 const handleNewUser = require('./routes/registerRoute');
 const handleLogin = require('./routes/authRoutes');
 const handleLogout = require('./routes/logoutRoutes');
@@ -22,6 +21,7 @@ const allResource = require('./routes/sendAllRoutes')
 const discussionHandler = require('./routes/discussionRoutes')
 const miscallenuousHandler =  require('./routes/miscallenuousRoutes')
 const searchHandler = require('./routes/searchRoute')
+const setUpSocket = require('./socket/socketHandler')
 const verifyJWT = require('./middleware/verifyJWT');
 const cors = require('cors')
 const cloudinaryMiddleware = require('./middleware/cloudinaryMiddleware')
@@ -29,18 +29,21 @@ const corsOptions = require('./config/corsOption')
 const mongoose = require('mongoose')
 const connectDB = require('./config/dbConfig');
 const PORT = process.env.PORT || 5500;
+
+
 connectDB()
 app.use(cookieParser());
 app.use(cors(corsOptions))
 app.use(express.json());
+const io = socketIo(server , {cors : corsOptions})
 
-// this is the part where we call in the routes with verification.
+
 app.use('/register',handleNewUser);
 app.use('/login',handleLogin);
 app.use('/logout',handleLogout);
-app.use('/dashboard' ,verifyJWT ) // middleware
+app.use('/dashboard' ,verifyJWT ) 
 app.use('/dashboard' , showDashBoard) 
-app.use('/uploads', [verifyJWT ,cloudinaryMiddleware])  // middleware
+app.use('/uploads', [verifyJWT ,cloudinaryMiddleware])  
 app.use('/uploads' , profilepic)
 app.use('/forum' , verifyJWT)
 app.use('/forum' , forumHandler)
@@ -71,4 +74,5 @@ mongoose.connection.once('open' , ()=>{
   server.listen(5000 , '0.0.0.0' ,()=>{
     console.log(`the server is listening to port no . ${PORT}`)
   })
+  setUpSocket(io)
 })

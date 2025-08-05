@@ -244,7 +244,6 @@ function ForumLeftBar({ forum, moderators, posts }) {
     forum.admin_id === user?.info.userId || forum.moderator_id.includes(user?.info.userId);
 
   const { polls } = usePost();
-  const { discussions } = usePost();
   return (
     <div className="ml-auto flex flex-col gap-2">
       <div className="bg-layout-elements-focus rounded-button-round p-8">

@@ -3,7 +3,7 @@ import PollModal from '../common/nav/asidebar/pollmodal';
 import { MoreVertical } from 'lucide-react';
 import EditOptionsPoll from './EditOptionsPolls';
 
-function SinglePoll({ poll, hasAdminPrivilage }) {
+function SinglePoll({ poll, hasAdminPrivilage, updateAllPollInContext }) {
   const [selectedPoll, setSelectedPoll] = useState(null);
   const [isEditOptionsOpen, setIsEditOptionsOpen] = useState(false);
   const options = poll.option || [];
@@ -11,7 +11,10 @@ function SinglePoll({ poll, hasAdminPrivilage }) {
 
   return (
     <>
-      <div className="hover:bg-layout-elements-hover relative flex w-full cursor-pointer flex-col items-center gap-2 px-3 py-2 transition">
+      <div
+        className="hover:bg-layout-elements-hover relative flex w-full cursor-pointer flex-col items-center gap-2 px-3 py-2 transition"
+        style={{ zIndex: 1 }}
+      >
         {hasAdminPrivilage && (
           <div className="absolute top-3 right-3 z-10">
             <div
@@ -57,7 +60,13 @@ function SinglePoll({ poll, hasAdminPrivilage }) {
           </div>
         </div>
       </div>
-      {selectedPoll && <PollModal poll={selectedPoll} onClose={() => setSelectedPoll(null)} />}
+      {selectedPoll && (
+        <PollModal
+          updateAllPollInContext={updateAllPollInContext}
+          poll={selectedPoll}
+          onClose={() => setSelectedPoll(null)}
+        />
+      )}
     </>
   );
 }

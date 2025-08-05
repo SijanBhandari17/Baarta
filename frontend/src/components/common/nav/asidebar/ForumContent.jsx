@@ -51,7 +51,6 @@ function ForumContent() {
       </div>
       <div className="grid grid-cols-3 gap-2">
         {forum?.map(item => {
-          console.log(item);
           return (
             <IndividualFourmComponent
               forum={item}
@@ -76,7 +75,6 @@ function ForumContent() {
 function IndividualFourmComponent({ activeUser, forum, category, participants }) {
   const navigate = useNavigate();
 
-  console.log(forum);
   const handleEnterForum = () => {
     navigate(`/b/${encodeURIComponent(forum.forum_name)}`, {
       state: { forumToShow: forum },

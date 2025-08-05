@@ -1,5 +1,4 @@
 import { useState, useMemo, createContext, useEffect, useContext } from 'react';
-import { useAuth } from './AuthContext';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useForum } from './ForumContext';
 
@@ -7,14 +6,17 @@ const PostContext = createContext();
 
 const PostProvider = ({ children }) => {
   const { forum, loading } = useForum();
-  const location = useLocation();
-  const { forumToShow } = location.state;
+  const { forumTitle } = useParams();
+  const decodedTitle = decodeURIComponent(forumTitle || '');
 
   const [moderators, setModerators] = useState([]);
   const [posts, setPosts] = useState([]);
   const [polls, setPolls] = useState([]);
-  const [discussions, setDiscussions] = useState([]);
 
+  const forumToShow = useMemo(
+    () => forum?.find(item => item.forum_name === decodedTitle),
+    [forum, decodedTitle],
+  );
   const forumId = forumToShow?._id || '';
 
   useEffect(() => {
@@ -24,27 +26,11 @@ const PostProvider = ({ children }) => {
         getModerators(members);
       }
       fetchPolls();
-      fetchUpcommingEvents();
     }
   }, [forumId]);
 
-  const fetchUpcommingEvents = async () => {
-    try {
-      const response = await fetch(`http://localhost:5000/discussion?forumId=${forumId}`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-      });
-      const data = await response.json();
-      if (response.ok) {
-        setDiscussions(prev => [...prev, ...data.body]);
-      }
-    } catch (err) {
-      console.log(`Err: ${err}`);
-    }
-  };
-
   const fetchPolls = async () => {
+    console.log('hi');
     try {
       const response = await fetch(`http://localhost:5000/poll?forumId=${forumId}`, {
         method: 'GET',
@@ -134,7 +120,6 @@ const PostProvider = ({ children }) => {
       value={{
         posts,
         polls,
-        discussions,
         loading,
         moderators,
         addPollInContext,

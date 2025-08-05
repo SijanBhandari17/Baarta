@@ -12,13 +12,13 @@ const setUpSocket = (io)=>{
             socket.join(room)   
         })
 
-        socket.on('disconnect', (socket)=>{
-            console.log('the user has been disconnected')
-        })
-
         socket.on('offered-from-client' , (obj)=>{
             console.log('this is offered form the client')
             console.log(obj)
+            io.emit('taken-from-client' , obj)
+        })
+        socket.on('disconnect', (socket)=>{
+            console.log('the user has been disconnected')
         })
     })
 }

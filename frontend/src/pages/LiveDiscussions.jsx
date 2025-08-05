@@ -13,6 +13,7 @@ import {
   FaUsers,
 } from 'react-icons/fa';
 import { initialMessages, participants } from '../utils/LiveDiscussions.js';
+import { goLive } from '../sockets/handleGoLive.js';
 
 const YOUR_NAME = 'You';
 const getAvatarByName = name => {
@@ -46,6 +47,9 @@ const Discussion = () => {
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const localVideo = document.querySelector('.localVideo');
+    console.log(localVideo);
+    goLive(localVideo);
   }, [messages]);
 
   useEffect(() => {
@@ -130,7 +134,7 @@ const Discussion = () => {
                 <div className="relative flex-shrink-0">
                   <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-gray-700 text-gray-400">
                     {avatar ? (
-                      <img src={avatar} alt={msg.name} className="h-full w-full object-cover" />
+                      <video className="h-full w-full object-cover" />
                     ) : (
                       <FaUserCircle className="text-lg" />
                     )}
@@ -221,11 +225,7 @@ const Discussion = () => {
                 </div>
               </div>
             ) : (
-              <img
-                src={activeStreamer.img}
-                alt={activeStreamer.name}
-                className="h-full w-full object-cover"
-              />
+              <video className="localVideo h-full w-full object-cover" />
             )}
 
             <div className="absolute top-6 left-6 rounded-full border border-red-500/30 bg-red-500/20 px-3 py-1.5 backdrop-blur-md">

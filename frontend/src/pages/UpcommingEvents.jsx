@@ -1,14 +1,19 @@
 import Header from '../components/common/Header';
 import LeftAsideBar from '../components/common/LeftAsideBar';
 import CalenderIcon from '../assets/icons/calendar.svg';
-import { useLocation, useParams } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import socket from '../socket';
+import socket from '../sockets/socket';
+import { goLive } from '../sockets/handleGoLive';
 
 function UpcommingEventInfo() {
   const location = useLocation();
   const { event } = location.state;
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const handleGoLiveClick = () => {
+    navigate(`/livediscussions/${event._id}`);
+  };
 
   return (
     <div className="flex h-screen flex-col">
@@ -21,8 +26,8 @@ function UpcommingEventInfo() {
             <button
               className="text-royalpurple-dark p-button-padding border-royalpurple-dark rounded-button-round hover:bg-royalpurple-dark cursor-pointer border-2 px-6 font-medium transition-all duration-300 ease-in hover:text-gray-50"
               onClick={() => {
-                // handle Go Live logic here
                 socket.emit('host-connect', { msg: 'hello' }, 'fuckyou');
+                handleGoLiveClick();
               }}
             >
               Go Live

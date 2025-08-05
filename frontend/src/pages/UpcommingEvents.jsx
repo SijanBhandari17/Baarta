@@ -11,12 +11,18 @@ function UpcommingEventInfo() {
   const { event } = location.state;
   const { user } = useAuth();
   const navigate = useNavigate();
+
   const handleGoLiveClick = () => {
-    navigate(`/livediscussions/${event._id}`);
+    navigate(`/livediscussions/${event._id}`, {
+      state: { event, isHost: true },
+    });
   };
 
   const handleJoinNowClick = () => {
     socket.emit('participant-connect', event._id);
+    navigate(`/livediscussions/${event._id}`, {
+      state: { event, isHost: false },
+    });
   };
   return (
     <div className="flex h-screen flex-col">

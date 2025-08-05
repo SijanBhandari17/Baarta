@@ -15,6 +15,9 @@ function UpcommingEventInfo() {
     navigate(`/livediscussions/${event._id}`);
   };
 
+  const handleJoinNowClick = () => {
+    socket.emit('participant-connect', event._id);
+  };
   return (
     <div className="flex h-screen flex-col">
       <Header />
@@ -34,7 +37,7 @@ function UpcommingEventInfo() {
           ) : (
             <button
               className="text-royalpurple-dark p-button-padding border-royalpurple-dark rounded-button-round hover:bg-royalpurple-dark cursor-pointer border-2 px-6 font-medium transition-all duration-300 ease-in hover:text-gray-50"
-              onClick={() => {}}
+              onClick={() => handleJoinNowClick()}
             >
               Join Now
             </button>

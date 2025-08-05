@@ -5,9 +5,9 @@ const util = require('util')
 const verifyAsync = util.promisify(jwt.verify);
 const verifyJWT = async (req , res , next) => {
   const cookies = req.cookies
-  if(!cookies) return res.status(401).json({'error': 'session expired'})
+  if(!cookies) return res.status(401).json({'error': 'yes session expired'})
   const {accessToken} = cookies
-  if(!accessToken) return res.status(401).json({"error" : 'session expired'})
+  if(!accessToken) return res.status(401).json({"error" : 'this is all we know session expired'})
   let decoded
   try{
      decoded = await verifyAsync(accessToken , process.env.ACCESS_TOKEN_SECRET)
@@ -50,13 +50,13 @@ const verifyJWT = async (req , res , next) => {
     );
     res.cookie("refreshToken" , newRefreshToken , {
       httpOnly : true,
-      // sameSite : 'None',
+      // sameSite : 'Lax',
       // secure : false,
       maxAge : 30*24*60*60*1000
     });
     res.cookie("accessToken" , newAccessToken , {
       httpOnly : true,
-      // sameSite : 'None',
+      // sameSite : 'Lax',
       // secure : false,
       maxAge : 30*24*60*60*1000
     });

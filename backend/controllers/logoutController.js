@@ -17,13 +17,13 @@ const handleLogout = async (req ,res)=> {
     res.clearCookie('refreshToken' , 
       {
         HttpOnly : true,
-        sameSite : 'lax',
+        // sameSite : 'lax',
         maxAge : 30*24*60*60*1000
       }
     );
     res.clearCookie('accessToken', {
       HttpOnly : true,
-      sameSite : 'lax',
+      // sameSite : 'lax',
       maxAge : 30*24*60*60*1000
     })
 

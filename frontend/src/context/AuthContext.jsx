@@ -1,5 +1,4 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import socket from '../sockets/socket.js';
 
 const AuthContext = createContext();
 
@@ -9,11 +8,6 @@ const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     checkAuthStatus();
-    socket.connect();
-
-    socket.on('message', data => {
-      console.log('Received message: ', data);
-    });
   }, []);
 
   const checkAuthStatus = async () => {

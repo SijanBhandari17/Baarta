@@ -6,14 +6,11 @@ import HomeContent from '../components/common/nav/asidebar/HomeContent';
 import ForumContent from '../components/common/nav/asidebar/ForumContent';
 import Saved from '../components/common/nav/asidebar/SavedContent';
 
-import LiveDiscussions from '../components/common/nav/home/LiveDiscussions';
 import Threads from '../components/common/nav/home/Threads';
-import UpcommingEventInfo from '../pages/UpcommingEvents';
 import { ForumHomePage, ForumDefault } from '../pages/ForumHomePage';
 import PostContent from '../pages/PostContent';
 import { PostProvider } from '../context/PostContext';
 import { CommentProvider } from '../context/CommnentContext';
-import Discussion from '../pages/LiveDiscussions';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -28,14 +25,12 @@ const router = createBrowserRouter(
       >
         <Route index element={<Navigate to="/home" replace />} />
         <Route path="home" element={<HomeContent />}>
-          <Route index element={<Navigate to="livediscussions" replace />} />
-          <Route path="livediscussions" element={<LiveDiscussions />} />
+          <Route index element={<Navigate to="mythreads" replace />} />
           <Route path="mythreads" element={<Threads />} />
         </Route>
         <Route path="forum" element={<ForumContent />} />
         <Route path="saved" element={<Saved />} />
       </Route>
-      <Route path="upcommingevents/:eventId" element={<UpcommingEventInfo />} />
       <Route
         path="/b/:forumTitle"
         element={
@@ -63,7 +58,6 @@ const router = createBrowserRouter(
           </PublicRoute>
         }
       />
-      <Route path="/livediscussions/:discussionId" element={<Discussion />} />
     </>,
   ),
 );

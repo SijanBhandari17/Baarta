@@ -6,7 +6,7 @@ const goLive = async videoSource => {
   localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
   videoSource.srcObject = localStream;
 };
-const startStreaming = async () => {
+const startStreaming = async discussionId => {
   console.log('hi');
   if (!localStream) {
     console.error('No local stream available');
@@ -21,14 +21,12 @@ const startStreaming = async () => {
     ],
   });
   localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
-  console.log('aohter hi');
   console.log(localStream);
   console.log(pc);
 
   pc.onicecandidate = e => {
-    console.log('aohter a hi');
     if (!e.candidate) {
-      socket.emit('host-connect', pc.localDescription);
+      socket.emit('host-connect', pc.localDescription, discussionId);
       console.log(pc.localDescription);
       console.log('Hi');
     }

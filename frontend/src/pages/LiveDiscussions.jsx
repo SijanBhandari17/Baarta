@@ -15,6 +15,7 @@ import {
 import { CiStreamOn } from 'react-icons/ci';
 import { initialMessages, participants } from '../utils/LiveDiscussions.js';
 import { goLive, startStreaming } from '../sockets/handleGoLive.js';
+import { useParams } from 'react-router-dom';
 
 const YOUR_NAME = 'You';
 const getAvatarByName = name => {
@@ -43,6 +44,8 @@ const Discussion = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [audioLevels, setAudioLevels] = useState({});
   const [localStream, setLocalStream] = useState(null);
+  const { discussionId } = useParams();
+  console.log(discussionId);
 
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
@@ -334,7 +337,7 @@ const Discussion = () => {
             <button
               className="rounded-2xl bg-gradient-to-br from-red-600 to-red-700 p-4 shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-xl"
               title="Start Streaming"
-              onClick={startStreaming}
+              onClick={() => startStreaming(discussionId)}
             >
               <CiStreamOn className="text-lg" />
             </button>

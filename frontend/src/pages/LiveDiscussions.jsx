@@ -334,9 +334,7 @@ const Discussion = () => {
             <button
               className="rounded-2xl bg-gradient-to-br from-red-600 to-red-700 p-4 shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-xl"
               title="Start Streaming"
-              onClick={() => {
-                startStreaming();
-              }}
+              onClick={startStreaming}
             >
               <CiStreamOn className="text-lg" />
             </button>

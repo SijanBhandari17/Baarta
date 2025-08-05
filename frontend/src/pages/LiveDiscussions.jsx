@@ -73,32 +73,96 @@ const Discussion = () => {
       };
       startVideo();
     } else if (!isHost) {
-      socket.on('receive-ice', async obj => {
-        const pc = new RTCPeerConnection({
-          iceServers: [
-            { urls: 'stun:stun.l.google.com:19302' },
-            { urls: 'stun:stun1.l.google.com:19302' },
-            { urls: 'stun:stun.cloudflare.com:3478' },
-          ],
-        });
-        pc.ontrack = e => {
-          videoRef.current.srcObject = e.streams[0];
-        };
-        pc.onicecandidate = e => {
-          if (!e.candidate) {
-            socket.emit('offered-from-client', pc.localDescription);
-          }
-        };
-        await pc.setRemoteDescription(obj);
+      // here changed - join room first before setting up WebRTC
+      socket.emit('participant-connect', discussionId);
+      console.log('Joined room as participant:', discussionId);
 
-        const answer = await pc.createAnswer();
-        await pc.setLocalDescription(answer);
+      let peerConnection = null;
 
-        //dont forget abt enabling this
-        // setShowJoinNow(true);
+      // here changed - handle when host goes live
+      socket.on('host-is-live', () => {
+        console.log('Host is now live');
+        setShowJoinNow(true);
       });
+
+      // here changed - handle receiving offer from host
+      socket.on('receive-offer', async ({ offer, hostId }) => {
+        console.log('Received offer from host:', hostId);
+        
+        try {
+          // here changed - create new peer connection for this session
+          peerConnection = new RTCPeerConnection({
+            iceServers: [
+              { urls: 'stun:stun.l.google.com:19302' },
+              { urls: 'stun:stun1.l.google.com:19302' },
+              { urls: 'stun:stun.cloudflare.com:3478' },
+            ],
+          });
+
+          // here changed - handle incoming stream
+          peerConnection.ontrack = (e) => {
+            console.log('Received remote stream');
+            if (videoRef.current) {
+              videoRef.current.srcObject = e.streams[0];
+            }
+          };
+
+          // here changed - handle ICE candidates
+          peerConnection.onicecandidate = (e) => {
+            if (e.candidate) {
+              console.log('Sending ICE candidate to host');
+              socket.emit('send-ice-candidate-to-host', {
+                candidate: e.candidate,
+                hostId: hostId,
+                viewerId: socket.id
+              });
+            }
+          };
+
+          // here changed - handle ICE candidates from host
+          socket.on('receive-ice-candidate', async ({ candidate, hostId: senderId }) => {
+            if (senderId === hostId && peerConnection) {
+              try {
+                await peerConnection.addIceCandidate(candidate);
+                console.log('Added ICE candidate from host');
+              } catch (error) {
+                console.error('Error adding ICE candidate:', error);
+              }
+            }
+          });
+
+          // here changed - set remote description and create answer
+          await peerConnection.setRemoteDescription(offer);
+          
+          const answer = await peerConnection.createAnswer();
+          await peerConnection.setLocalDescription(answer);
+
+          // here changed - send answer back to host
+          socket.emit('send-answer-to-host', {
+            answer: answer,
+            hostId: hostId,
+            viewerId: socket.id
+          });
+
+          console.log('Answer sent to host');
+          setShowJoinNow(true);
+
+        } catch (error) {
+          console.error('Error handling offer:', error);
+        }
+      });
+
+      // here changed - cleanup function
+      return () => {
+        if (peerConnection) {
+          peerConnection.close();
+        }
+        socket.off('host-is-live');
+        socket.off('receive-offer');
+        socket.off('receive-ice-candidate');
+      };
     }
-  }, [isHost]);
+  }, [isHost, discussionId]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -149,6 +213,13 @@ const Discussion = () => {
   const toggleMute = () => setIsMuted(!isMuted);
   const toggleVideo = () => setIsVideoOff(!isVideoOff);
   const toggleScreenShare = () => setIsScreenSharing(!isScreenSharing);
+
+  // here changed - Update the join button handler if needed
+  const handleJoinStream = () => {
+    // here changed - this could trigger additional connection logic if needed
+    console.log('User clicked join stream');
+    // The connection should already be established when they received the offer
+  };
 
   return (
     <div className="flex h-screen overflow-hidden bg-gradient-to-br from-[#1a1a1a] to-[#2d2d2d] text-white">
@@ -384,6 +455,7 @@ const Discussion = () => {
                 }`}
                 title="Join Now"
                 disabled={!showJoinNow}
+                onClick={handleJoinStream}
               >
                 <CiStreamOn className="text-lg" />
               </button>

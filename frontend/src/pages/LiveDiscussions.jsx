@@ -56,6 +56,7 @@ const Discussion = () => {
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const videoRef = useRef(null);
+  const peerConnectionRef = useRef(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -63,6 +64,8 @@ const Discussion = () => {
 
   useEffect(() => {
     if (isHost && videoRef.current) {
+      videoRef.current.muted = isHost;
+      videoRef.current.volume = 1.0;
       const startVideo = async () => {
         try {
           const stream = await goLive(videoRef.current);
@@ -74,13 +77,16 @@ const Discussion = () => {
       startVideo();
     } else if (!isHost) {
       socket.on('receive-ice', async obj => {
-        const pc = new RTCPeerConnection({
-          iceServers: [
-            { urls: 'stun:stun.l.google.com:19302' },
-            { urls: 'stun:stun1.l.google.com:19302' },
-            { urls: 'stun:stun.cloudflare.com:3478' },
-          ],
-        });
+        if (!peerConnectionRef.current) {
+          peerConnectionRef.current = new RTCPeerConnection({
+            iceServers: [
+              { urls: 'stun:stun.l.google.com:19302' },
+              { urls: 'stun:stun1.l.google.com:19302' },
+              { urls: 'stun:stun.cloudflare.com:3478' },
+            ],
+          });
+        }
+        const pc = peerConnectionRef.current;
         pc.ontrack = e => {
           videoRef.current.srcObject = e.streams[0];
         };
@@ -276,7 +282,7 @@ const Discussion = () => {
               <video
                 ref={videoRef}
                 autoPlay
-                muted
+                muted={isHost}
                 playsInline
                 className="h-full w-full object-cover"
               />

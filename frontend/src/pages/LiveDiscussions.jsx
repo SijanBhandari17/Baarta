@@ -15,7 +15,9 @@ import {
 import { CiStreamOn } from 'react-icons/ci';
 import { initialMessages, participants } from '../utils/LiveDiscussions.js';
 import { goLive, startStreaming } from '../sockets/handleGoLive.js';
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext.jsx';
+import socket from '../sockets/socket.js';
 
 const YOUR_NAME = 'You';
 const getAvatarByName = name => {
@@ -44,8 +46,12 @@ const Discussion = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [audioLevels, setAudioLevels] = useState({});
   const [localStream, setLocalStream] = useState(null);
+  const [showJoinNow, setShowJoinNow] = useState(false);
+
   const { discussionId } = useParams();
-  console.log(discussionId);
+  const location = useLocation();
+  const event = location.state.event;
+  const isHost = location.state.isHost;
 
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
@@ -53,20 +59,46 @@ const Discussion = () => {
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, []);
 
-    const startVideo = async () => {
-      if (videoRef.current && !localStream) {
+  useEffect(() => {
+    if (isHost && videoRef.current) {
+      const startVideo = async () => {
         try {
           const stream = await goLive(videoRef.current);
           setLocalStream(stream);
         } catch (error) {
           console.error('Failed to start video:', error);
         }
-      }
-    };
+      };
+      startVideo();
+    } else if (!isHost) {
+      socket.on('receive-ice', async obj => {
+        const pc = new RTCPeerConnection({
+          iceServers: [
+            { urls: 'stun:stun.l.google.com:19302' },
+            { urls: 'stun:stun1.l.google.com:19302' },
+            { urls: 'stun:stun.cloudflare.com:3478' },
+          ],
+        });
+        pc.ontrack = e => {
+          videoRef.current.srcObject = e.streams[0];
+        };
+        pc.onicecandidate = e => {
+          if (!e.candidate) {
+            socket.emit('offered-from-client', pc.localDescription);
+          }
+        };
+        await pc.setRemoteDescription(obj);
 
-    startVideo();
-  }, [messages, localStream]);
+        const answer = await pc.createAnswer();
+        await pc.setLocalDescription(answer);
+
+        //dont forget abt enabling this
+        // setShowJoinNow(true);
+      });
+    }
+  }, [isHost]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -334,13 +366,28 @@ const Discussion = () => {
             >
               <FaPhoneSlash className="text-lg" />
             </button>
-            <button
-              className="rounded-2xl bg-gradient-to-br from-red-600 to-red-700 p-4 shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-xl"
-              title="Start Streaming"
-              onClick={() => startStreaming(discussionId)}
-            >
-              <CiStreamOn className="text-lg" />
-            </button>
+            {isHost && (
+              <button
+                className="rounded-2xl bg-gradient-to-br from-red-600 to-red-700 p-4 shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-xl"
+                title="Start Streaming"
+                onClick={() => startStreaming(discussionId)}
+              >
+                <CiStreamOn className="text-lg" />
+              </button>
+            )}
+            {!isHost && (
+              <button
+                className={`rounded-2xl p-4 shadow-lg transition-all duration-300 ${
+                  showJoinNow
+                    ? 'cursor-pointer bg-gradient-to-br from-red-600 to-red-700 hover:scale-110 hover:shadow-xl'
+                    : 'cursor-not-allowed bg-gray-400 opacity-50'
+                }`}
+                title="Join Now"
+                disabled={!showJoinNow}
+              >
+                <CiStreamOn className="text-lg" />
+              </button>
+            )}
           </div>
 
           <div className="mt-4 flex justify-center">

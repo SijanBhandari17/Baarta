@@ -5,7 +5,6 @@ const Comment = require("../models/commentModel");
 const Profile = require("../models/profilePicModel");
 const Forum = require("../models/forumModel");
 const Poll = require("../models/pollModel");
-const Disucssion = require("../models/discussionModel");
 const mongoose = require("mongoose");
 
 const sendAllUser = async (req, res) => {

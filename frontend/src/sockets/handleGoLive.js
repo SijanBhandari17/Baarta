@@ -32,6 +32,10 @@ const startStreaming = async discussionId => {
 
   const offer = await pc.createOffer();
   await pc.setLocalDescription(offer);
+
+  socket.on('taken-from-client', async data => {
+    await pc.setRemoteDescription(data);
+  });
 };
 
 export { goLive, startStreaming };

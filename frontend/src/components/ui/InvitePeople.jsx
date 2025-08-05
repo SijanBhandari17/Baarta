@@ -1,10 +1,13 @@
 import { X, UserPlus } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { usePost } from '../../context/PostContext';
+import { useLocation } from 'react-router-dom';
 
 function InvitePeople({ onClose }) {
   const [allUsers, setAllUsers] = useState([]);
-  const { forumToShow } = usePost();
+  const location = useLocation();
+  const { forumToShow } = location.state;
+
   const forumId = forumToShow._id;
   console.log(forumToShow);
 
@@ -21,7 +24,7 @@ function InvitePeople({ onClose }) {
 
         const data = await response.json();
         if (response.ok) {
-          console.log(data)
+          console.log(data);
           setAllUsers(data.body);
         } else {
           console.error('Upload failed:', data.error);

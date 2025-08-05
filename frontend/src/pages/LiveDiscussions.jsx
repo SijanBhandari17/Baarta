@@ -14,7 +14,7 @@ import {
 } from 'react-icons/fa';
 import { CiStreamOn } from 'react-icons/ci';
 import { initialMessages, participants } from '../utils/LiveDiscussions.js';
-import { goLive, startStreaming } from '../sockets/handleGoLive.js';
+import { goLive, startStreaming, connectToBroadcast } from '../sockets/handleGoLive.js';
 import { useLocation, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import socket from '../sockets/socket.js';
@@ -56,6 +56,7 @@ const Discussion = () => {
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const videoRef = useRef(null);
+  const peerConnectionRef = useRef(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -63,105 +64,40 @@ const Discussion = () => {
 
   useEffect(() => {
     if (isHost && videoRef.current) {
-      const startVideo = async () => {
+      videoRef.current.muted = true; // Mute local preview to prevent feedback
+
+      const startBroadcast = async () => {
         try {
           const stream = await goLive(videoRef.current);
           setLocalStream(stream);
+          await startStreaming(discussionId);
         } catch (error) {
-          console.error('Failed to start video:', error);
+          console.error('Failed to start broadcast:', error);
         }
       };
-      startVideo();
+
+      startBroadcast();
     } else if (!isHost) {
-      // here changed - join room first before setting up WebRTC
-      socket.emit('participant-connect', discussionId);
-      console.log('Joined room as participant:', discussionId);
-
-      let peerConnection = null;
-
-      // here changed - handle when host goes live
-      socket.on('host-is-live', () => {
-        console.log('Host is now live');
-        setShowJoinNow(true);
-      });
-
-      // here changed - handle receiving offer from host
-      socket.on('receive-offer', async ({ offer, hostId }) => {
-        console.log('Received offer from host:', hostId);
-        
+      // Viewer logic
+      const connectToStream = async () => {
         try {
-          // here changed - create new peer connection for this session
-          peerConnection = new RTCPeerConnection({
-            iceServers: [
-              { urls: 'stun:stun.l.google.com:19302' },
-              { urls: 'stun:stun1.l.google.com:19302' },
-              { urls: 'stun:stun.cloudflare.com:3478' },
-            ],
-          });
-
-          // here changed - handle incoming stream
-          peerConnection.ontrack = (e) => {
-            console.log('Received remote stream');
-            if (videoRef.current) {
-              videoRef.current.srcObject = e.streams[0];
-            }
-          };
-
-          // here changed - handle ICE candidates
-          peerConnection.onicecandidate = (e) => {
-            if (e.candidate) {
-              console.log('Sending ICE candidate to host');
-              socket.emit('send-ice-candidate-to-host', {
-                candidate: e.candidate,
-                hostId: hostId,
-                viewerId: socket.id
-              });
-            }
-          };
-
-          // here changed - handle ICE candidates from host
-          socket.on('receive-ice-candidate', async ({ candidate, hostId: senderId }) => {
-            if (senderId === hostId && peerConnection) {
-              try {
-                await peerConnection.addIceCandidate(candidate);
-                console.log('Added ICE candidate from host');
-              } catch (error) {
-                console.error('Error adding ICE candidate:', error);
-              }
-            }
-          });
-
-          // here changed - set remote description and create answer
-          await peerConnection.setRemoteDescription(offer);
-          
-          const answer = await peerConnection.createAnswer();
-          await peerConnection.setLocalDescription(answer);
-
-          // here changed - send answer back to host
-          socket.emit('send-answer-to-host', {
-            answer: answer,
-            hostId: hostId,
-            viewerId: socket.id
-          });
-
-          console.log('Answer sent to host');
-          setShowJoinNow(true);
-
+          const connection = await connectToBroadcast(discussionId, videoRef.current);
+          peerConnectionRef.current = connection;
         } catch (error) {
-          console.error('Error handling offer:', error);
+          console.error('Failed to connect to broadcast:', error);
         }
-      });
-
-      // here changed - cleanup function
-      return () => {
-        if (peerConnection) {
-          peerConnection.close();
-        }
-        socket.off('host-is-live');
-        socket.off('receive-offer');
-        socket.off('receive-ice-candidate');
       };
+
+      connectToStream();
     }
+
+    // Clean up
+    return () => {
+      if (localStream) {
+        localStream.getTracks().forEach(track => track.stop());
+      }
+      // Close peer connections when component unmounts
+    };
   }, [isHost, discussionId]);
 
   useEffect(() => {
@@ -213,13 +149,6 @@ const Discussion = () => {
   const toggleMute = () => setIsMuted(!isMuted);
   const toggleVideo = () => setIsVideoOff(!isVideoOff);
   const toggleScreenShare = () => setIsScreenSharing(!isScreenSharing);
-
-  // here changed - Update the join button handler if needed
-  const handleJoinStream = () => {
-    // here changed - this could trigger additional connection logic if needed
-    console.log('User clicked join stream');
-    // The connection should already be established when they received the offer
-  };
 
   return (
     <div className="flex h-screen overflow-hidden bg-gradient-to-br from-[#1a1a1a] to-[#2d2d2d] text-white">
@@ -347,7 +276,7 @@ const Discussion = () => {
               <video
                 ref={videoRef}
                 autoPlay
-                muted
+                muted={isHost}
                 playsInline
                 className="h-full w-full object-cover"
               />
@@ -455,7 +384,6 @@ const Discussion = () => {
                 }`}
                 title="Join Now"
                 disabled={!showJoinNow}
-                onClick={handleJoinStream}
               >
                 <CiStreamOn className="text-lg" />
               </button>

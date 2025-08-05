@@ -1,98 +1,194 @@
-import socket from './socket'
+import socket from './socket';
 
 let localStream;
-// here changed - store multiple peer connections for multiple viewers
-const peerConnections = new Map();
+// Store peer connections for each viewer
+const peerConnections = {};
 
+// Get media stream for broadcaster
 const goLive = async videoSource => {
-  console.log(videoSource);
+  console.log('Starting broadcast with video source:', videoSource);
   localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
   videoSource.srcObject = localStream;
   return localStream;
 };
 
+// Start broadcasting to a room
 const startStreaming = async discussionId => {
-  console.log('hi');
   if (!localStream) {
     console.error('No local stream available');
     return;
   }
 
-  // here changed - listen for new viewer connections instead of creating single connection
-  socket.on('new-viewer-joined', async (viewerId) => {
-    console.log('New viewer joined:', viewerId);
-    
-    // here changed - create separate peer connection for each viewer
-    const pc = new RTCPeerConnection({
-      iceServers: [
-        { urls: 'stun:stun.l.google.com:19302' },
-        { urls: 'stun:stun1.l.google.com:19302' },
-        { urls: 'stun:stun.cloudflare.com:3478' },
-      ],
+  console.log(`Starting to broadcast in room: ${discussionId}`);
+
+  // Announce this broadcaster to the server
+  socket.emit('host-connect', discussionId);
+
+  // Configuration for all peer connections
+  const configuration = {
+    iceServers: [
+      { urls: 'stun:stun.l.google.com:19302' },
+      { urls: 'stun:stun1.l.google.com:19302' },
+      { urls: 'stun:stun.cloudflare.com:3478' },
+    ],
+  };
+
+  // Handle new viewer connections
+  socket.on('new-viewer', async (viewerId, roomName) => {
+    console.log(`New viewer connected: ${viewerId} in room ${roomName}`);
+
+    // Create a new peer connection for this viewer
+    const pc = new RTCPeerConnection(configuration);
+    peerConnections[viewerId] = pc;
+
+    // Add local tracks to the connection
+    localStream.getTracks().forEach(track => {
+      pc.addTrack(track, localStream);
     });
 
-    // here changed - store psdeer connection with viewer ID
-    peerConnections.set(viewerId, pc);
-
-    // here changed - add all tracks to this specific peer connection
-    localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
-
+    // Handle ICE candidates
     pc.onicecandidate = e => {
-      if (!e.candidate) {
-        // here changed - send offer to specific viewer
-        socket.emit('send-offer-to-viewer', {
-          offer: pc.localDescription,
-          viewerId: viewerId,
-          discussionId: discussionId // there is not point in sending this.
-        });
-        console.log('Offer sent to viewer:', viewerId, pc.localDescription);
+      if (e.candidate) {
+        // Send ICE candidate to the specific viewer
+        console.log(pc.localDescription);
+        // showJoinNow
+        socket.emit(
+          'host-signal',
+          {
+            type: 'ice-candidate',
+            candidate: e.candidate,
+          },
+          roomName,
+          viewerId,
+        );
       }
     };
 
-    // here changed - handle answer from specific viewer
-    socket.on(`answer-from-viewer-${viewerId}`, async (answer) => {
-      try {
-        await pc.setRemoteDescription(answer);
-        console.log('Answer received from viewer:', viewerId);
-      } catch (error) {
-        console.error('Error setting remote description for viewer:', viewerId, error);
-      }
-    });
-
-    // here changed - handle ICE candidates from specific viewer
-    socket.on(`ice-candidate-from-viewer-${viewerId}`, async (candidate) => {
-      try {
-        await pc.addIceCandidate(candidate);
-        console.log('ICE candidate added for viewer:', viewerId);
-      } catch (error) {
-        console.error('Error adding ICE candidate for viewer:', viewerId, error);
-      }
-    });
-
-    // here changed - handle viewer disconnect
-    socket.on(`viewer-disconnected-${viewerId}`, () => {
-      console.log('Viewer disconnected:', viewerId);
-      const pc = peerConnections.get(viewerId);
-      if (pc) {
-        pc.close();
-        peerConnections.delete(viewerId);
-      }
-      // here changed - remove specific listener
-      socket.off(`answer-from-viewer-${viewerId}`);
-      socket.off(`ice-candidate-from-viewer-${viewerId}`);
-      socket.off(`viewer-disconnected-${viewerId}`);
-    });
-
-    // here changed - create and send offer for this specific viewer
+    // Create and send offer to this viewer
     try {
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
+
+      socket.emit(
+        'host-signal',
+        {
+          type: 'offer',
+          sdp: pc.localDescription,
+        },
+        roomName,
+        viewerId,
+      );
     } catch (error) {
-      console.error('Error creating offer for viewer:', viewerId, error);
+      console.error('Error creating offer:', error);
     }
   });
 
-  socket.emit('host-ready-to-stream', discussionId); // this is for sending the room ID to the host 
+  // Handle answers from viewers
+  socket.on('viewer-answer', async (data, viewerId) => {
+    console.log(`Received answer from viewer: ${viewerId}`);
+    const pc = peerConnections[viewerId];
+
+    if (!pc) {
+      console.error(`No peer connection found for viewer ${viewerId}`);
+      return;
+    }
+
+    try {
+      if (data.type === 'answer') {
+        await pc.setRemoteDescription(new RTCSessionDescription(data.sdp));
+      } else if (data.type === 'ice-candidate') {
+        await pc.addIceCandidate(new RTCIceCandidate(data.candidate));
+      }
+    } catch (error) {
+      console.error('Error handling viewer answer:', error);
+    }
+  });
+
+  // Handle viewer disconnection
+  socket.on('viewer-left', viewerId => {
+    console.log(`Viewer ${viewerId} has left`);
+    if (peerConnections[viewerId]) {
+      peerConnections[viewerId].close();
+      delete peerConnections[viewerId];
+    }
+  });
 };
 
-export { goLive, startStreaming };
+// For viewers to connect to a broadcast
+const connectToBroadcast = async (discussionId, videoElement) => {
+  console.log(`Connecting to broadcast in room: ${discussionId}`);
+
+  // Join the room
+  socket.emit('participant-connect', discussionId);
+
+  const pc = new RTCPeerConnection({
+    iceServers: [
+      { urls: 'stun:stun.l.google.com:19302' },
+      { urls: 'stun:stun1.l.google.com:19302' },
+      { urls: 'stun:stun.cloudflare.com:3478' },
+    ],
+  });
+
+  // Display the broadcaster's stream when tracks are received
+  pc.ontrack = e => {
+    console.log('Received track from broadcaster');
+    videoElement.srcObject = e.streams[0];
+  };
+
+  // Handle ICE candidates
+  pc.onicecandidate = e => {
+    if (e.candidate) {
+      socket.emit(
+        'viewer-signal',
+        {
+          type: 'ice-candidate',
+          candidate: e.candidate,
+        },
+        discussionId,
+        null,
+      ); // The server will route to correct broadcaster
+    }
+  };
+
+  // Handle signals from the broadcaster
+  socket.on('broadcaster-signal', async (data, hostId) => {
+    try {
+      if (data.type === 'offer') {
+        console.log('Received offer from broadcaster');
+        await pc.setRemoteDescription(new RTCSessionDescription(data.sdp));
+        const answer = await pc.createAnswer();
+        await pc.setLocalDescription(answer);
+
+        socket.emit(
+          'viewer-signal',
+          {
+            type: 'answer',
+            sdp: pc.localDescription,
+          },
+          discussionId,
+          hostId,
+        );
+      } else if (data.type === 'ice-candidate') {
+        console.log('Received ICE candidate from broadcaster');
+        await pc.addIceCandidate(new RTCIceCandidate(data.candidate));
+      }
+    } catch (error) {
+      console.error('Error handling broadcaster signal:', error);
+    }
+  });
+
+  // Handle broadcaster disconnection
+  socket.on('broadcaster-left', () => {
+    //handleNavigateBack
+    console.log('Broadcaster has left');
+    if (videoElement.srcObject) {
+      videoElement.srcObject.getTracks().forEach(track => track.stop());
+      videoElement.srcObject = null;
+    }
+    pc.close();
+  });
+
+  return pc;
+};
+
+export { goLive, startStreaming, connectToBroadcast };

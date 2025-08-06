@@ -1,7 +1,5 @@
 import Header from '../components/common/Header';
-import RightAsideBar from '../components/common/RightAsideBar';
 import { totalCommunityStatus } from '../utils/fetchCommnityStatus';
-import LiveDiscussions from '../components/common/nav/home/LiveDiscussions';
 
 function LandingPage() {
   return (
@@ -9,7 +7,6 @@ function LandingPage() {
       <Header />
       <div className="flex flex-1">
         <MainContent />
-        <RightAsideBar />
       </div>
     </div>
   );
@@ -23,10 +20,6 @@ function MainContent() {
         Join the next generation of academic discourse
       </p>
       <StatusContent />
-      <div>
-        <h1 className="text-font my-2 text-[28px]">Live Discussions</h1>
-        <LiveDiscussions />
-      </div>
     </div>
   );
 }

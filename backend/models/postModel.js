@@ -16,7 +16,7 @@ const postSchema = new Schema({
   },
   upvote_id: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   comment_id: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comment" }],
-  genre: { type: String, enum: ["Question", "Announcement", "Event"] },
+  genre: { type: String, enum: ["Question", "Announcement", "Event"] , required : true},
 });
 module.exports = mongoose.model("Post", postSchema);
 //console.log(`the date today is ${new Date(posts.post_date).toDateString()}`)

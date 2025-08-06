@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { usePost } from '../../context/PostContext';
 
-function CreatePoll({ forum, onClose, onSuccess }) {
-  const [title, setTitle] = useState('');
-  const [options, setOptions] = useState(['', '']);
+function CreatePoll({ type, poll, forum, updatePoll, onClose, onSuccess }) {
+  const [title, setTitle] = useState(poll?.title || []);
+  const [options, setOptions] = useState(poll?.option.map(opt => opt.name) || [[], []]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const { addPollInContext } = usePost();
-  console.log(addPollInContext);
 
   const handleOptionChange = (index, value) => {
     const updated = [...options];
@@ -34,7 +33,9 @@ function CreatePoll({ forum, onClose, onSuccess }) {
       return false;
     }
 
+    console.log(options);
     const validOptions = options.filter(opt => opt.trim());
+
     if (validOptions.length < 2) {
       setError('At least 2 options are required');
       return false;
@@ -52,38 +53,44 @@ function CreatePoll({ forum, onClose, onSuccess }) {
   const handleSubmit = async () => {
     if (!validateForm()) return;
 
+    const validOptions = options.map(opt => opt.trim());
+    if (!updatePoll) {
+      try {
+        const response = await fetch('http://localhost:5000/poll', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            title: title.trim(),
+            forumId: forum._id,
+            options: validOptions,
+          }),
+        });
+
+        const data = await response.json();
+        addPollInContext(data.body[0]);
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to create poll');
+        }
+        onSuccess?.(data);
+        onClose();
+      } catch (err) {
+        setError(err.message || 'Failed to create poll');
+      }
+    } else {
+      try {
+        await updatePoll({ pollId: poll._id, title: title.trim(), options: validOptions });
+        onSuccess?.();
+        onClose();
+      } catch (err) {
+        setError(err.message || 'Failed to update poll');
+      }
+    }
     setIsSubmitting(true);
     setError('');
-
-    try {
-      const validOptions = options.filter(opt => opt.trim()).map(opt => opt.trim());
-
-      const response = await fetch('http://localhost:5000/poll', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          title: title.trim(),
-          forumId: forum._id,
-          options: validOptions,
-        }),
-      });
-
-      const data = await response.json();
-      addPollInContext(data.body[0]);
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to create poll');
-      }
-
-      onSuccess?.(data);
-      onClose();
-    } catch (err) {
-      setError(err.message || 'Failed to create poll');
-    } finally {
-      setIsSubmitting(false);
-    }
+    setIsSubmitting(false);
   };
 
   return (
@@ -96,7 +103,7 @@ function CreatePoll({ forum, onClose, onSuccess }) {
           &times;
         </button>
 
-        <h2 className="mb-6 text-center text-2xl font-bold">Create New Poll</h2>
+        <h2 className="mb-6 text-center text-2xl font-bold">{type} Poll</h2>
 
         {/* Error Message */}
         {error && (
@@ -168,14 +175,9 @@ function CreatePoll({ forum, onClose, onSuccess }) {
           </button>
           <button
             onClick={handleSubmit}
-            disabled={isSubmitting || !title.trim() || options.filter(opt => opt.trim()).length < 2}
-            className={`flex-1 rounded-lg px-4 py-3 font-medium transition ${
-              isSubmitting || !title.trim() || options.filter(opt => opt.trim()).length < 2
-                ? 'cursor-not-allowed bg-white/10 text-white/40'
-                : 'bg-purple-600 text-white hover:bg-purple-700'
-            }`}
+            className="flex-1 cursor-pointer rounded-lg bg-purple-600 px-4 py-3 font-medium text-white transition hover:bg-purple-700"
           >
-            {isSubmitting ? 'Creating...' : 'Create Poll'}
+            {type} Poll
           </button>
         </div>
 

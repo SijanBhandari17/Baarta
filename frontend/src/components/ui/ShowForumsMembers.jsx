@@ -1,6 +1,7 @@
 import { UserPlus, UserRoundCog, X } from 'lucide-react';
 import { usePost } from '../../context/PostContext';
 import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 
 function ShowForumsMembers({ forum, onClose }) {
   const [members, setMembers] = useState([]);
@@ -10,7 +11,7 @@ function ShowForumsMembers({ forum, onClose }) {
     const getAllMembers = async userId => {
       try {
         const response = await fetch(
-          `http://localhost:5000/all/singleuserprofile?userId=${userId}`,
+          `http://localhost:5000/miscallenuous/getMemberNotModerator?userId=${userId}`,
           {
             method: 'GET',
             credentials: 'include',

@@ -16,21 +16,11 @@ const navbarInfo = [
     label: 'Saved',
     imgSrc: SavedSrc,
   },
-  {
-    label: 'Draft',
-    imgSrc: DraftsSrc,
-  },
 ];
 
 const homeContentNavbar = [
   {
-    label: 'Live Discussions',
-  },
-  {
     label: 'My Threads',
-  },
-  {
-    label: 'Trending',
   },
 ];
 

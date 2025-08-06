@@ -38,13 +38,13 @@ const handleLogin = async (req , res) => {
 
   res.cookie("refreshToken" , refreshToken , {
     httpOnly : true,
-      // sameSite : 'None',
+      // sameSite : 'Lax',
       // secure : false,
     maxAge : 30*24*60*60*1000
   });
   res.cookie("accessToken" , accessToken , {
     httpOnly : true,
-      // sameSite : 'None',
+      // sameSite : 'Lax',
       // secure : false,
     maxAge : 30*24*60*60*1000
   })

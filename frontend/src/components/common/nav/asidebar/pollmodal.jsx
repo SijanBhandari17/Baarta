@@ -1,15 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { usePost } from '../../../../context/PostContext';
 import LoadingSpinner from '../../LoadingSpinner';
-import { useAuth } from '../../../../context/AuthContext';
 
-function PollModal({ poll, onClose }) {
-  const { updatePollInContext } = usePost();
+function PollModal({ poll, onClose, updateAllPollInContext }) {
   const [options, setOptions] = useState(poll.option?.map(item => ({ ...item })));
   const [selected, setSelected] = useState(null);
   const [submitted, setSubmitted] = useState(false);
-  const { user } = useAuth();
-  console.log(options);
+
+  const { updatePollInContext } = usePost();
+
   const totalVotes = options.reduce((sum, o) => sum + o.voter_Id.length, 0);
   const handleOptionClick = option => {
     if (!submitted) {
@@ -17,8 +16,10 @@ function PollModal({ poll, onClose }) {
       return;
     }
   };
-  const handleOptionsUpdate = updatedOptions => {
-    updatePollInContext(poll, updatedOptions);
+  const handleOptionsUpdate = updatedPoll => {
+    console.log('hello');
+    if (updateAllPollInContext) updateAllPollInContext(updatedPoll);
+    updatePollInContext(updatedPoll);
   };
 
   const handleSubmit = async () => {
@@ -36,9 +37,9 @@ function PollModal({ poll, onClose }) {
       console.log(data);
       if (response.ok) {
         setOptions(data.body.option);
-        setSubmitted(true);
         console.log(data);
-        handleOptionsUpdate(data.body.option);
+        setSubmitted(true);
+        handleOptionsUpdate(data.body);
       } else {
         console.error('Failed to fetch posts:', data.error);
       }
@@ -123,4 +124,3 @@ function PollModal({ poll, onClose }) {
 }
 
 export default PollModal;
-

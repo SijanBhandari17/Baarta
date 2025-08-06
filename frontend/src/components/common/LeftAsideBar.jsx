@@ -3,19 +3,6 @@ import { navbarInfo } from '../../utils/navLists';
 import { Navigate, NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
-const usersThreadCount = 10;
-const usersRepliesCount = 20;
-const statsData = [
-  {
-    label: 'Threads',
-    value: usersThreadCount,
-  },
-  {
-    label: 'Replies',
-    value: usersRepliesCount,
-  },
-];
-
 function LeftAsideBar() {
   const { user } = useAuth();
   if (!user) {
@@ -37,15 +24,14 @@ function DisplayUserInfo() {
         Welcome Back, {user.info.username}
       </h1>
       <div className="flex gap-2">
-        {statsData.map((stat, index) => (
-          <div
-            key={index}
-            className={'bg-layout-elements-focus rounded-button-round w-1/2 px-2 py-4'}
-          >
-            <p className="text-font-light">{stat.label}</p>
-            <p className="text-font text-title font-semibold">{stat.value}</p>
-          </div>
-        ))}
+        <div className={'bg-layout-elements-focus rounded-button-round w-1/2 px-2 py-4'}>
+          <p className="text-font-light">Posts</p>
+          <p className="text-font text-title font-semibold">{user.info?.no_of_post}</p>
+        </div>
+        <div className={'bg-layout-elements-focus rounded-button-round w-1/2 px-2 py-4'}>
+          <p className="text-font-light">Replies</p>
+          <p className="text-font text-title font-semibold">{user.info?.no_of_replies}</p>
+        </div>
       </div>
     </div>
   );

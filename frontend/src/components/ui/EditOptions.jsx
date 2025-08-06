@@ -39,7 +39,7 @@ function EditForumModal({ onClose, forum }) {
       <div>Update Forum</div>
       <CreateForum
         type="Update"
-        value={forum}
+        forum={forum}
         isOpen={true}
         onClose={onClose}
         updateForum={updateForum}
@@ -51,6 +51,7 @@ function EditOptions({ isOpen, forum }) {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isModeratorModalOpen, setIsModeratorModalOpen] = useState(false);
+  console.log(forum);
 
   const options = [
     {

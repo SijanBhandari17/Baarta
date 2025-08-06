@@ -49,39 +49,46 @@ function ForumContent() {
           className="hover:bg-layout-elements-focus rounded-button-round ml-4 h-full w-8 cursor-pointer text-white"
         />
       </div>
-      <div className="grid grid-cols-3 gap-2">
-        {forum?.map(item => {
-          return (
+
+      {forum?.length === 0 ? (
+        <div className="text-hero flex h-40 w-full items-center justify-center text-xl text-white">
+          No forums available.
+        </div>
+      ) : (
+        <div className="grid grid-cols-3 gap-2">
+          {forum.map(item => (
             <IndividualFourmComponent
-              title={item.forum_name}
+              forum={item}
               category={item.genre}
               participants={item.member_id.length + item.moderator_id.length + 1}
               key={item._id}
             />
-          );
-        })}
-      </div>
+          ))}
+        </div>
+      )}
+
       <CreateForum
         type="Create"
         isOpen={isDialogOpen}
         addNewForum={addNewForum}
         onClose={() => setIsDialogOpen(false)}
       />
+
       {isShowNewForumsOpen && <NewForums onClose={() => setIsShowNewForumsOpen(false)} />}
     </div>
   );
 }
 
-function IndividualFourmComponent({ activeUser, title, category, participants }) {
+function IndividualFourmComponent({ activeUser, forum, category, participants }) {
   const navigate = useNavigate();
 
   const handleEnterForum = () => {
-    navigate(`/b/${encodeURIComponent(title)}`);
+    navigate(`/b/${encodeURIComponent(forum.forum_name)}`);
   };
 
   return (
     <div className="bg-layout-elements-focus rounded-button-round flex flex-col gap-2 p-6">
-      <p className="text-title text-font mb-2 font-semibold">{title}</p>
+      <p className="text-title text-font mb-2 font-semibold">{forum.forum_name}</p>
       <p className="text-font rounded-button-round inline-block w-fit bg-[#5a5a5a] p-1">
         {category}
       </p>

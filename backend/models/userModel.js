@@ -4,8 +4,8 @@ const userSchema = new Schema({
     email : {type : String , required: true},
     password : {type : String , required : true} ,
     username : {type : String , required : true} ,
-    no_post : Number,
-    no_replies : Number,
+    no_post : {type:Number, default:0},
+    no_replies :{type:Number , default : 0}, 
     forum_id : [Number],
     forum_request_id : [Number],
     refreshToken : String,
@@ -14,6 +14,7 @@ const userSchema = new Schema({
             forum_id : Number,
             role : { type: Number , default : 1 } // 1 is for member 2 is for moderator and 3 is for admin
         }
-    ]
+    ],
+    save_post : [{type:mongoose.Schema.Types.ObjectId , ref : 'Post'}  ]
 })
 module.exports = mongoose.model('User' , userSchema)

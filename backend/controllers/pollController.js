@@ -12,45 +12,31 @@ const postPoll = async (req, res) => {
   try {
     await session.startTransaction();
     if (!req.body?.title)
-      return res
-        .status(400)
-        .json({ error: "missing title in the request header" });
+      return res.status(400).json({ error: "missing title in the request header" });
     if (!req.body?.forumId)
-      return res
-        .status(400)
-        .json({ error: "missing forumId in the request header" });
+      return res.status(400).json({ error: "missing forumId in the request header" });
     if (!req.user?.email)
-      return res
-        .status(401)
-        .json({ error: "unaunthenticated user sent the request" });
+      return res.status(401).json({ error: "unaunthenticated user sent the request" });
     if (!req.body?.options)
-      return res
-        .status(400)
-        .json({ error: "options missing in the request header" }); // send this in pure array form but with JSON.stringify ofcourse
+      return res.status(400).json({ error: "options missing in the request header" }); // send this in pure array form but with JSON.stringify ofcourse
 
     const { forumId, options, title } = req.body;
     const { email } = req.user;
 
     if (!Array.isArray(options)) {
       await session.abortTransaction();
-      return res
-        .status(400)
-        .json({ error: "TypeCastError : can't convert options to Array" });
+      return res.status(400).json({ error: "TypeCastError : can't convert options to Array" });
     }
 
     if (new Set(options).size !== options.length) {
       await session.abortTransaction();
-      return res
-        .status(409)
-        .json({ error: "Duplicates recieved in the options " });
+      return res.status(409).json({ error: "Duplicates recieved in the options " });
     }
 
     const foundUser = await User.findOne({ email }).session(session).exec();
     if (!foundUser) {
       await session.abortTransaction();
-      return res
-        .status(404)
-        .json({ error: "the user account is deleted or doesn't exists" });
+      return res.status(404).json({ error: "the user account is deleted or doesn't exists" });
     }
 
     const foundForum = await Forum.findOne({ _id: forumId })
@@ -58,9 +44,7 @@ const postPoll = async (req, res) => {
       .exec();
     if (!foundForum) {
       await session.abortTransaction();
-      return res
-        .status(404)
-        .json({ error: "the forum is either deleted or removed " });
+      return res.status(404).json({ error: "the forum is either deleted or removed " });
     }
 
     const toBePostedOptions = options.map((item) => {
@@ -79,10 +63,11 @@ const postPoll = async (req, res) => {
       { session },
     );
 
+    foundForum.poll_id = [...foundForum.poll_id , result[0]._id]
+
+
     await session.commitTransaction();
-    res
-      .status(201)
-      .json({ message: "successfully created the poll", body: result });
+    res.status(201).json({ message: "successfully created the poll", body: result });
   } catch (err) {
     await session.abortTransaction();
     res.status(500).json({ error: `${err.stack}` });
@@ -98,17 +83,11 @@ const updatePoll = async (req, res) => {
     await session.startTransaction();
 
     if (!req.body?.pollId)
-      return res
-        .status(400)
-        .json({ error: "missing title in the request header" });
+      return res.status(400).json({ error: "missing title in the request header" });
     if (!req.user?.email)
-      return res
-        .status(401)
-        .json({ error: "unauthentiacted user sent the request" });
+      return res.status(401).json({ error: "unauthentiacted user sent the request" });
     if (!req.body?.options)
-      return res
-        .status(400)
-        .json({ error: "options missing in the request header" });
+      return res.status(400).json({ error: "options missing in the request header" });
 
     const { pollId, options, title } = req.body;
 
@@ -116,24 +95,18 @@ const updatePoll = async (req, res) => {
 
     if (!Array.isArray(options)) {
       await session.abortTransaction();
-      return res
-        .status(400)
-        .json({ error: "TypeCastError : can't convert options to Array" });
+      return res.status(400).json({ error: "TypeCastError : can't convert options to Array" });
     }
 
     if (new Set(options).size !== options.length) {
       await session.abortTransaction();
-      return res
-        .status(409)
-        .json({ error: "Duplicates recieved in the options " });
+      return res.status(409).json({ error: "Duplicates recieved in the options " });
     }
 
     const foundUser = await User.findOne({ email }).session(session).exec();
     if (!foundUser) {
       await session.abortTransaction();
-      return res
-        .status(404)
-        .json({ error: "the user account is deleted or doesn't exists" });
+      return res.status(404).json({ error: "the user account is deleted or doesn't exists" });
     }
 
     const foundPoll = await Poll.findOne({ _id: pollId })
@@ -141,9 +114,7 @@ const updatePoll = async (req, res) => {
       .exec();
     if (!foundPoll) {
       await session.abortTransaction();
-      return res
-        .status(404)
-        .json({ error: "the forum is either deleted or removed " });
+      return res.status(404).json({ error: "the forum is either deleted or removed " });
     }
 
     if (foundPoll.authorId.toString() !== foundUser._id.toString()) {
@@ -151,33 +122,36 @@ const updatePoll = async (req, res) => {
       return res.status(403).json({ error: "unauthorized request sent" });
     }
 
-    let alreadyExists = false;
 
-    options.forEach((item) => {
-      foundPoll.option.forEach((innerItem) => {
-        if (innerItem.name === item) alreadyExists = true;
-      });
-    });
+    // const result = await Poll.updateOne(
+    //   { _id: foundPoll._id },
+    //   { $pull: { option: { name: optionVal } } },
+    //   { session },
+    // );
+     
 
-    if (alreadyExists) {
-      await session.abortTransaction();
-      return res.status(409).json({ error: "the options already exists" });
-    }
+    const pushPollOption = []
 
-    const toBePostedOptions = options.map((item) => {
-      return { name: item, voter_Id: [] };
-    });
+    foundPoll.option.forEach( (item) =>{
+      if(options.includes(item.name))pushPollOption.push(item)
+    })
 
-    foundPoll.option = [...foundPoll.option, ...toBePostedOptions];
-    if (title.trim().length !== 0) foundPoll.title = title || foundPoll.title;
 
-    const result = await foundPoll.save({ session });
+    const pushOptionName = pushPollOption.map(item => item.name)
+
+    options.forEach(item =>{
+      if(!pushOptionName.includes(item)) pushPollOption.push({name : item , voter_Id : []})
+    })
+
+
+    foundPoll.option = pushPollOption
+
+    await foundPoll.save({session})
 
     await session.commitTransaction();
 
-    res
-      .status(201)
-      .json({ messsage: "options successfully added ", body: result });
+    res.status(201).json({"message" : "successfully update" , "body" : foundPoll})
+
   } catch (err) {
     await session.abortTransaction();
     return res.status(500).json({ err: `${err.stack}` });
@@ -192,17 +166,11 @@ const deletePollOption = async (req, res) => {
     await session.startTransaction();
 
     if (!req.body?.pollId)
-      return res
-        .status(400)
-        .json({ error: "the pollId was missing from the request header" });
+      return res.status(400).json({ error: "the pollId was missing from the request header" });
     if (!req.user?.email)
-      return res
-        .status(401)
-        .json({ error: "uauthenticated user request sent" });
+      return res.status(401).json({ error: "uauthenticated user request sent" });
     if (!req.body?.optionVal)
-      return res
-        .status(400)
-        .json({ error: "the options was missing from the request header" });
+      return res.status(400).json({ error: "the options was missing from the request header" });
 
     const { pollId, optionVal } = req.body;
     const { email } = req.user;
@@ -210,9 +178,7 @@ const deletePollOption = async (req, res) => {
     const foundUser = await User.findOne({ email }).session(session).exec();
     if (!foundUser) {
       await session.abortTransaction();
-      return res
-        .status(404)
-        .json({ error: "the user account is deleted or doesn't exists" });
+      return res.status(404).json({ error: "the user account is deleted or doesn't exists" });
     }
 
     const foundPoll = await Poll.findOne({ _id: pollId })
@@ -220,9 +186,7 @@ const deletePollOption = async (req, res) => {
       .exec();
     if (!foundPoll) {
       await session.abortTransaction();
-      return res
-        .status(404)
-        .json({ error: "the forum is either deleted or removed " });
+      return res.status(404).json({ error: "the forum is either deleted or removed " });
     }
 
     if (foundPoll.authorId.toString() !== foundUser._id.toString()) {
@@ -253,9 +217,7 @@ const deletePoll = async (req, res) => {
     await session.startTransaction();
 
     if (!req.body?.pollId)
-      return res
-        .status(400)
-        .json({ error: "pollId is missing in the request header" });
+      return res.status(400).json({ error: "pollId is missing in the request header" });
     if (!req.user?.email)
       return res.status(401).json({ error: "unauthenticated request sent" });
 
@@ -267,17 +229,13 @@ const deletePoll = async (req, res) => {
       .exec();
     if (!foundPoll) {
       await session.abortTransaction();
-      return res
-        .status(404)
-        .json({ error: "the poll must have been deleted " });
+      return res.status(404).json({ error: "the poll must have been deleted " });
     }
 
     const foundUser = await User.findOne({ email }).session(session).exec();
     if (!foundUser) {
       await session.abortTransaction();
-      return res
-        .status(404)
-        .json({ error: "the user account is either deleted or removed" });
+      return res.status(404).json({ error: "the user account is either deleted or removed" });
     }
 
     if (foundUser._id.toString() !== foundPoll.authorId.toString()) {
@@ -289,9 +247,7 @@ const deletePoll = async (req, res) => {
 
     await session.commitTransaction();
 
-    res
-      .status(201)
-      .json({ message: "successful deletion of the post", body: result });
+    res.status(201).json({ message: "successful deletion of the post", body: result });
   } catch (err) {
     await session.abortTransaction();
     return res.status(500).json({ error: `${err.stack}` });
@@ -306,15 +262,11 @@ const votePollOption = async (req, res) => {
     await session.startTransaction();
 
     if (!req.body?.pollId)
-      return res
-        .status(400)
-        .json({ error: "pollId is missing in the request header" });
+      return res.status(400).json({ error: "pollId is missing in the request header" });
     if (!req.user?.email)
       return res.status(401).json({ error: "unauthenticated request sent" });
     if (!req.body?.option)
-      return res
-        .status(400)
-        .json({ error: "option is missing in the request header" });
+      return res.status(400).json({ error: "option is missing in the request header" });
 
     const { pollId, option } = req.body;
     const { email } = req.user;
@@ -324,17 +276,13 @@ const votePollOption = async (req, res) => {
       .exec();
     if (!foundPoll) {
       await session.abortTransaction();
-      return res
-        .status(404)
-        .json({ error: "the poll must have been deleted " });
+      return res.status(404).json({ error: "the poll must have been deleted " });
     }
 
     const foundUser = await User.findOne({ email }).session(session).exec();
     if (!foundUser) {
       await session.abortTransaction();
-      return res
-        .status(404)
-        .json({ error: "the user account is either deleted or removed" });
+      return res.status(404).json({ error: "the user account is either deleted or removed" });
     }
 
     const foundOptionArr = foundPoll.option;
@@ -351,9 +299,7 @@ const votePollOption = async (req, res) => {
 
     if (!foundOptionObj) {
       await session.abortTransaction();
-      return res
-        .status(404)
-        .json({ message: "such option doesn't even exist" });
+      return res.status(404).json({ message: "such option doesn't even exist" });
     }
 
     if (!foundOptionObj.voter_Id.includes(foundUser._id))
@@ -362,9 +308,7 @@ const votePollOption = async (req, res) => {
     const result = await foundPoll.save({ session });
 
     await session.commitTransaction();
-    return res
-      .status(201)
-      .json({ message: "successfully voted", body: result });
+    return res.status(201).json({ message: "successfully voted", body: result });
   } catch (err) {
     await session.abortTransaction();
     return res.status(500).json({ error: `${err.stack}` });
@@ -381,9 +325,7 @@ const getPollsByForumId = async (req, res) => {
     const { forumId } = req.query;
     if (!forumId) {
       await session.abortTransaction();
-      return res
-        .status(400)
-        .json({ error: "forumId is missing in the request" });
+      return res.status(400).json({ error: "forumId is missing in the request" });
     }
 
     const polls = await Poll.find({ forumId })
@@ -434,9 +376,7 @@ const getPollsByForumId = async (req, res) => {
     });
 
     await session.commitTransaction();
-    return res
-      .status(200)
-      .json({ message: "Polls fetched successfully", body: enrichedPolls });
+    return res.status(200).json({ message: "Polls fetched successfully", body: enrichedPolls });
   } catch (err) {
     await session.abortTransaction();
     return res.status(500).json({ error: `${err.stack}` });
@@ -453,4 +393,3 @@ module.exports = {
   votePollOption,
   getPollsByForumId,
 };
-

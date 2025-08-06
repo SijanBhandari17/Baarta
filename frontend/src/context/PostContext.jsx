@@ -1,6 +1,5 @@
 import { useState, useMemo, createContext, useEffect, useContext } from 'react';
-import { useAuth } from './AuthContext';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useForum } from './ForumContext';
 
 const PostContext = createContext();
@@ -11,6 +10,7 @@ const PostProvider = ({ children }) => {
   const decodedTitle = decodeURIComponent(forumTitle || '');
 
   const { forum, loading } = useForum();
+  console.log('all forums', forum);
 
   const [moderators, setModerators] = useState([]);
   const [posts, setPosts] = useState([]);
@@ -34,6 +34,7 @@ const PostProvider = ({ children }) => {
   }, [forumId]);
 
   const fetchPolls = async () => {
+    console.log('hi');
     try {
       const response = await fetch(`http://localhost:5000/poll?forumId=${forumId}`, {
         method: 'GET',
@@ -41,7 +42,6 @@ const PostProvider = ({ children }) => {
         credentials: 'include',
       });
       const data = await response.json();
-      console.log(data);
       if (response.ok) {
         setPolls(prev => [...prev, ...data.body]);
       }
@@ -91,21 +91,17 @@ const PostProvider = ({ children }) => {
       console.log(`Err: ${err}`);
     }
   };
+
   const addPollInContext = poll => {
     setPolls(prev => [poll, ...prev]);
   };
 
-  const updatePollInContext = (selectedPoll, updatedOptions) => {
-    setPolls(prev =>
-      prev.map(poll =>
-        poll._id === selectedPoll._id
-          ? {
-              ...poll,
-              option: updatedOptions,
-            }
-          : poll,
-      ),
-    );
+  const deletePollInContext = pollId => {
+    setPolls(prev => prev.filter(poll => poll._id !== pollId));
+  };
+
+  const updatePollInContext = updatedPoll => {
+    setPolls(prev => prev.map(poll => (poll._id === updatedPoll._id ? { ...updatedPoll } : poll)));
   };
   const addPostInContext = postData => {
     setPosts(prev => [postData, ...prev]);
@@ -127,13 +123,14 @@ const PostProvider = ({ children }) => {
     <PostContext.Provider
       value={{
         posts,
-        forumToShow,
         polls,
         loading,
         moderators,
+        forumToShow,
         addPollInContext,
         updateUsingConsineSimilarity,
         deletePostInContext,
+        deletePollInContext,
         updatePollInContext,
         addPostInContext,
         updatePostInContext,

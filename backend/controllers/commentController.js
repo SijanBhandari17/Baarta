@@ -92,7 +92,7 @@ const removeCommentFromPost = async (req , res)=>{
         await Comment.deleteOne({_id : commentId}, {session})
         const result = await Post.updateOne({_id : foundComment.parent.parent_id} , {$pull :  { comment_id : foundComment._id }} , {session})
         foundUser.no_replies -= 1
-        foundUser.save({session})
+        await foundUser.save({session})
         await session.commitTransaction()
         return res.status(201).json({"message" : 'successfully removed comment from the post ' , "body" : result})
     }
@@ -169,7 +169,7 @@ const getCommentOfPost = async (req ,res)=>{
 
         const foundCommentArr = await Comment.find({"parent.parent_id" : postId}).session(session).exec()
 
-        const toSendCommentArr = await Promise.all(foundCommentArr.map(async (item)=>{
+        let toSendCommentArr = await Promise.all(foundCommentArr.map(async (item)=>{
 
             const foundAuthor = await User.findOne({_id : item.author_id}).session(session).exec()
             const foundAuthorProfile = await Profile.findOne({userId : foundAuthor?._id}).session(session).exec()
@@ -179,6 +179,10 @@ const getCommentOfPost = async (req ,res)=>{
             return toReturnArray
         }))
 
+        toSendCommentArr = toSendCommentArr.map(item => ({...item , date : Number(item.date)}))    
+
+        toSendCommentArr.sort((a , b) => (b.date - a.date))
+        
         await session.commitTransaction()
 
         res.status(200).json({"message" : "successful retrieval of comments" , "body" : toSendCommentArr})

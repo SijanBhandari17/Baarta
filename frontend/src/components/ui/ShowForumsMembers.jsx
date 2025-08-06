@@ -11,7 +11,7 @@ function ShowForumsMembers({ forum, onClose }) {
     const getAllMembers = async userId => {
       try {
         const response = await fetch(
-          `http://localhost:5000/all/singleuserprofile?userId=${userId}`,
+          `http://localhost:5000/miscallenuous/getMemberNotModerator?userId=${userId}`,
           {
             method: 'GET',
             credentials: 'include',

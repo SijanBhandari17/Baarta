@@ -44,7 +44,7 @@ export default function PostContent() {
     e.target.reset();
   };
 
-  // if (!postToShow) return <LoadingSpinner />;
+  if (!postToShow) return <LoadingSpinner />;
 
   return (
     <div className="text-font-light/80 flex w-full flex-col gap-10 lg:flex-row">
@@ -270,7 +270,7 @@ function Comment({ comment, handleEditComment, activeCommentId, toggleEditOption
             <div className="space-y-2">
               <CreateComment
                 onShowCancelClick={() => setEditMode(false)}
-                editText={editText}
+                editText={comment.text}
                 handleSubmit={handleEditReply}
                 setEditText={setEditText}
               />

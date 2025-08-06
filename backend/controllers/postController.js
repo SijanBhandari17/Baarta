@@ -39,7 +39,7 @@ const uploadPost = async (req, res) => {
       await session.abortTransaction();
       return res.status(404).json({ error: "no user with such email found" });
     }
-    const allowed_genre = ["Question", "Announcement", "Event"];
+    const allowed_genre = ["Question", "Announcement", "Event" , "Informative"];
     if (allowed_genre.indexOf(genre) === -1) {
       await session.abortTransaction();
       return res

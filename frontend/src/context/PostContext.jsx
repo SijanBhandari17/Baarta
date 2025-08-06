@@ -10,7 +10,6 @@ const PostProvider = ({ children }) => {
   const decodedTitle = decodeURIComponent(forumTitle || '');
 
   const { forum, loading } = useForum();
-  console.log('all forums', forum);
 
   const [moderators, setModerators] = useState([]);
   const [posts, setPosts] = useState([]);
@@ -34,7 +33,6 @@ const PostProvider = ({ children }) => {
   }, [forumId]);
 
   const fetchPolls = async () => {
-    console.log('hi');
     try {
       const response = await fetch(`http://localhost:5000/poll?forumId=${forumId}`, {
         method: 'GET',

@@ -93,12 +93,27 @@ const getThreadsByMe = async (req, res) => {
         .status(404)
         .json({ error: "the user account was either deleted or removed" });
     }
-    const foundPosts = await Post.find({ author_id: foundUser._id });
+    const foundPosts = await Post.find({ author_id: foundUser._id }).session(
+      session,
+    );
+    const profilePic = await Profile.findOne({ userId: foundUser._id })
+      .session(session)
+      .exec();
+
+    const toSendBody = foundPosts.map((item) => {
+      return {
+        ...item.toObject(),
+        authorName: foundUser.username,
+        profilePicLink:
+          profilePic?.profilePicLink ||
+          "https://res.cloudinary.com/dlddcx3uw/image/upload/v1752323363/defaultUser_cfqyxq.svg",
+      };
+    });
 
     await session.commitTransaction();
     res.status(200).json({
       message: "successful retrieval of threads created",
-      body: foundPosts,
+      body: toSendBody,
     });
   } catch (err) {
     await session.abortTransaction();
@@ -108,16 +123,18 @@ const getThreadsByMe = async (req, res) => {
   }
 };
 
-const getMemberNotModerator = async (req , res)=>{
+const getMemberNotModerator = async (req, res) => {
   const session = await mongoose.startSession();
   try {
     await session.startTransaction();
 
-    if (!req.user?.email) return res.status(401).json({ error: "unauthenticated request sent" });
-    if(!req.query?.userId) return res.status(400).json({"error" : "userID missing in the query"})
+    if (!req.user?.email)
+      return res.status(401).json({ error: "unauthenticated request sent" });
+    if (!req.query?.userId)
+      return res.status(400).json({ error: "userID missing in the query" });
 
     const { email } = req.user;
-    const {userId}  = req.query
+    const { userId } = req.query;
 
     const foundUser = await User.findOne({ email }).session(session).exec();
     if (!foundUser) {
@@ -126,34 +143,51 @@ const getMemberNotModerator = async (req , res)=>{
         .status(404)
         .json({ error: "the user account was either deleted or removed" });
     }
-    
-    const foundThatUser = await User.findOne({_id : userId}).session(session).exec()
-    if(!foundThatUser){
-      await session.abortTransaction()
-      return res.status(404).json({"error" : "the target user wasn't found"})
+
+    const foundThatUser = await User.findOne({ _id: userId })
+      .session(session)
+      .exec();
+    if (!foundThatUser) {
+      await session.abortTransaction();
+      return res.status(404).json({ error: "the target user wasn't found" });
     }
 
-    const foundThatNotification = await Notification.findOne({type:"promote_to_moderator" , toUser:foundThatUser._id}).session(session).exec()
-    if(foundThatNotification)
-    {
-      await session.commitTransaction()
-      return res.sendStatus(204)
+    const foundThatNotification = await Notification.findOne({
+      type: "promote_to_moderator",
+      toUser: foundThatUser._id,
+    })
+      .session(session)
+      .exec();
+    if (foundThatNotification) {
+      await session.commitTransaction();
+      return res.sendStatus(204);
     }
 
-    const foundUserProfile = await Profile.findOne({userId : foundThatUser._id}).session(session).exec()
+    const foundUserProfile = await Profile.findOne({
+      userId: foundThatUser._id,
+    })
+      .session(session)
+      .exec();
 
-    const toSendBody = {...foundThatUser.toObject() , userProfilePicLink:foundUserProfile?.profilePicLink ||"https://res.cloudinary.com/dlddcx3uw/image/upload/v1752323363/defaultUser_cfqyxq.svg"}
-
+    const toSendBody = {
+      ...foundThatUser.toObject(),
+      userProfilePicLink:
+        foundUserProfile?.profilePicLink ||
+        "https://res.cloudinary.com/dlddcx3uw/image/upload/v1752323363/defaultUser_cfqyxq.svg",
+    };
 
     await session.commitTransaction();
 
-    res.status(200).json({"message" : "successful retreival of user that is not to be moderator" , "body" : toSendBody})
+    res.status(200).json({
+      message: "successful retreival of user that is not to be moderator",
+      body: toSendBody,
+    });
   } catch (err) {
     await session.abortTransaction();
     return res.status(500).json({ error: `${err.stack}` });
   } finally {
     await session.endSession();
   }
-}
+};
 
-module.exports = { getForumWithRequest, getThreadsByMe , getMemberNotModerator };
+module.exports = { getForumWithRequest, getThreadsByMe, getMemberNotModerator };

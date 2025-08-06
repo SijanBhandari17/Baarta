@@ -1,7 +1,7 @@
-import { useEffect , useState } from 'react';
-import IndividualPosts from '../../../ui/SinglePosts.jsx'
+import { useEffect, useState } from 'react';
+import IndividualPosts from '../../../ui/SinglePosts.jsx';
 function Threads() {
-  const [data, setData] = useState([])
+  const [data, setData] = useState([]);
   useEffect(() => {
     getAllThreads();
   }, []);
@@ -16,7 +16,7 @@ function Threads() {
       const data = await response.json();
       console.log(data);
       if (response.ok) {
-        setData(data.body)
+        setData(data.body);
       }
     } catch (err) {
       console.log(`Err: ${err}`);
@@ -29,10 +29,14 @@ function Threads() {
       </div>
     );
   }
-  return (<div className="threads-content">
-    {console.log("inside",data)}
-    {data.map(item=> <IndividualPosts post={item} key={item._id} />)}
-  </div>)
+  return (
+    <div className="threads-content">
+      {console.log('inside', data)}
+      {data.map(item => (
+        <IndividualPosts post={item} key={item._id} />
+      ))}
+    </div>
+  );
 }
 
 export default Threads;

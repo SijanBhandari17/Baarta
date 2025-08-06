@@ -108,4 +108,51 @@ const getThreadsByMe = async (req, res) => {
   }
 };
 
-module.exports = { getForumWithRequest, getThreadsByMe };
+const getMemberNotModerator = async (req , res)=>{
+  const session = await mongoose.startSession();
+  try {
+    await session.startTransaction();
+
+    if (!req.user?.email) return res.status(401).json({ error: "unauthenticated request sent" });
+    if(!req.query?.userId) return res.status(400).json({"error" : "userID missing in the query"})
+
+    const { email } = req.user;
+    const {userId}  = req.query
+
+    const foundUser = await User.findOne({ email }).session(session).exec();
+    if (!foundUser) {
+      await session.abortTransaction();
+      return res
+        .status(404)
+        .json({ error: "the user account was either deleted or removed" });
+    }
+    
+    const foundThatUser = await User.findOne({_id : userId}).session(session).exec()
+    if(!foundThatUser){
+      await session.abortTransaction()
+      return res.status(404).json({"error" : "the target user wasn't found"})
+    }
+
+    const foundThatNotification = await Notification.findOne({type:"promote_to_moderator" , toUser:foundThatUser._id}).session(session).exec()
+    if(foundThatNotification)
+    {
+      return res.status(200).json({"message" : "successful retreival of user that is not to be moderator" , "body" : {}})
+    }
+
+    const foundUserProfile = await Profile.findOne({userId : foundThatUser._id}).session(session).exec()
+
+    const toSendBody = {...foundThatUser.toObject() , userProfilePicLink:foundUserProfile?.profilePicLink ||"https://res.cloudinary.com/dlddcx3uw/image/upload/v1752323363/defaultUser_cfqyxq.svg"}
+
+
+    await session.commitTransaction();
+
+    res.status(200).json({"message" : "successful retreival of user that is not to be moderator" , "body" : toSendBody})
+  } catch (err) {
+    await session.abortTransaction();
+    return res.status(500).json({ error: `${err.stack}` });
+  } finally {
+    await session.endSession();
+  }
+}
+
+module.exports = { getForumWithRequest, getThreadsByMe , getMemberNotModerator };

@@ -39,7 +39,7 @@ const addReplyToComment= async (req , res)=>{
 
         foundComment.replies_id = [...foundComment.replies_id , result[0]._id]
         foundUser.no_replies += 1
-        await foundComment.save({session})
+        await foundUser.save({session})
         await session.commitTransaction()
         return res.status(201).json({"message" : 'successfully added reply' , "body" : toSendResult})
     }

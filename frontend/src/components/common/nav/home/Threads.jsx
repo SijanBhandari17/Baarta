@@ -30,8 +30,7 @@ function Threads() {
     );
   }
   return (
-    <div className="threads-content">
-      {console.log('inside', data)}
+    <div className="bg-main-elements flex flex-col gap-4 p-6">
       {data.map(item => (
         <IndividualPosts post={item} key={item._id} />
       ))}

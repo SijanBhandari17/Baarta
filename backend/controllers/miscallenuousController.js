@@ -136,7 +136,8 @@ const getMemberNotModerator = async (req , res)=>{
     const foundThatNotification = await Notification.findOne({type:"promote_to_moderator" , toUser:foundThatUser._id}).session(session).exec()
     if(foundThatNotification)
     {
-      return res.status(200).json({"message" : "successful retreival of user that is not to be moderator" , "body" : {}})
+      await session.commitTransaction()
+      return res.sendStatus(204)
     }
 
     const foundUserProfile = await Profile.findOne({userId : foundThatUser._id}).session(session).exec()

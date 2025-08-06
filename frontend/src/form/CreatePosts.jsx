@@ -12,7 +12,7 @@ function CreatePost({ type, post, updatePost, forumId, isOpen, onClose, addNewPo
   const selectedGenre = ' text-amber-400';
   const { user } = useAuth();
 
-  const genreOptions = ['Question', 'Announcement', 'Event'];
+  const genreOptions = ['Question', 'Announcement', 'Informative'];
 
   useEffect(() => {
     if (post) {

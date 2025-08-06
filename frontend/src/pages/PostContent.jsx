@@ -10,6 +10,8 @@ import EditOptionsComment from '../components/ui/EditOptionsComments';
 import { usePost } from '../context/PostContext';
 import { useComment } from '../context/CommnentContext';
 import { formatDistanceToNow } from 'date-fns';
+import DefaultProfilePic from '../assets/images/defaultUser_cfqyxq.svg';
+
 import {
   addReplyComment,
   addRootComment,
@@ -21,14 +23,12 @@ import { useAuth } from '../context/AuthContext';
 
 export default function PostContent() {
   const { postId } = useParams();
-
   const decodedPostId = decodeURIComponent(postId || '');
   const [isEditOptionsOpen, setIsEditOptionsOpen] = useState(false);
   const [activeCommentId, setActiveCommentId] = useState(null);
   const { addRootCommentInContext, comments, loading } = useComment();
   const location = useLocation();
   const { postToShow } = location.state;
-
   console.log(postToShow);
 
   const toggleEditOptionsForComment = commentId => {
@@ -203,6 +203,7 @@ function Comment({ comment, handleEditComment, activeCommentId, toggleEditOption
   };
 
   // if (!comment) return <LoadingSpinner />;
+  console.log(comment);
 
   return (
     <div className="bg-layout-elements-focus border-layout-elements-focus rounded-button-round border p-4">
@@ -223,7 +224,7 @@ function Comment({ comment, handleEditComment, activeCommentId, toggleEditOption
           )}
         </div>
         <img
-          src={comment?.authorProfilePicLink}
+          src={comment.authorProfilePicLink || DefaultProfilePic}
           alt={comment?.authorName}
           className="h-10 w-10 rounded-full object-cover"
         />

@@ -1,6 +1,7 @@
-import { useEffect } from 'react';
-
+import { useEffect, useState } from 'react';
+import IndividualPosts from '../../../ui/SinglePosts.jsx';
 function Threads() {
+  const [data, setData] = useState([]);
   useEffect(() => {
     getAllThreads();
   }, []);
@@ -15,20 +16,26 @@ function Threads() {
       const data = await response.json();
       console.log(data);
       if (response.ok) {
-        // Handle successful response
+        setData(data.body);
       }
     } catch (err) {
       console.log(`Err: ${err}`);
     }
   };
-  if (!forums?.length) {
+  if (!data.length) {
     return (
       <div className="text-hero flex h-40 w-full items-center justify-center text-xl text-white">
         You haven't posted any threads
       </div>
     );
   }
-  return <div className="threads-content"></div>;
+  return (
+    <div className="bg-main-elements flex flex-col gap-4 p-6">
+      {data.map(item => (
+        <IndividualPosts post={item} key={item._id} />
+      ))}
+    </div>
+  );
 }
 
 export default Threads;

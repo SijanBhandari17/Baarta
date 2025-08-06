@@ -38,8 +38,8 @@ const addReplyToComment= async (req , res)=>{
         const toSendResult = {...result[0].toObject() , authorName : foundUser.username , authorEmail : foundUser.email , authorProfilePicLink : profilePic?.profilePicLink} 
 
         foundComment.replies_id = [...foundComment.replies_id , result[0]._id]
-        await foundComment.save({session})
         foundUser.no_replies += 1
+        await foundUser.save({session})
         await session.commitTransaction()
         return res.status(201).json({"message" : 'successfully added reply' , "body" : toSendResult})
     }
@@ -91,6 +91,7 @@ const removeReplyFromComment = async (req , res)=>{
         await Comment.deleteOne({_id : replyId}, {session})
         const result = await Comment.updateOne({_id : foundReply.parent.parent_id} , {$pull :  { replies_id : replyId }} , {session})
         foundUser.no_replies -= 1
+        await foundUser.save({session})
         await session.commitTransaction()
         return res.status(201).json({"message" : 'successfully added comment' , "body" : result})
     }

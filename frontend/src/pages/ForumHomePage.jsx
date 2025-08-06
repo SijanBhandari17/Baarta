@@ -113,6 +113,7 @@ function ForumHeader({ forum, handleClick }) {
   const [query, setQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
 
+  console.log(forum);
   const isJoined =
     forum.member_id.includes(user?.info.userId) ||
     forum.admin_id === user?.info.userId ||

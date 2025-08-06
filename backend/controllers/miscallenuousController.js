@@ -96,13 +96,23 @@ const getThreadsByMe = async (req, res) => {
     const foundPosts = await Post.find({ author_id: foundUser._id }).session(
       session,
     );
+
+    const postWithForums = await Promise.all(
+      foundPosts.map(async (post) => {
+        const forum = await Forum.findOne({ _id: post.parent_forum }).session(
+          session,
+        );
+        return { ...post.toObject(), forum };
+      }),
+    );
+
     const profilePic = await Profile.findOne({ userId: foundUser._id })
       .session(session)
       .exec();
 
-    const toSendBody = foundPosts.map((item) => {
+    const toSendBody = postWithForums.map((item) => {
       return {
-        ...item.toObject(),
+        ...item,
         authorName: foundUser.username,
         profilePicLink:
           profilePic?.profilePicLink ||

@@ -7,22 +7,20 @@ import { User, Clock, MessageCircle, MessageSquare } from 'lucide-react';
 
 function IndividualPosts({ post, showSavedIcon, deleteSavedPosts }) {
   const [savedPost, setSavedPost] = useState(false);
-  const { forumTitle } = useParams();
+  const forumTitle = post.forum?.forum_name;
 
   const navigate = useNavigate();
 
   const handlePostClick = item => {
-    let path = '';
-
     if (forumTitle) {
-      path = `/b/${forumTitle}/${item._id}`;
+      navigate(`/b/${encodeURI(forumTitle)}/${item._id}`, {
+        state: { postToShow: item },
+      });
     } else {
-      path = `/mythreads/${item._id}`;
+      navigate(`${item._id}`, {
+        state: { postToShow: item },
+      });
     }
-
-    navigate(path, {
-      state: { postToShow: post },
-    });
   };
 
   const toggleSave = async (e, postId) => {

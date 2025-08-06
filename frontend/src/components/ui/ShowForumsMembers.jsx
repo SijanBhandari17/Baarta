@@ -1,10 +1,12 @@
 import { UserPlus, UserRoundCog, X } from 'lucide-react';
 import { usePost } from '../../context/PostContext';
 import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 
 function ShowForumsMembers({ forum, onClose }) {
   const [members, setMembers] = useState([]);
-  const { forumToShow } = usePost();
+  const location = useLocation();
+  const { forumToShow } = location.state;
 
   useEffect(() => {
     const getAllMembers = async userId => {

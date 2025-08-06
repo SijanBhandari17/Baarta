@@ -67,9 +67,9 @@ function InvitePeople({ onClose }) {
 }
 
 function DisplayUser({ user, setUsers }) {
-  const { forumToShow } = usePost();
   const [invitedRequestSent, setInviteRequestSent] = useState(false);
-
+  const location = useLocation();
+  const { forumToShow } = location.state;
   const handleInviteClick = async () => {
     const userId = user._id;
     const type = 'forum_invite';

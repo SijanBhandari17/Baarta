@@ -25,18 +25,18 @@ const communityStatus = [
 
 const totalCommunityStatus = [
   {
-    title: 'Students',
-    membersCount: '15,000+',
+    title: 'Computer Engineering',
+    membersCount: '150',
     imgSrc: StudentSrc,
   },
   {
-    title: 'Faculty',
-    membersCount: '2,500+',
+    title: 'AWS',
+    membersCount: '25',
     imgSrc: FacultySrc,
   },
   {
-    title: 'Researcher',
-    membersCount: '5,000+',
+    title: 'Quantum Mechanics',
+    membersCount: '20',
     imgSrc: ResearcherSrc,
   },
 ];

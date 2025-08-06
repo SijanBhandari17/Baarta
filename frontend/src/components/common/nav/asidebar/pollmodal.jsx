@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { usePost } from '../../../../context/PostContext';
 import LoadingSpinner from '../../LoadingSpinner';
-import { useAuth } from '../../../../context/AuthContext';
 
-function PollModal({ poll, onClose }) {
+function PollModal({ poll, onClose, updateAllPollInContext }) {
   const [options, setOptions] = useState(poll.option?.map(item => ({ ...item })));
   const [selected, setSelected] = useState(null);
   const [submitted, setSubmitted] = useState(false);
-  const { user } = useAuth();
+
   const { updatePollInContext } = usePost();
+
   const totalVotes = options.reduce((sum, o) => sum + o.voter_Id.length, 0);
   const handleOptionClick = option => {
     if (!submitted) {
@@ -18,6 +18,7 @@ function PollModal({ poll, onClose }) {
   };
   const handleOptionsUpdate = updatedPoll => {
     console.log('hello');
+    if (updateAllPollInContext) updateAllPollInContext(updatedPoll);
     updatePollInContext(updatedPoll);
   };
 

@@ -20,9 +20,6 @@ const navbarInfo = [
 
 const homeContentNavbar = [
   {
-    label: 'Live Discussions',
-  },
-  {
     label: 'My Threads',
   },
 ];

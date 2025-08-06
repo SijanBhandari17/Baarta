@@ -6,7 +6,6 @@ import { useOutletContext, Outlet, useLocation } from 'react-router-dom';
 import { useState } from 'react';
 import { Users, MessageSquare, Calendar } from 'lucide-react';
 import CreatePost from '../form/CreatePosts';
-import LoadingSpinner from '../components/common/LoadingSpinner';
 import EditOptions from '../components/ui/EditOptions';
 import { useAuth } from '../context/AuthContext';
 import { usePost } from '../context/PostContext';
@@ -14,12 +13,9 @@ import InvitePeople from '../components/ui/InvitePeople';
 import CreatePoll from '../components/ui/CreatePoll';
 import SinglePoll from '../components/ui/Polls';
 import IndividualPosts from '../components/ui/SinglePosts';
-import Creatediscussion from '../form/CreateLiveDiscussions';
-import SingleEvent from '../components/ui/SingleEvent';
 
 function ForumHomePage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isDiscussionDialogOpen, setIsDiscussionDialogOpen] = useState(false);
   const location = useLocation();
   const { forumToShow } = location.state;
   const { posts, moderators, addPostInContext } = usePost();
@@ -63,9 +59,6 @@ function ForumHomePage() {
     setIsDialogOpen(true);
   };
 
-  const handleDiscussionClick = () => {
-    setIsDiscussionDialogOpen(true);
-  };
   return (
     <div className="flex h-svh flex-col">
       <Header />
@@ -80,11 +73,8 @@ function ForumHomePage() {
               addNewPost,
               moderators,
               handleClick,
-              handleDiscussionClick,
               isDialogOpen,
-              isDiscussionDialogOpen,
               setIsDialogOpen,
-              setIsDiscussionDialogOpen,
             }}
           />
           <CreatePost
@@ -95,28 +85,17 @@ function ForumHomePage() {
             addNewPost={addNewPost}
             onClose={() => setIsDialogOpen(false)}
           />
-          <Creatediscussion
-            posts={posts}
-            forumId={forumId}
-            isOpen={isDiscussionDialogOpen}
-            addNewPost={addNewPost}
-            onClose={() => setIsDiscussionDialogOpen(false)}
-          />
         </section>
       </main>
     </div>
   );
 }
 function ForumDefault() {
-  const { forum, posts, handleClick, handleDiscussionClick, moderators } = useOutletContext();
+  const { forum, posts, handleClick, moderators } = useOutletContext();
 
   return (
     <div className="flex flex-col gap-2">
-      <ForumHeader
-        forum={forum}
-        handleClick={handleClick}
-        handleDiscussionClick={handleDiscussionClick}
-      />
+      <ForumHeader forum={forum} handleClick={handleClick} />
       <div className="flex gap-4">
         <ForumPosts forum={forum} posts={posts} />
         <ForumLeftBar moderators={moderators} forum={forum} posts={posts} />
@@ -125,7 +104,7 @@ function ForumDefault() {
   );
 }
 
-function ForumHeader({ forum, handleClick, handleDiscussionClick }) {
+function ForumHeader({ forum, handleClick }) {
   const [isEditOptionsOpen, setIsEditOptionsOpen] = useState(false);
   const [isInvitePeopleOpen, setIsInvitePeopleOpen] = useState(false);
   const [isCreatePollOpen, setIsCreatePollOpen] = useState(false);
@@ -134,6 +113,7 @@ function ForumHeader({ forum, handleClick, handleDiscussionClick }) {
   const [query, setQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
 
+  console.log(forum);
   const isJoined =
     forum.member_id.includes(user?.info.userId) ||
     forum.admin_id === user?.info.userId ||
@@ -197,12 +177,6 @@ function ForumHeader({ forum, handleClick, handleDiscussionClick }) {
           className="text-font rounded-button-round text-body cursor-pointer bg-[#4169E1] px-3 py-2 text-2xl font-semibold hover:bg-[#255FCC]"
         >
           Create Thread
-        </button>
-        <button
-          onClick={handleDiscussionClick}
-          className="text-font rounded-button-round text-body cursor-pointer bg-[#4169E1] px-3 py-2 text-2xl font-semibold hover:bg-[#255FCC]"
-        >
-          Create Discussions
         </button>
         {!isJoined && (
           <button className="rounded-button-round hover:text-font text-body cursor-pointer border border-[#255FCC] px-3 py-2 text-2xl font-semibold text-[#255FCC] transition-all duration-300 ease-in-out hover:bg-[#255FCC]">
@@ -271,7 +245,6 @@ function ForumLeftBar({ forum, moderators, posts }) {
     forum.admin_id === user?.info.userId || forum.moderator_id.includes(user?.info.userId);
 
   const { polls } = usePost();
-  const { discussions } = usePost();
   return (
     <div className="ml-auto flex flex-col gap-2">
       <div className="bg-layout-elements-focus rounded-button-round p-8">
@@ -342,15 +315,6 @@ function ForumLeftBar({ forum, moderators, posts }) {
         <div className="flex flex-col gap-4">
           {polls.map(poll => {
             return <SinglePoll key={poll._id} hasAdminPrivilage={hasAdminPrivilage} poll={poll} />;
-          })}
-        </div>
-      </div>
-
-      <div className="bg-layout-elements-focus rounded-button-round p-8">
-        <h1 className="text-font text-title mb-4 font-semibold">Upcomming Events</h1>
-        <div className="flex flex-col gap-4">
-          {discussions?.map(event => {
-            return <SingleEvent key={event._id} isAdmin={hasAdminPrivilage} event={event} />;
           })}
         </div>
       </div>

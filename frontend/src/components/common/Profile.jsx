@@ -4,7 +4,6 @@ import { User, Sun, Moon, LogOut } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 function Profile() {
-  const [darkMode, setDarkMode] = useState(true);
   const [profileImage, setProfileImage] = useState('/default-avatar.png');
   const fileInputRef = useRef(null);
   const auth = useAuth();
@@ -40,20 +39,11 @@ function Profile() {
     }
   };
 
-  const handleTheme = () => {
-    setDarkMode(!darkMode);
-  };
-
   const profileNav = [
     {
       label: 'Change Profile',
       imgSrc: <User className={defaultClass} />,
       onClick: handleChangeProfile,
-    },
-    {
-      label: darkMode ? 'Light Mode' : 'Dark Mode',
-      imgSrc: darkMode ? <Sun className={defaultClass} /> : <Moon className={defaultClass} />,
-      onClick: handleTheme,
     },
     {
       label: 'Logout',
@@ -63,7 +53,7 @@ function Profile() {
   ];
 
   return (
-    <div className="rounded-button-round profile-section absolute top-20 right-5 z-50 flex flex-col bg-gray-600 p-4">
+    <div className="rounded-button-round profile-section absolute top-20 right-5 flex flex-col bg-gray-600 p-4">
       <input
         type="file"
         ref={fileInputRef}

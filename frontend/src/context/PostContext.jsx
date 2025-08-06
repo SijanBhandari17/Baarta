@@ -5,9 +5,12 @@ import { useForum } from './ForumContext';
 const PostContext = createContext();
 
 const PostProvider = ({ children }) => {
-  const { forum, loading } = useForum();
-  const { forumTitle } = useParams();
+  const { forumTitle, postId } = useParams();
+
   const decodedTitle = decodeURIComponent(forumTitle || '');
+
+  const { forum, loading } = useForum();
+  console.log('all forums', forum);
 
   const [moderators, setModerators] = useState([]);
   const [posts, setPosts] = useState([]);
@@ -17,6 +20,7 @@ const PostProvider = ({ children }) => {
     () => forum?.find(item => item.forum_name === decodedTitle),
     [forum, decodedTitle],
   );
+
   const forumId = forumToShow?._id || '';
 
   useEffect(() => {
@@ -122,6 +126,7 @@ const PostProvider = ({ children }) => {
         polls,
         loading,
         moderators,
+        forumToShow,
         addPollInContext,
         updateUsingConsineSimilarity,
         deletePostInContext,

@@ -6,7 +6,7 @@ import { useLocation } from 'react-router-dom';
 function InvitePeople({ onClose }) {
   const [allUsers, setAllUsers] = useState([]);
   const location = useLocation();
-  const { forumToShow } = location.state;
+  const { forumToShow } = usePost();
 
   const forumId = forumToShow._id;
   console.log(forumToShow);
@@ -69,7 +69,7 @@ function InvitePeople({ onClose }) {
 function DisplayUser({ user, setUsers }) {
   const [invitedRequestSent, setInviteRequestSent] = useState(false);
   const location = useLocation();
-  const { forumToShow } = location.state;
+  const { forumToShow } = usePost();
   const handleInviteClick = async () => {
     const userId = user._id;
     const type = 'forum_invite';

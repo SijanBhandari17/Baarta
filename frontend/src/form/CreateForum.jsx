@@ -5,7 +5,6 @@ import { useEffect } from 'react';
 const genreOptions = ['AI', 'EdTech', 'Research', 'Climate', 'Literature', 'Analysis', 'Quantum'];
 
 function CreateForum({ updateForum, forum, type, isOpen, onClose, addNewForum }) {
-  console.log(forum);
   const [forumName, setForumName] = useState('');
   const [forumDescription, setForumDescription] = useState('');
   const [forumGenre, setForumGenre] = useState(null);

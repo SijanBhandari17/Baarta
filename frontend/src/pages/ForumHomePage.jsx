@@ -13,14 +13,15 @@ import InvitePeople from '../components/ui/InvitePeople';
 import CreatePoll from '../components/ui/CreatePoll';
 import SinglePoll from '../components/ui/Polls';
 import IndividualPosts from '../components/ui/SinglePosts';
+import LoadingSpinner from '../components/common/LoadingSpinner';
 
 function ForumHomePage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const location = useLocation();
-  const { forumToShow } = location.state;
-  const { posts, moderators, addPostInContext } = usePost();
-
+  const { posts, forumToShow, moderators, addPostInContext } = usePost();
   const forumId = forumToShow?._id || '';
+
+  if (!forumToShow) return <LoadingSpinner />;
 
   const addNewPost = async post => {
     if (post && Object.keys(post).length !== 0) {
@@ -113,7 +114,7 @@ function ForumHeader({ forum, handleClick }) {
   const [query, setQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
 
-  console.log(forum);
+  console.log('forum', forum);
   const isJoined =
     forum.member_id.includes(user?.info.userId) ||
     forum.admin_id === user?.info.userId ||
@@ -154,70 +155,94 @@ function ForumHeader({ forum, handleClick }) {
   };
 
   return (
-    <div className="flex items-center justify-between">
-      <div>
-        <p className="text-font text-hero my-2 font-semibold">{forum.forum_name}</p>
-        <p className="text-font text-body">{forum.description_text}</p>
-      </div>
+    <div className="space-y-4 pb-4">
+      {/* Forum Title and Description */}
+      <div className="flex items-start justify-between">
+        <div className="min-w-0 flex-1 pr-8">
+          <h1 className="text-font text-hero truncate font-semibold">{forum.forum_name}</h1>
+          <p className="text-font text-body mt-1 line-clamp-2 text-gray-300">
+            {forum.description_text}
+          </p>
+        </div>
 
-      <div className="bg-layout-elements-focus rounded-button-round relative flex h-15 w-[30rem] items-center px-2">
-        <img src={SearchIcon} alt="Seach Icon" className="" height="20px" width="20px" />
-        <input
-          type="text"
-          id="search-discussions"
-          placeholder="Search Posts.."
-          className="rounded-button-round px-2 text-white caret-gray-100 placeholder:text-gray-500 focus:outline-none"
-          onChange={handleChangeSearchBarChange}
-          value={query}
-        />
-      </div>
-      <div className="flex items-center gap-2">
-        <button
-          onClick={handleClick}
-          className="text-font rounded-button-round text-body cursor-pointer bg-[#4169E1] px-3 py-2 text-2xl font-semibold hover:bg-[#255FCC]"
-        >
-          Create Thread
-        </button>
-        {!isJoined && (
-          <button className="rounded-button-round hover:text-font text-body cursor-pointer border border-[#255FCC] px-3 py-2 text-2xl font-semibold text-[#255FCC] transition-all duration-300 ease-in-out hover:bg-[#255FCC]">
-            Join Forum
-          </button>
-        )}
-
+        {/* Admin Actions - Moved to top right */}
         {hasAdminPrivilage && (
-          <div className="flex justify-end gap-2">
+          <div className="ml-auto flex items-center gap-3">
             <button
-              className="text-royalpurple-dark p-button-padding border-royalpurple-dark rounded-button-round hover:bg-royalpurple-dark cursor-pointer border-2 px-6 font-medium transition-all duration-300 ease-in hover:text-gray-50"
+              className="text-royalpurple-dark border-royalpurple-dark rounded-button-round hover:bg-royalpurple-dark cursor-pointer border-2 px-4 py-2 text-sm font-medium transition-all duration-300 ease-in hover:text-gray-50"
               onClick={() => setIsCreatePollOpen(prev => !prev)}
             >
               Create Poll
             </button>
             <button
-              className="hover:bg-layout-elements-focus cursor-pointer rounded p-2 text-white"
+              className="hover:bg-layout-elements-focus cursor-pointer rounded-lg p-2.5 text-white transition-colors"
               onClick={() => setIsInvitePeopleOpen(prev => !prev)}
+              title="Invite People"
             >
-              <UserPlus />
+              <UserPlus size={18} />
             </button>
             <button
               onClick={() => setIsEditOptionsOpen(prev => !prev)}
-              className="hover:bg-layout-elements-focus cursor-pointer rounded p-2 text-white"
+              className="hover:bg-layout-elements-focus cursor-pointer rounded-lg p-2.5 text-white transition-colors"
+              title="More Options"
             >
-              <MoreVertical />
+              <MoreVertical size={18} />
             </button>
+
+            {isEditOptionsOpen && (
+              <EditOptions
+                isOpen={isEditOptionsOpen}
+                forum={forum}
+                onClose={() => setIsEditOptionsOpen(false)}
+              />
+            )}
           </div>
         )}
-        {isEditOptionsOpen && (
-          <EditOptions
-            isOpen={isEditOptionsOpen}
-            forum={forum}
-            onClose={() => setIsEditOptionsOpen(false)}
-          />
-        )}
-        {isInvitePeopleOpen && <InvitePeople onClose={() => setIsInvitePeopleOpen(false)} />}
-        {isCreatePollOpen && (
-          <CreatePoll type="Create" forum={forum} onClose={() => setIsCreatePollOpen(false)} />
-        )}
       </div>
+
+      {/* Search Bar and Primary Actions */}
+      <div className="flex items-center justify-between gap-6">
+        {/* Search Bar */}
+        <div className="bg-layout-elements-focus rounded-button-round relative flex h-12 w-full max-w-md flex-1 items-center px-3">
+          <img
+            src={SearchIcon}
+            alt="Search Icon"
+            className="mr-2 opacity-70"
+            height="18px"
+            width="18px"
+          />
+          <input
+            type="text"
+            id="search-discussions"
+            placeholder="Search Posts..."
+            className="w-full bg-transparent text-white placeholder:text-gray-400 focus:outline-none"
+            onChange={handleChangeSearchBarChange}
+            value={query}
+          />
+        </div>
+
+        {/* Primary Action Buttons */}
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleClick}
+            className="text-font rounded-button-round text-body cursor-pointer bg-[#4169E1] px-6 py-2.5 text-sm font-semibold whitespace-nowrap transition-colors hover:bg-[#255FCC]"
+          >
+            Create Thread
+          </button>
+
+          {!isJoined && (
+            <button className="rounded-button-round hover:text-font text-body cursor-pointer border border-[#255FCC] px-6 py-2.5 text-sm font-semibold whitespace-nowrap text-[#255FCC] transition-all duration-300 ease-in-out hover:bg-[#255FCC]">
+              Join Forum
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Modals */}
+      {isInvitePeopleOpen && <InvitePeople onClose={() => setIsInvitePeopleOpen(false)} />}
+      {isCreatePollOpen && (
+        <CreatePoll type="Create" forum={forum} onClose={() => setIsCreatePollOpen(false)} />
+      )}
     </div>
   );
 }

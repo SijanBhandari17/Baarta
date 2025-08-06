@@ -5,8 +5,7 @@ import { useLocation } from 'react-router-dom';
 
 function ShowForumsMembers({ forum, onClose }) {
   const [members, setMembers] = useState([]);
-  const location = useLocation();
-  const { forumToShow } = location.state;
+  const { forumToShow } = usePost();
 
   useEffect(() => {
     const getAllMembers = async userId => {

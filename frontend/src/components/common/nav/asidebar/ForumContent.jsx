@@ -83,9 +83,7 @@ function IndividualFourmComponent({ activeUser, forum, category, participants })
   const navigate = useNavigate();
 
   const handleEnterForum = () => {
-    navigate(`/b/${encodeURIComponent(forum.forum_name)}`, {
-      state: { forumToShow: forum },
-    });
+    navigate(`/b/${encodeURIComponent(forum.forum_name)}`);
   };
 
   return (

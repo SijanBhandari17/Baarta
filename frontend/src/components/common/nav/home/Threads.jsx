@@ -4,6 +4,7 @@ function Threads() {
   useEffect(() => {
     getAllThreads();
   }, []);
+  const forums = [];
   const getAllThreads = async () => {
     try {
       const response = await fetch('http://localhost:5000/miscallenuous/threadsByMe', {
@@ -20,6 +21,13 @@ function Threads() {
       console.log(`Err: ${err}`);
     }
   };
+  if (!forums?.length) {
+    return (
+      <div className="text-hero flex h-40 w-full items-center justify-center text-xl text-white">
+        You haven't posted any threads
+      </div>
+    );
+  }
   return <div className="threads-content"></div>;
 }
 

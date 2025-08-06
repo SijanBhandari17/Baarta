@@ -47,16 +47,20 @@ function Saved() {
   };
   return (
     <div className="bg-main-elements flex w-[70%] flex-col gap-4 p-6">
-      {savedPosts.map(post => {
-        return (
+      {savedPosts.length === 0 ? (
+        <div className="text-hero flex h-40 w-full items-center justify-center text-xl text-white">
+          You haven't posted any threads
+        </div>
+      ) : (
+        savedPosts.map(post => (
           <IndividualPosts
             key={post._id}
             deleteSavedPosts={deleteSavedPosts}
             showSavedIcon={true}
             post={post}
           />
-        );
-      })}
+        ))
+      )}
     </div>
   );
 }

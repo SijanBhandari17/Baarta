@@ -109,4 +109,3 @@ const getThreadsByMe = async (req, res) => {
 };
 
 module.exports = { getForumWithRequest, getThreadsByMe };
-

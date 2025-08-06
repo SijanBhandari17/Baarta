@@ -23,14 +23,12 @@ import { useAuth } from '../context/AuthContext';
 
 export default function PostContent() {
   const { postId } = useParams();
-
   const decodedPostId = decodeURIComponent(postId || '');
   const [isEditOptionsOpen, setIsEditOptionsOpen] = useState(false);
   const [activeCommentId, setActiveCommentId] = useState(null);
   const { addRootCommentInContext, comments, loading } = useComment();
   const location = useLocation();
   const { postToShow } = location.state;
-
   console.log(postToShow);
 
   const toggleEditOptionsForComment = commentId => {
@@ -192,6 +190,7 @@ function Comment({ comment, handleEditComment, activeCommentId, toggleEditOption
       });
 
       const data = await response.json();
+      console.log(data);
       if (response.ok) {
         setLikedByMe(prevLiked => {
           setLikeNumber(prev => (prevLiked ? prev - 1 : prev + 1));
@@ -204,6 +203,7 @@ function Comment({ comment, handleEditComment, activeCommentId, toggleEditOption
   };
 
   // if (!comment) return <LoadingSpinner />;
+  console.log(comment);
 
   return (
     <div className="bg-layout-elements-focus border-layout-elements-focus rounded-button-round border p-4">

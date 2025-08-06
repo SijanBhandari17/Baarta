@@ -7,11 +7,20 @@ import { User, Clock, MessageCircle, MessageSquare } from 'lucide-react';
 
 function IndividualPosts({ post, showSavedIcon, deleteSavedPosts }) {
   const [savedPost, setSavedPost] = useState(false);
+  const { forumTitle } = useParams();
 
   const navigate = useNavigate();
 
   const handlePostClick = item => {
-    navigate(`${item._id}`, {
+    let path = '';
+
+    if (forumTitle) {
+      path = `/b/${forumTitle}/${item._id}`;
+    } else {
+      path = `/mythreads/${item._id}`;
+    }
+
+    navigate(path, {
       state: { postToShow: post },
     });
   };

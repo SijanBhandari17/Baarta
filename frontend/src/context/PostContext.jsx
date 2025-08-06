@@ -6,9 +6,7 @@ const PostContext = createContext();
 
 const PostProvider = ({ children }) => {
   const { forumTitle, postId } = useParams();
-
   const decodedTitle = decodeURIComponent(forumTitle || '');
-
   const { forum, loading } = useForum();
 
   const [moderators, setModerators] = useState([]);

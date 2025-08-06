@@ -6,6 +6,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 
 function EditOptionsComment({ onClick, onDelete }) {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
   const options = [
     {
       label: 'Edit Comment',

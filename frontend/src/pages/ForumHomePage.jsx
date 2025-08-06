@@ -271,7 +271,7 @@ function ForumLeftBar({ forum, moderators, posts }) {
 
   const { polls } = usePost();
   return (
-    <div className="ml-auto flex flex-col gap-2">
+    <div className="ml-auto flex w-[15%] flex-col gap-2">
       <div className="bg-layout-elements-focus rounded-button-round p-8">
         <h1 className="text-font text-title mb-4 font-semibold">Forum Statistics</h1>
 

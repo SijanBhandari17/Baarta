@@ -131,11 +131,28 @@ const sendAllForum = async (req, res) => {
 
     const foundForumArr = await Forum.find().session(session).exec();
 
+    const foundNotification = await Notification.find({ $or : [{toUser : foundUser._id , type : 'forum_invite'} , {fromUser:foundUser._id , type : 'join_request'} ]}).session(session)
+
+    const foundNotificationArr = foundNotification.map(item => item.forum.toString())
+
+    const joinForum = await Forum.find({$or : [{member_id : foundUser._id} , {admin_id : foundUser._id} , {moderator_id : foundUser._id}]}).session(session)
+
+
+    const joinForumString = joinForum.map(item => item._id.toString())
+
+    console.log(joinForumString)
+
+    const toSendForumArr = foundForumArr.filter(item =>{
+      if(foundNotificationArr.includes(item._id.toString()) || joinForumString.includes(item._id.toString())) return false
+      else return true
+    })
+
+
     await session.commitTransaction();
 
     return res
       .status(200)
-      .json({ message: "all forums sent", body: foundForumArr });
+      .json({ message: "all forums sent", body: toSendForumArr});
   } catch (err) {
     await session.abortTransaction();
     return res.status(500).json({ error: `${err.stack}` });

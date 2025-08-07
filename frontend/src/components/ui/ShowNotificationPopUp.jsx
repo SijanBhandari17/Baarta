@@ -8,6 +8,7 @@ function ShowNotificationPopUp({ item, onClose }) {
   const { fetchForums } = useForum();
 
   const onDecline = async () => {
+    console.log(item)
     try {
       const response = await fetch('http://localhost:5000/notification/removeInvite', {
         method: 'DELETE',

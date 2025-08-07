@@ -54,7 +54,7 @@ let mailOptions = {
   from: process.env.NODEMAILER_USER,
   to: user_email,
   subject: 'Your otp for login',
-  text: otp
+  text: `Dear user here is your otp : `+otp
 };
 
   transporter.sendMail(mailOptions, function (error, info) {
